@@ -36,8 +36,14 @@ except Exception as e:
 
 SPERM=$(stat -f "%Mp%Lp" "$PROJECT_DIR/.shay-rolls/manifest.secrets.json" 2>/dev/null || \
         stat -c "%a"     "$PROJECT_DIR/.shay-rolls/manifest.secrets.json" 2>/dev/null)
-[ "$SPERM" = "600" ] && echo -e "  ${G}✅ secrets chmod 600${N}" || \
-    echo -e "  ${R}❌ secrets chmod $SPERM (expected 600) — run: chmod 600 .shay-rolls/manifest.secrets.json${N}" && ((ERR++))
+# Normalize — macOS returns 0600, Linux returns 600
+SPERM="${SPERM#0}"
+if [ "$SPERM" = "600" ]; then
+    echo -e "  ${G}✅ secrets chmod 600${N}"
+else
+    echo -e "  ${R}❌ secrets chmod $SPERM (expected 600) — run: chmod 600 .shay-rolls/manifest.secrets.json${N}"
+    ((ERR++))
+fi
 
 echo ""
 [ "$ERR" -eq 0 ] && \
@@ -47,3 +53,14 @@ echo ""
 echo -e "${W}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}\n"
 echo -e "  Next: cd $PROJECT_DIR && claude ."
 echo -e "  Then: /shay-debug\n"
+
+echo -e "${W}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
+echo -e "${W}  💡 Recommended alongside Shay-Rolls${N}"
+echo -e "${W}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}\n"
+echo -e "  ${B}Superpowers${N} — dev methodology: brainstorm → plan → TDD → ship"
+echo -e "  ${G}  claude skill install superpowers --global${N}\n"
+echo -e "  ${B}GSD${N} — context management: keeps quality high in long sessions"
+echo -e "  ${G}  claude skill install gsd --global${N}\n"
+echo -e "  Shay-Rolls: governance + security"
+echo -e "  Superpowers + GSD: workflow + execution"
+echo -e "  They stack. No conflicts.\n"
