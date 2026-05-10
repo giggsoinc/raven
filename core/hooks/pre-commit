@@ -23,9 +23,17 @@ SCRIPT_DIR="$PROJECT_ROOT/.claude/scripts"
 
 echo ""
 echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BOLD}  Shay-Rolls Pre-commit v2.0${NC}"
+echo -e "${BOLD}  Shay-Rolls Pre-commit v2.1${NC}"
 echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
+
+# =============================================================================
+# FRAMEWORK REPO DETECTION — skip all checks if this is a Shay-Rolls framework repo
+# =============================================================================
+if [ -f ".shay-rolls-framework" ]; then
+    echo -e "${GREEN}✅ Framework repo detected (.shay-rolls-framework) — skipping manifest check${NC}"
+    exit 0
+fi
 
 # =============================================================================
 # CHECK 0 — Publisher prohibition: framework dirs must never be committed
