@@ -1,19 +1,19 @@
 {
-  "name": "shay-rolls",
+  "name": "raven",
   "version": "2.8.0",
-  "description": "Enterprise governance + security layer for Claude Code. CVE scanning, secret detection, production protection, encrypted audit logs. Designed to stack alongside Superpowers and GSD.",
+  "description": "Enterprise AI coding discipline platform for Claude Code. CVE scanning, secret detection, production protection, encrypted audit logs. Wit beyond measure — for your codebase. Designed to stack alongside Superpowers and GSD.",
   "author": "Giggso Inc",
   "license": "MIT",
-  "homepage": "https://github.com/giggsoinc/shay-rolls-claude",
+  "homepage": "https://github.com/giggsoinc/raven",
   "categories": ["security", "enterprise", "governance", "productivity"],
   "tags": ["cve", "secrets", "git-hooks", "audit", "enterprise", "compliance"],
   "compatible_with": ["superpowers", "gsd"],
   "install": {
     "type": "bash",
-    "command": "bash shay-rolls-setup.sh"
+    "command": "bash raven-setup.sh"
   },
   "skills": [
-    "shay-rolls-core",
+    "raven-core",
     "shay-expert",
     "shay-plan",
     "shay-review",

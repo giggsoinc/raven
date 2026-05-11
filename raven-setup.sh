@@ -1,6 +1,6 @@
 #!/bin/bash
-# Shay-Rolls Claude — Setup
-# Usage: bash /path/to/shay-rolls-claude/shay-rolls-setup.sh
+# Raven — Setup
+# Usage: bash /path/to/raven/raven-setup.sh
 # Runs 7 steps. Each step is a separate script in setup/
 
 set -e
@@ -9,7 +9,7 @@ W='\033[1m' N='\033[0m'
 
 echo ""
 echo -e "${W}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
-echo -e "${W}  Shay-Rolls Claude — Setup v2.8${N}"
+echo -e "${W}  Raven — Setup v2.8${N}"
 echo -e "${W}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}\n"
 
 source "$SR_REPO_DIR/setup/sr-00-preflight.sh"  || exit 1
