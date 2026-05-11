@@ -30,8 +30,8 @@ echo ""
 # =============================================================================
 # FRAMEWORK REPO DETECTION — skip all checks if this is a Shay-Rolls framework repo
 # =============================================================================
-if [ -f ".shay-rolls-framework" ]; then
-    echo -e "${GREEN}✅ Framework repo detected (.shay-rolls-framework) — skipping manifest check${NC}"
+if [ -f ".raven-framework" ] || [ -f ".shay-rolls-framework" ]; then
+    echo -e "${GREEN}✅ Framework repo detected — skipping manifest check${NC}"
     exit 0
 fi
 
