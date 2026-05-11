@@ -1,23 +1,22 @@
-# Shay-Rolls Claude Core
+# Raven
 
-> Military-grade coding discipline for teams using Claude Code Enterprise.
+> Enterprise AI Coding Discipline Platform for Claude Code.
 > Built by [Giggso](https://giggso.com). MIT License.
+
+*Wit beyond measure — for your codebase.*
 
 ## Install — One Command
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/giggso/shay-rolls-claude/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | bash
 ```
 
 Then from **any project directory**:
 ```bash
-cd YourProject && shay-rolls-setup
+cd YourProject && raven-setup
 ```
 
-That's it. Two commands total. No zip. No path hunting.
-
----
-
+That's it. Two commands. No zip. No path hunting.
 
 ---
 
@@ -35,52 +34,52 @@ Enforces consistent coding standards, stack discipline, and production safety ac
 
 ## Components
 
-### Core Agents (`.claude/agents/`)
+### Core Agents — `.claude/agents/`
 
 | Agent | Fires On | Action |
 |---|---|---|
-| `manifest-checker` | Every action | Hard block if manifest missing |
-| `style-enforcer` | File edit | Advise during coding, block at commit |
-| `stack-validator` | Import detected | CVE check, approval flow |
-| `architecture-guard` | New file | Warn → 24h grace → block |
+| manifest-checker | Every action | Hard block if manifest missing |
+| style-enforcer | File edit | Advise during coding, block at commit |
+| stack-validator | Import detected | CVE check, approval flow |
+| architecture-guard | New file | Warn → 24h grace → block |
+| claude-mem | PreCompact | Save session state, macOS toaster |
 
-### Skills (`.claude/skills/shay-rolls-core/`)
+### Skills — `.claude/skills/`
 
 Progressive disclosure — ~100 tokens at startup, rules load only when triggered.
 
-| Rule file | Loads when |
-|---|---|
-| `rules/stack.md` | Import or library detected |
-| `rules/style.md` | Style check triggered |
-| `rules/architecture.md` | New file created |
-| `rules/commit.md` | Git commit attempted |
+**Core skills:** raven-core · shay-expert · shay-plan · shay-review · shay-security · shay-refactor · shay-test · shay-document · andie
 
-### Commands (`.claude/commands/`)
+**Specialist skills (19):** aws · gcp · azure · oci · kafka · postgres · redis · k8s · terraform · fastapi · nicegui · vault · security · aiml · dataeng · devops · bigdata · vector-db · dynamic
+
+### Commands — `.claude/commands/`
 
 | Command | Does |
 |---|---|
-| `/shay-scaffold` | Plan before code — dependency map + file structure |
-| `/shay-approve {lib}` | Architect approves library request |
-| `/shay-debug` | Full boot diagnostic |
-| `/incident {p1\|p2\|p3}` | Manual incident record |
+| `/raven-scaffold` | Plan before code — dependency map + file structure |
+| `/raven-approve {lib}` | Architect approves library request |
+| `/raven-debug` | Full boot diagnostic |
+| `/raven-mem` | Save session state before context reset |
+| `/raven-sync` | Sync requirements.txt → manifest |
 
-### Scripts (`.claude/scripts/`)
+### Scripts — `.claude/scripts/`
 
 | Script | Does |
 |---|---|
-| `cve-check.py` | Three-tier CVE — PyPI Safety + GPT-5.4-Cyber |
+| `cve-check.py` | Three-tier CVE — PyPI Safety + gpt-5.5 |
 | `secret-scan.py` | Detects API keys, passwords, tokens in staged files |
-| `setup-claudemem.sh` | Installs Claude Mem (95% token reduction) |
+| `sync-libraries.py` | Auto-discovers libs from requirements.txt |
+| `token-guard.py` | PreCompact warning + session backup |
+| `audit-log.py` | Encrypted audit → S3 / GCS / Azure / OCI |
 
-### Pre-commit Hook (`.git/hooks/pre-commit`)
+### Pre-commit Hook — `.git/hooks/pre-commit`
 
 5 checks — any failure = hard block:
-
-1. Manifest valid
-2. Secrets not staged
-3. CVE check on all imports
-4. Style violations (print, lines, type hints)
-5. File deletions without `[GUARD:ALLOW-DELETE]` flag
+1. Framework repo detection (skip if `.raven-framework` present)
+2. Manifest valid
+3. Secrets not staged
+4. CVE check on all imports
+5. Style violations (print, lines, type hints)
 
 ---
 
@@ -90,49 +89,50 @@ Progressive disclosure — ~100 tokens at startup, rules load only when triggere
 |---|---|---|
 | 1 | Org whitelist | Auto-approved, zero friction |
 | 2 | Category whitelist | Auto-approved, zero friction |
-| 3 | Unknown | Approval flow → email Prism7 → PR |
+| 3 | Unknown | Approval flow → Prism7 → PR |
 | 3 | CVE CVSS >7 | Hard block, no override |
+
+---
+
+## MCP Plugin
+
+```bash
+# Install as Claude Code MCP plugin
+claude mcp add raven -- python3 ~/.raven-claude/mcp/server.py
+```
+
+Tools: `raven_status` · `raven_cve_check` · `raven_sync_libs` · `raven_debug` · `raven_violation`
+
+---
+
+## Works Alongside
+
+```
+Superpowers → dev methodology (TDD, planning, review)
+GSD         → context management (long sessions)
+Raven       → governance + security layer
+
+All three stack. No conflicts.
+```
 
 ---
 
 ## Install
 
 ```bash
-cd YourProject && git init
-bash ../shay-rolls-claude/shay-rolls-setup.sh
+cd YourProject
+bash ../raven/raven-setup.sh
 ```
 
-See [HOW-TO-USE.md](HOW-TO-USE.md) for full setup guide.
-
----
-
-## Repo Structure
-
-```
-shay-rolls-claude/
-├── CLAUDE.md                        ← Claude Code entry point
-├── HOW-TO-USE.md                    ← Full enterprise guide
-├── README.md
-├── LICENSE
-├── shay-rolls-setup.sh               ← Setup script
-├── core/
-│   ├── agents/                      ← 4 Core agents
-│   ├── skills/shay-rolls-core/      ← Progressive disclosure skill
-│   ├── commands/                    ← /scaffold /approve /debug /incident
-│   ├── hooks/                       ← pre-commit + settings.json
-│   ├── scripts/                     ← cve-check.py secret-scan.py setup-claudemem.sh
-│   └── ci/                         ← github-actions.yml gitlab-ci.yml on-prem-pipeline.sh
-├── manifest/                        ← Schema + examples
-└── templates/                       ← architecture.md template
-```
+See [HOW-TO-USE.md](HOW-TO-USE.md) for full enterprise guide.
 
 ---
 
 ## Companion Repo
 
-**[shay-rolls-claude-guard](https://github.com/giggso/shay-rolls-claude-guard)**
-Production protection — Git watch, DB watch, Infra watch, Firewall watch, Incident management.
-Install after Core. Separate audience (DevOps/architects).
+[giggsoinc/raven-guard](https://github.com/giggsoinc/raven-guard) — Production protection.
+Git watch · DB watch · Infra watch · Firewall watch · Incident management.
+Install after Raven Core.
 
 ---
 
