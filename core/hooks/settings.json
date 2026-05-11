@@ -2,10 +2,10 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "WebFetch|mcp__.*|Bash",
+        "matcher": "*",
         "hooks": [
           {
-            "type": "command",
+            "type":    "command",
             "command": "python3 .claude/scripts/tool-guard.py"
           }
         ]
@@ -13,18 +13,57 @@
     ],
     "PostToolUse": [
       {
-        "matcher": ".*",
+        "matcher": "*",
         "hooks": [
           {
-            "type": "command",
-            "command": "python3 .claude/scripts/audit-log.py"
+            "type":    "command",
+            "command": "python3 .claude/scripts/audit-log.py",
+            "async":   true
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type":    "command",
+            "command": "python3 .claude/scripts/token-guard.py"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type":    "command",
+            "command": "python3 .claude/scripts/token-guard.py",
+            "async":   true
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type":    "command",
+            "command": "python3 .claude/scripts/audit-log.py",
+            "async":   true
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type":    "command",
+            "command": "python3 -c \"import json,sys; d=json.load(open('.shay-rolls/manifest.json')); print(json.dumps({'additionalContext': f\\\"Shay-Rolls v{d.get('standards','2.8')} active. Project: {d.get('project')}. Mode: {d.get('mode','team')}.\\\"}))\" 2>/dev/null || true"
           }
         ]
       }
     ]
-  },
-  "permissions": {
-    "allow": [],
-    "deny": []
   }
 }
