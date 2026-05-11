@@ -1,0 +1,11 @@
+{
+  "_comment": "Shay-Rolls Enterprise — deploy to /Library/Application Support/ClaudeCode/managed-mcp.json (macOS) or C:\\ProgramData\\ClaudeCode\\managed-mcp.json (Windows). Requires admin privileges.",
+  "mcpServers": {
+    "shay-rolls": {
+      "type":    "stdio",
+      "command": "python3",
+      "args":    ["/usr/local/shay-rolls/mcp/server.py"],
+      "env":     {}
+    }
+  }
+}
