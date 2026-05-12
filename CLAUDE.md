@@ -10,7 +10,7 @@ Read this file completely before taking any action.
 Before doing ANYTHING, run this sequence in order:
 
 1. **Load manifest** → `.shay-rolls/manifest.json`
-   - If missing → HARD STOP. Message: *"Manifest missing. Run: claude --shay-rolls init"*
+   - If missing → HARD STOP. Message: *"Manifest missing. Run: raven-setup"*
    - If invalid schema → HARD STOP. Message: *"Manifest invalid. Check manifest.schema.json"*
 
 2. **Load secrets** → `.shay-rolls/manifest.secrets.json`
