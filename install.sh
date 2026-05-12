@@ -1,24 +1,25 @@
 #!/bin/bash
-# Shay-Rolls Claude — One-Line Installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/giggso/shay-rolls-claude/main/install.sh | bash
+# Raven — One-Line Installer
+# Usage: curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | bash
 #
 # What this does:
-#   1. Downloads latest Shay-Rolls Core to ~/.shay-rolls-claude/
-#   2. Makes shay-rolls-setup available as a global command
-#   3. You then run: shay-rolls-setup  from any project
+#   1. Downloads latest Raven Core to ~/.raven/
+#   2. Makes raven-setup available as a global command
+#   3. You then run: raven-setup  from any project
 #
 # Requires: git, bash, python3, claude (Claude Code)
 
 set -e
 G='\033[0;32m' Y='\033[1;33m' R='\033[0;31m' B='\033[0;34m' W='\033[1m' N='\033[0m'
 
-REPO="https://github.com/giggso/shay-rolls-claude.git"
-INSTALL_DIR="$HOME/.shay-rolls-claude"
+REPO="https://github.com/giggsoinc/raven.git"
+INSTALL_DIR="$HOME/.raven"
 BIN_DIR="$HOME/.local/bin"
 
 echo ""
 echo -e "${W}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
-echo -e "${W}  Shay-Rolls Claude — Installer${N}"
+echo -e "${W}  Raven — Wit beyond measure for your codebase${N}"
+echo -e "${W}  v2.8 Installer${N}"
 echo -e "${W}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
 echo ""
 
@@ -33,18 +34,18 @@ if [ -d "$INSTALL_DIR/.git" ]; then
     cd "$INSTALL_DIR" && git pull --quiet
     echo -e "${G}✅ Updated to latest${N}"
 else
-    echo -e "${B}Downloading Shay-Rolls Claude...${N}"
+    echo -e "${B}Downloading Raven...${N}"
     git clone --quiet --depth=1 "$REPO" "$INSTALL_DIR"
     echo -e "${G}✅ Downloaded to $INSTALL_DIR${N}"
 fi
 
 # Make command globally available
 mkdir -p "$BIN_DIR"
-cat > "$BIN_DIR/shay-rolls-setup" << CMDEOF
+cat > "$BIN_DIR/raven-setup" << CMDEOF
 #!/bin/bash
-bash "$INSTALL_DIR/shay-rolls-setup.sh" "\$@"
+bash "$INSTALL_DIR/raven-setup.sh" "\$@"
 CMDEOF
-chmod +x "$BIN_DIR/shay-rolls-setup"
+chmod +x "$BIN_DIR/raven-setup"
 
 # Add to PATH if not already there
 SHELL_RC=""
@@ -60,15 +61,15 @@ export PATH="$PATH:$BIN_DIR"
 
 echo ""
 echo -e "${W}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
-echo -e "${G}  ✅ Shay-Rolls installed${N}"
+echo -e "${G}  ✅ Raven installed${N}"
 echo -e "${W}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
 echo ""
 echo -e "  To init any project:"
-echo -e "  ${B}cd YourProject && shay-rolls-setup${N}"
+echo -e "  ${B}cd YourProject && raven-setup${N}"
 echo ""
-echo -e "  To update Shay-Rolls later:"
-echo -e "  ${B}cd ~/.shay-rolls-claude && git pull${N}"
+echo -e "  To update Raven later:"
+echo -e "  ${B}cd ~/.raven && git pull${N}"
 echo ""
 echo -e "  To install Guard:"
-echo -e "  ${B}curl -fsSL https://raw.githubusercontent.com/giggso/shay-rolls-claude-guard/main/install.sh | bash${N}"
+echo -e "  ${B}curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven-guard/main/install.sh | bash${N}"
 echo ""
