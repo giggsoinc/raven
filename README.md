@@ -98,7 +98,7 @@ Progressive disclosure — ~100 tokens at startup, rules load only when triggere
 
 ```bash
 # Install as Claude Code MCP plugin
-claude mcp add raven -- python3 ~/.raven-claude/mcp/server.py
+claude mcp add raven -- python3 ~/.raven/mcp/server.py
 ```
 
 Tools: `raven_status` · `raven_cve_check` · `raven_sync_libs` · `raven_debug` · `raven_violation`
