@@ -1,7 +1,8 @@
 # Raven
 
-> Enterprise AI Coding Discipline Platform for Claude Code.
-> Built by [Giggso](https://giggso.com). MIT License.
+> Claude Code implementation of the Raven AI coding discipline engine.
+> Part of the [Raven platform](https://github.com/giggsoinc/raven-core). MIT License.
+> Built by [Giggso Inc](https://github.com/giggsoinc).
 
 *Wit beyond measure — for your codebase.*
 
