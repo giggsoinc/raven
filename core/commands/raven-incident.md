@@ -9,7 +9,7 @@ description: Use to create a manual incident report for Guard events
 Usage: /incident {p1|p2|p3} {description}
 
 Steps:
-1. Read .shay-rolls/manifest.secrets.json for inbox + escalation
+1. Read .raven/manifest.secrets.json for inbox + escalation
 2. Classify severity from argument
 3. Generate incident record:
    - ID: INC-{timestamp}

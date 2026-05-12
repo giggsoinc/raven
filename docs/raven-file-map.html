@@ -50,8 +50,8 @@ h1{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:3
 </head>
 <body>
 
-<h1>Shay-Rolls Claude — File Map</h1>
-<div class="sub">Core v2.7 + Guard v1.2 · 70 files · github.com/giggso/shay-rolls-claude</div>
+<h1>Raven Claude — File Map</h1>
+<div class="sub">Core v2.7 + Guard v1.2 · 70 files · github.com/giggso/raven-claude</div>
 
 <div class="legend">
   <span style="font-size:8px;font-weight:700;color:#8aa0b8;letter-spacing:1px;text-transform:uppercase;">Folder:</span>
@@ -71,7 +71,7 @@ h1{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:3
 const data = [
   // CORE ROOT
   {r:"Core",f:"Root",fn:"CLAUDE.md",d:"Project entry point. Boot sequence, non-negotiables, skill security rules. Claude reads first on every session.",o:"Architects",e:"Text editor",w:"On standard change",cls:"key f-root"},
-  {r:"Core",f:"Root",fn:"shay-rolls-init.sh",d:"Master setup script. 7 questions, creates manifest, copies all files, sets OS permissions, verifies.",o:"Architects",e:"Bash editor",w:"New feature in init",cls:"key f-root"},
+  {r:"Core",f:"Root",fn:"raven-init.sh",d:"Master setup script. 7 questions, creates manifest, copies all files, sets OS permissions, verifies.",o:"Architects",e:"Bash editor",w:"New feature in init",cls:"key f-root"},
   {r:"Core",f:"Root",fn:"README.md",d:"Public documentation. What the repo is, install steps, what it does.",o:"Open source",e:"Text editor",w:"Version bump",cls:"f-root"},
   {r:"Core",f:"Root",fn:"HOW-TO-USE.md",d:"Full enterprise setup guide. Stakeholder roles, CVE tiers, CI/CD, troubleshooting.",o:"Architects",e:"Text editor",w:"Feature addition",cls:"f-root"},
   {r:"Core",f:"Root",fn:"LICENSE",d:"MIT license. Do not edit.",o:"Legal",e:"Never",w:"Never",cls:"f-root"},
@@ -80,7 +80,7 @@ const data = [
   {r:"Core",f:"manifest/",fn:"manifest.schema.json",d:"JSON schema validating all manifest fields.",o:"Architects",e:"JSON editor",w:"New manifest fields",cls:"f-manifest"},
   {r:"Core",f:"manifest/",fn:"manifest.example.json",d:"Working example with all fields. Use as template.",o:"Architects",e:"JSON editor",w:"New fields added",cls:"f-manifest"},
   {r:"Core",f:"manifest/",fn:"manifest.org.example.json",d:"Org-level locked fields for Claude Code Enterprise.",o:"CISO/CTO",e:"JSON editor",w:"Org standard change",cls:"f-manifest"},
-  {r:"Core",f:"manifest/",fn:"manifest.secrets.example.json",d:"Secrets template. Reference only — real file lives in .shay-rolls/",o:"Architects",e:"Reference only",w:"New secret fields",cls:"critical f-manifest"},
+  {r:"Core",f:"manifest/",fn:"manifest.secrets.example.json",d:"Secrets template. Reference only — real file lives in .raven/",o:"Architects",e:"Reference only",w:"New secret fields",cls:"critical f-manifest"},
 
   // CORE AGENTS
   {r:"Core",f:"core/agents/",fn:"manifest-checker.md",d:"Priority 1. Hard blocks if manifest missing. Only agent that blocks during coding.",o:"Architects",e:"Markdown",w:"Manifest rules change",cls:"critical f-agents"},
@@ -91,18 +91,18 @@ const data = [
   {r:"Core",f:"core/agents/",fn:"skill-guard.md",d:"Security. Monitors skill activity. Blocks restricted file access. Checks approved_skills.",o:"CISO",e:"Markdown",w:"Security policy changes",cls:"critical f-agents"},
 
   // CORE SKILLS
-  {r:"Core",f:"core/skills/shay-rolls-core/",fn:"SKILL.md",d:"Entry skill. Loads manifest live via ! injection. Routes to rule files on demand. ~100 tokens.",o:"Architects",e:"Markdown",w:"Routing logic changes",cls:"key f-skills"},
-  {r:"Core",f:"core/skills/shay-rolls-core/rules/",fn:"stack.md",d:"Stack rules. Loads only on import detect. Checks manifest. Calls cve-check.py.",o:"Architects",e:"Markdown",w:"Stack policy changes",cls:"f-skills"},
-  {r:"Core",f:"core/skills/shay-rolls-core/rules/",fn:"style.md",d:"Style rules. Loads only on style check. Max lines, type hints, logging.",o:"Architects",e:"Markdown",w:"Style standards change",cls:"f-skills"},
-  {r:"Core",f:"core/skills/shay-rolls-core/rules/",fn:"architecture.md",d:"Architecture rules. Loads on file create. Checks architecture.md version.",o:"Architects",e:"Markdown",w:"Architecture reqs change",cls:"f-skills"},
-  {r:"Core",f:"core/skills/shay-rolls-core/rules/",fn:"commit.md",d:"Commit gate rules. Loads at commit. Lists all 5 checks in order.",o:"Architects",e:"Markdown",w:"Commit gates change",cls:"f-skills"},
-  {r:"Core",f:"core/skills/shay-expert/",fn:"SKILL.md",d:"L99 mode. No hedging. World-class specialist depth.",o:"All devs",e:"Markdown",w:"Rarely",cls:"f-skills"},
-  {r:"Core",f:"core/skills/shay-plan/",fn:"SKILL.md",d:"Architecture-first planning. Reads manifest live. Dependency map before code.",o:"All devs",e:"Markdown",w:"Rarely",cls:"f-skills"},
-  {r:"Core",f:"core/skills/shay-review/",fn:"SKILL.md",d:"Manifest-aware code review. Stack + style + security.",o:"All devs",e:"Markdown",w:"Rarely",cls:"f-skills"},
-  {r:"Core",f:"core/skills/shay-security/",fn:"SKILL.md",d:"CVE-aware security review. Calls cve-check.py + secret-scan.py.",o:"All devs",e:"Markdown",w:"Rarely",cls:"f-skills"},
-  {r:"Core",f:"core/skills/shay-refactor/",fn:"SKILL.md",d:"Enforces 150 lines, type hints, logging, polars over pandas.",o:"All devs",e:"Markdown",w:"Rarely",cls:"f-skills"},
-  {r:"Core",f:"core/skills/shay-test/",fn:"SKILL.md",d:"Test-first. Writes failing tests before implementation.",o:"All devs",e:"Markdown",w:"Rarely",cls:"f-skills"},
-  {r:"Core",f:"core/skills/shay-document/",fn:"SKILL.md",d:"Docstrings + architecture.md + changelog.",o:"All devs",e:"Markdown",w:"Rarely",cls:"f-skills"},
+  {r:"Core",f:"core/skills/raven-core/",fn:"SKILL.md",d:"Entry skill. Loads manifest live via ! injection. Routes to rule files on demand. ~100 tokens.",o:"Architects",e:"Markdown",w:"Routing logic changes",cls:"key f-skills"},
+  {r:"Core",f:"core/skills/raven-core/rules/",fn:"stack.md",d:"Stack rules. Loads only on import detect. Checks manifest. Calls cve-check.py.",o:"Architects",e:"Markdown",w:"Stack policy changes",cls:"f-skills"},
+  {r:"Core",f:"core/skills/raven-core/rules/",fn:"style.md",d:"Style rules. Loads only on style check. Max lines, type hints, logging.",o:"Architects",e:"Markdown",w:"Style standards change",cls:"f-skills"},
+  {r:"Core",f:"core/skills/raven-core/rules/",fn:"architecture.md",d:"Architecture rules. Loads on file create. Checks architecture.md version.",o:"Architects",e:"Markdown",w:"Architecture reqs change",cls:"f-skills"},
+  {r:"Core",f:"core/skills/raven-core/rules/",fn:"commit.md",d:"Commit gate rules. Loads at commit. Lists all 5 checks in order.",o:"Architects",e:"Markdown",w:"Commit gates change",cls:"f-skills"},
+  {r:"Core",f:"core/skills/raven-expert/",fn:"SKILL.md",d:"L99 mode. No hedging. World-class specialist depth.",o:"All devs",e:"Markdown",w:"Rarely",cls:"f-skills"},
+  {r:"Core",f:"core/skills/raven-plan/",fn:"SKILL.md",d:"Architecture-first planning. Reads manifest live. Dependency map before code.",o:"All devs",e:"Markdown",w:"Rarely",cls:"f-skills"},
+  {r:"Core",f:"core/skills/raven-review/",fn:"SKILL.md",d:"Manifest-aware code review. Stack + style + security.",o:"All devs",e:"Markdown",w:"Rarely",cls:"f-skills"},
+  {r:"Core",f:"core/skills/raven-security/",fn:"SKILL.md",d:"CVE-aware security review. Calls cve-check.py + secret-scan.py.",o:"All devs",e:"Markdown",w:"Rarely",cls:"f-skills"},
+  {r:"Core",f:"core/skills/raven-refactor/",fn:"SKILL.md",d:"Enforces 150 lines, type hints, logging, polars over pandas.",o:"All devs",e:"Markdown",w:"Rarely",cls:"f-skills"},
+  {r:"Core",f:"core/skills/raven-test/",fn:"SKILL.md",d:"Test-first. Writes failing tests before implementation.",o:"All devs",e:"Markdown",w:"Rarely",cls:"f-skills"},
+  {r:"Core",f:"core/skills/raven-document/",fn:"SKILL.md",d:"Docstrings + architecture.md + changelog.",o:"All devs",e:"Markdown",w:"Rarely",cls:"f-skills"},
   {r:"Core",f:"core/skills/andie/",fn:"SKILL.md",d:"Work orchestrator + Drama Mode. Expert panels. OODA diagrams. Strategy docs.",o:"All users",e:"Markdown",w:"Drama Mode changes",cls:"key f-skills"},
 
   // CORE HOOKS
@@ -136,13 +136,13 @@ const data = [
   {r:"Core",f:"templates/",fn:"architecture.md",d:"Living architecture template. Fill within 24hrs or commits blocked. Version on every change.",o:"Dev leads",e:"Markdown",w:"Every structural change",cls:"key f-templates"},
 
   // CORE DOCS
-  {r:"Core",f:"docs/diagrams/",fn:"shay-rolls-core-architecture.html",d:"7-layer Core architecture diagram.",o:"All",e:"Regenerate only",w:"Major version",cls:"f-docs"},
-  {r:"Core",f:"docs/diagrams/",fn:"shay-rolls-enterprise-usage.html",d:"Enterprise usage + business value. CISO/CXO facing.",o:"All",e:"Regenerate only",w:"Major version",cls:"f-docs"},
+  {r:"Core",f:"docs/diagrams/",fn:"raven-core-architecture.html",d:"7-layer Core architecture diagram.",o:"All",e:"Regenerate only",w:"Major version",cls:"f-docs"},
+  {r:"Core",f:"docs/diagrams/",fn:"raven-enterprise-usage.html",d:"Enterprise usage + business value. CISO/CXO facing.",o:"All",e:"Regenerate only",w:"Major version",cls:"f-docs"},
   {r:"Core",f:"docs/diagrams/",fn:"gemini-enforcement.html",d:"Drama Mode Scene 1 diagrams. OODA + flowchart + tech arch.",o:"Architects",e:"Reference",w:"Decision changes",cls:"f-docs"},
 
   // GUARD ROOT
   {r:"Guard",f:"Root",fn:"CLAUDE.md",d:"Guard entry. Hard block rules, SLA, escalation ladder.",o:"Architects",e:"Text",w:"Guard rules change",cls:"key f-root"},
-  {r:"Guard",f:"Root",fn:"shay-rolls-guard-init.sh",d:"Guard setup. Installs 6 agents + scripts. Requires Core first.",o:"DevOps",e:"Bash",w:"New Guard feature",cls:"f-root"},
+  {r:"Guard",f:"Root",fn:"raven-guard-init.sh",d:"Guard setup. Installs 6 agents + scripts. Requires Core first.",o:"DevOps",e:"Bash",w:"New Guard feature",cls:"f-root"},
   {r:"Guard",f:"Root",fn:"README.md",d:"Guard public docs. Agents, approval flow, SLA table.",o:"Open source",e:"Text",w:"Version bump",cls:"f-root"},
 
   // GUARD AGENTS
@@ -160,12 +160,12 @@ const data = [
   {r:"Guard",f:"guard/scripts/",fn:"audit-log.py",d:"PostToolUse for Guard sessions. Encrypted S3 write.",o:"DevOps",e:"Python",w:"Audit format changes",cls:"f-scripts"},
 
   // PROJECT FILES
-  {r:"Project",f:".shay-rolls/",fn:"manifest.json",d:"THE stack declaration. Language, cloud, DB, libraries, guard, style. Commit this.",o:"Architects",e:"JSON editor",w:"Every stack/standard change",cls:"key f-project"},
-  {r:"Project",f:".shay-rolls/",fn:"manifest.secrets.json",d:"THE secrets file. Inbox, API keys, S3 config, encryption key. chmod 600. NEVER commit.",o:"Architects",e:"JSON editor",w:"Credentials change",cls:"critical f-project"},
-  {r:"Project",f:".shay-rolls/",fn:"architecture.md",d:"Living architecture doc. Fill within 24hrs. Version every change.",o:"Dev leads",e:"Markdown",w:"Structural change",cls:"key f-project"},
-  {r:"Project",f:".shay-rolls/",fn:".gitignore",d:"Gitignores secrets + cache. Do not modify.",o:"Do not edit",e:"Never",w:"Never",cls:"f-project"},
-  {r:"Project",f:".shay-rolls/audit/",fn:"fallback-YYYY-MM-DD.log",d:"Local fallback audit. Written only if local_fallback:true and S3 unavailable.",o:"CISO",e:"Read only",w:"Auto-generated",cls:"f-project"},
-  {r:"Project",f:".shay-rolls/guard/",fn:"digest.log",d:"Guard P2/P3 event buffer. Read by weekly digest script every Monday.",o:"DevOps",e:"Read only",w:"Auto-generated",cls:"f-project"},
+  {r:"Project",f:".raven/",fn:"manifest.json",d:"THE stack declaration. Language, cloud, DB, libraries, guard, style. Commit this.",o:"Architects",e:"JSON editor",w:"Every stack/standard change",cls:"key f-project"},
+  {r:"Project",f:".raven/",fn:"manifest.secrets.json",d:"THE secrets file. Inbox, API keys, S3 config, encryption key. chmod 600. NEVER commit.",o:"Architects",e:"JSON editor",w:"Credentials change",cls:"critical f-project"},
+  {r:"Project",f:".raven/",fn:"architecture.md",d:"Living architecture doc. Fill within 24hrs. Version every change.",o:"Dev leads",e:"Markdown",w:"Structural change",cls:"key f-project"},
+  {r:"Project",f:".raven/",fn:".gitignore",d:"Gitignores secrets + cache. Do not modify.",o:"Do not edit",e:"Never",w:"Never",cls:"f-project"},
+  {r:"Project",f:".raven/audit/",fn:"fallback-YYYY-MM-DD.log",d:"Local fallback audit. Written only if local_fallback:true and S3 unavailable.",o:"CISO",e:"Read only",w:"Auto-generated",cls:"f-project"},
+  {r:"Project",f:".raven/guard/",fn:"digest.log",d:"Guard P2/P3 event buffer. Read by weekly digest script every Monday.",o:"DevOps",e:"Read only",w:"Auto-generated",cls:"f-project"},
 ];
 
 // Group by repo then folder
@@ -183,8 +183,8 @@ repos.forEach(repo => {
   const title = document.createElement("div");
   title.className = `repo-title ${repo.toLowerCase()}-title`;
   title.textContent = repo === "Project" ? "Project Files (created in your project by init script)" :
-                      repo === "Core" ? "Shay-Rolls Claude Core — github.com/giggso/shay-rolls-claude" :
-                      "Shay-Rolls Guard — github.com/giggso/shay-rolls-claude-guard";
+                      repo === "Core" ? "Raven Claude Core — github.com/giggso/raven-claude" :
+                      "Raven Guard — github.com/giggso/raven-claude-guard";
   block.appendChild(title);
 
   folders.forEach(folder => {

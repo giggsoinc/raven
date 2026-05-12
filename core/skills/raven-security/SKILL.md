@@ -1,15 +1,15 @@
 ---
-name: shay-security
+name: raven-security
 description: Use when doing security review of code, PRs, or before any merge.
-  Extends security-review with manifest-aware CVE context and Shay-Rolls
+  Extends security-review with manifest-aware CVE context and Raven
   stack validation. Run before every merge to main.
 allowed-tools: Read Bash Grep
 ---
 
-# Shay-Security
+# Raven-Security
 
 ## Live approved stack
-!`cat .shay-rolls/manifest.json 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); s=d.get('stack',{}); libs=s.get('libraries',[]); libs=[l if isinstance(l,str) else l.get('name','?') for l in libs]; print('Approved:', libs)"`
+!`cat .raven/manifest.json 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); s=d.get('stack',{}); libs=s.get('libraries',[]); libs=[l if isinstance(l,str) else l.get('name','?') for l in libs]; print('Approved:', libs)"`
 
 ## Security checks
 1. **Secrets** — API keys, tokens, passwords hardcoded anywhere?

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Shay-Rolls — Audit Key Generator
+# Raven — Audit Key Generator
 # Run ONCE on init. Add output to manifest.secrets.json audit.encryption_key
 # This key encrypts audit logs before S3 upload.
 # Enterprise stores this key in Vault / Secrets Manager.

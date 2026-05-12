@@ -24,7 +24,7 @@
     "cloud": "aws",
     "libraries": []
   },
-  "standards": "shay-rolls-v1",
+  "standards": "raven-v1",
   "min_compatible_version": "1.0",
   "approval_mode": "first_responder",
   "approval_mode_version": "1.0",
@@ -94,20 +94,20 @@
   "architecture": {
     "require_diagram": true,
     "require_versioning": true,
-    "diagram_file": ".shay-rolls/architecture.md",
+    "diagram_file": ".raven/architecture.md",
     "version_bump_on_change": true
   },
   "approved_skills": {
     "_note": "Only skills listed here are permitted. Any unlisted skill triggers a warning.",
     "giggso": [
-      "shay-rolls-core",
-      "shay-expert",
-      "shay-plan",
-      "shay-review",
-      "shay-security",
-      "shay-refactor",
-      "shay-test",
-      "shay-document"
+      "raven-core",
+      "raven-expert",
+      "raven-plan",
+      "raven-review",
+      "raven-security",
+      "raven-refactor",
+      "raven-test",
+      "raven-document"
     ],
     "anthropic": [
       "claude-code-guide",
@@ -194,7 +194,7 @@
     "block_dynamic_schema": true
   },
   "project_rules": {
-    "_note": "Project-specific rules enforced by shay-rolls-core on every prompt.",
+    "_note": "Project-specific rules enforced by raven-core on every prompt.",
     "forbidden_frameworks": [],
     "_forbidden_example": [
       "react",

@@ -1,6 +1,6 @@
 # Architecture Rules
 
-Required file: .shay-rolls/architecture.md
+Required file: .raven/architecture.md
 Required header: ## Version: X.X
 
 Grace period: 24h from first warning before hard block at commit

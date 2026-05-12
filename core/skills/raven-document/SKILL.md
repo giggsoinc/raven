@@ -1,12 +1,12 @@
 ---
-name: shay-document
+name: raven-document
 description: Use when adding or updating documentation. Enforces docstrings
   on all functions, updates architecture.md on structural changes, and keeps
   changelog current. Run before any PR merge.
 allowed-tools: Read Write Edit Bash
 ---
 
-# Shay-Document
+# Raven-Document
 
 ## Documentation checklist
 1. **Docstrings** — every function has: one-line summary, args, returns, raises

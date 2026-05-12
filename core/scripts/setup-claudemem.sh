@@ -1,5 +1,5 @@
 #!/bin/bash
-# Shay-Rolls — Claude Mem Setup
+# Raven — Claude Mem Setup
 # Installs Claude Mem for session memory + 95% token reduction
 set -e
 G='\033[0;32m' Y='\033[1;33m' R='\033[0;31m' N='\033[0m'

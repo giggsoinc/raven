@@ -1,5 +1,5 @@
 #!/bin/bash
-# Shay-Rolls Setup — Step 1: User questions
+# Raven Setup — Step 1: User questions
 # Sets all exported vars consumed by steps 2-6
 
 B='\033[0;34m' G='\033[0;32m' Y='\033[1;33m' N='\033[0m'
@@ -10,7 +10,7 @@ read -p "  → " P </dev/tty
 export PROJECT_DIR="${P:-$(pwd)}"
 export PROJECT_DIR="${PROJECT_DIR/#\~/$HOME}"
 [ ! -d "$PROJECT_DIR" ] && mkdir -p "$PROJECT_DIR"
-[ "$PROJECT_DIR" = "$SR_REPO_DIR" ] && echo "❌ Cannot init inside Shay-Rolls repo" && exit 1
+[ "$PROJECT_DIR" = "$SR_REPO_DIR" ] && echo "❌ Cannot init inside Raven repo" && exit 1
 echo -e "  ${G}✅ $PROJECT_DIR${N}\n"
 
 # -- Mode --

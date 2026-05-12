@@ -17,7 +17,7 @@
     "libraries": []
   },
 
-  "standards": "shay-rolls-v1",
+  "standards": "raven-v1",
   "min_compatible_version": "1.0",
 
   "approval_mode": "first_responder",
@@ -86,7 +86,7 @@
   "architecture": {
     "require_diagram": true,
     "require_versioning": true,
-    "diagram_file": ".shay-rolls/architecture.md",
+    "diagram_file": ".raven/architecture.md",
     "version_bump_on_change": true
   },
 

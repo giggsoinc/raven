@@ -14,13 +14,13 @@
   },
   "skills": [
     "raven-core",
-    "shay-expert",
-    "shay-plan",
-    "shay-review",
-    "shay-security",
-    "shay-refactor",
-    "shay-test",
-    "shay-document",
+    "raven-expert",
+    "raven-plan",
+    "raven-review",
+    "raven-security",
+    "raven-refactor",
+    "raven-test",
+    "raven-document",
     "andie"
   ]
 }

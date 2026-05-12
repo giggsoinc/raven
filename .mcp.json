@@ -1,12 +1,9 @@
 {
   "mcpServers": {
-    "shay-rolls": {
+    "raven": {
       "type":    "stdio",
       "command": "python3",
-      "args":    ["${SHAY_ROLLS_DIR}/mcp/server.py"],
-      "env": {
-        "SHAY_ROLLS_DIR": "${SHAY_ROLLS_INSTALL_DIR}"
-      }
+      "args":    ["/Users/giggso/AntiGravity_Projects/RAVEN/CLAUDE/RAVEN/mcp/server.py"]
     }
   }
 }

@@ -9,7 +9,7 @@ allowed-tools: Read Bash Grep
 # Raven Core
 
 ## Live Config
-!`cat .shay-rolls/manifest.json 2>/dev/null || echo "MANIFEST MISSING — run raven-setup.sh"`
+!`cat .raven/manifest.json 2>/dev/null || echo "MANIFEST MISSING — run raven-setup.sh"`
 
 ## Step 0 — Prompt Analysis (fires on EVERY prompt before anything else)
 
@@ -18,13 +18,13 @@ Read the incoming prompt. Detect intent. Route accordingly.
 | If prompt mentions... | Route to | Action |
 |---|---|---|
 | "find skill" / "search skill" / "what skill" | `/raven-search {query}` | Run skill search |
-| "expert" / "L99" / "deep dive" / "world class" | `shay-expert` | Activate L99 mode |
-| "security" / "threat model" / "vulnerability" / "CVE" | `shay-security` | Security review |
-| "plan" / "phases" / "architecture first" / "scaffold" | `shay-plan` + `/raven-scaffold` | Force plan before code |
-| "review" / "PR" / "code review" | `shay-review` | Manifest-aware review |
-| "refactor" / "clean up" / "too long" | `shay-refactor` | Style enforcement |
-| "test" / "write tests" / "coverage" | `shay-test` | Test-first |
-| "document" / "docstring" / "README" | `shay-document` | Doc enforcement |
+| "expert" / "L99" / "deep dive" / "world class" | `raven-expert` | Activate L99 mode |
+| "security" / "threat model" / "vulnerability" / "CVE" | `raven-security` | Security review |
+| "plan" / "phases" / "architecture first" / "scaffold" | `raven-plan` + `/raven-scaffold` | Force plan before code |
+| "review" / "PR" / "code review" | `raven-review` | Manifest-aware review |
+| "refactor" / "clean up" / "too long" | `raven-refactor` | Style enforcement |
+| "test" / "write tests" / "coverage" | `raven-test` | Test-first |
+| "document" / "docstring" / "README" | `raven-document` | Doc enforcement |
 | "drama" / "debate" / "stress-test" / "panel" | `andie` Drama Mode | Expert panel |
 | JSX / React / npm / node_modules in prompt | WARN + block | "Raven: manifest forbids this framework" |
 | new `import X` in code | CVE check | `cve-check.py --library X` |
@@ -33,10 +33,10 @@ Read the incoming prompt. Detect intent. Route accordingly.
 | no specific match | passive mode | Style + stack rules apply |
 
 ## Step 1 — Project context
-!`cat .shay-rolls/manifest.json 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); print('Project:', d.get('project'), '| Mode:', d.get('mode','team'), '| Lang:', d.get('stack',{}).get('language'))" 2>/dev/null || true`
+!`cat .raven/manifest.json 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); print('Project:', d.get('project'), '| Mode:', d.get('mode','team'), '| Lang:', d.get('stack',{}).get('language'))" 2>/dev/null || true`
 
 ## Step 2 — Project-specific rules
-!`cat .shay-rolls/manifest.json 2>/dev/null | python3 -c "
+!`cat .raven/manifest.json 2>/dev/null | python3 -c "
 import json,sys
 d=json.load(sys.stdin)
 rules=d.get('project_rules',{})

@@ -46,7 +46,7 @@
     "cloud": "multi",
     "libraries": []
   },
-  "standards": "shay-rolls-v1",
+  "standards": "raven-v1",
   "min_compatible_version": "1.0",
   "approval_mode": "first_responder",
   "approval_mode_version": "1.0",
@@ -116,7 +116,7 @@
   "architecture": {
     "require_diagram": true,
     "require_versioning": true,
-    "diagram_file": ".shay-rolls/architecture.md",
+    "diagram_file": ".raven/architecture.md",
     "version_bump_on_change": true
   },
   "changelog": [
@@ -125,21 +125,21 @@
       "changed_by": "ravi@giggso.com",
       "changed_at": "2026-05-08T09:00:00Z",
       "changes": "Initial org manifest \u2014 baseline standards for all Giggso projects",
-      "pr": "github.com/giggso/shay-rolls-claude/pull/1",
+      "pr": "github.com/giggso/raven-claude/pull/1",
       "approved_by": "ravi@giggso.com"
     }
   ],
   "approved_skills": {
     "_note": "Org-level approved skills. Projects inherit this list.",
     "giggso": [
-      "shay-rolls-core",
-      "shay-expert",
-      "shay-plan",
-      "shay-review",
-      "shay-security",
-      "shay-refactor",
-      "shay-test",
-      "shay-document"
+      "raven-core",
+      "raven-expert",
+      "raven-plan",
+      "raven-review",
+      "raven-security",
+      "raven-refactor",
+      "raven-test",
+      "raven-document"
     ],
     "anthropic": [
       "claude-code-guide",

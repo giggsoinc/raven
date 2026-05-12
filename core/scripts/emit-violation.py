@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Shay-Rolls — Violation Emitter v3.0
+# Raven — Violation Emitter v3.0
 # Cloud-aware: same provider detection as audit-log.py
 # Called by pre-commit hook + Guard agents on violations
 # NEVER errors. NEVER blocks. Silent if not configured.
@@ -18,8 +18,8 @@ def safe(fn):
     except: return None
 
 def load_config():
-    manifest = safe(lambda: json.load(open(".shay-rolls/manifest.json"))) or {}
-    secrets  = safe(lambda: json.load(open(".shay-rolls/manifest.secrets.json"))) or {}
+    manifest = safe(lambda: json.load(open(".raven/manifest.json"))) or {}
+    secrets  = safe(lambda: json.load(open(".raven/manifest.secrets.json"))) or {}
     return manifest, secrets
 
 def detect_provider(manifest, secrets):
@@ -44,7 +44,7 @@ def get_fernet(secrets):
 
 def audit_path(project, dev, date_str, fernet):
     ext = ".log.gz.enc" if fernet else ".log.gz"
-    return f"shay-rolls/{project}/{dev.replace('@','_at_')}/{date_str}{ext}"
+    return f"raven/{project}/{dev.replace('@','_at_')}/{date_str}{ext}"
 
 def write_s3(line, secrets, manifest):
     def _write():
@@ -151,9 +151,9 @@ def write_oci(line, secrets, manifest):
 def write_local(line, secrets):
     def _write():
         if not secrets.get("audit", {}).get("local_fallback", False): return
-        os.makedirs(".shay-rolls/audit", exist_ok=True)
+        os.makedirs(".raven/audit", exist_ok=True)
         date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        open(f".shay-rolls/audit/fallback-{date_str}.log","a").write(line+"\n")
+        open(f".raven/audit/fallback-{date_str}.log","a").write(line+"\n")
     safe(_write)
 
 def main():

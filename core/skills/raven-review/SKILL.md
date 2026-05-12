@@ -1,15 +1,15 @@
 ---
-name: shay-review
+name: raven-review
 description: Use when reviewing code, PRs, or any file changes. Extends
-  Claude's built-in review with Shay-Rolls style and stack compliance checks.
+  Claude's built-in review with Raven style and stack compliance checks.
   Checks manifest, imports, style rules, and architecture alignment.
 allowed-tools: Read Bash Grep
 ---
 
-# Shay-Review
+# Raven-Review
 
 ## Live Stack
-!`cat .shay-rolls/manifest.json 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); s=d.get('stack',{}); libs=s.get('libraries',[]); data=s.get('data',[]); print('Approved libs:', libs, '| Data:', data)"`
+!`cat .raven/manifest.json 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); s=d.get('stack',{}); libs=s.get('libraries',[]); data=s.get('data',[]); print('Approved libs:', libs, '| Data:', data)"`
 
 ## Review checklist (run in order)
 1. **Stack** — any imports not in manifest? Flag each one.

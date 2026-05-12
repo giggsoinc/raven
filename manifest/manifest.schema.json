@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://github.com/giggso/shay-rolls-claude/manifest/manifest.schema.json",
-  "title": "Shay-Rolls Manifest",
-  "description": "Project manifest for Shay-Rolls Claude Code discipline engine",
+  "$id": "https://github.com/giggso/raven-claude/manifest/manifest.schema.json",
+  "title": "Raven Manifest",
+  "description": "Project manifest for Raven Claude Code discipline engine",
   "type": "object",
   "required": [
     "project",
@@ -230,18 +230,18 @@
     },
     "standards": {
       "type": "string",
-      "description": "Shay-Rolls standards version to enforce",
+      "description": "Raven standards version to enforce",
       "enum": [
-        "shay-rolls-v1",
-        "shay-rolls-v2"
+        "raven-v1",
+        "raven-v2"
       ],
       "examples": [
-        "shay-rolls-v1"
+        "raven-v1"
       ]
     },
     "min_compatible_version": {
       "type": "string",
-      "description": "Minimum Shay-Rolls version compatible with this manifest",
+      "description": "Minimum Raven version compatible with this manifest",
       "pattern": "^\\d+\\.\\d+$",
       "default": "1.0"
     },
@@ -327,7 +327,7 @@
     },
     "guard": {
       "type": "object",
-      "description": "Shay-Rolls Guard configuration",
+      "description": "Raven Guard configuration",
       "additionalProperties": false,
       "properties": {
         "enabled": {
@@ -568,7 +568,7 @@
         },
         "diagram_file": {
           "type": "string",
-          "default": ".shay-rolls/architecture.md"
+          "default": ".raven/architecture.md"
         },
         "version_bump_on_change": {
           "type": "boolean",

@@ -2,7 +2,7 @@
 name: manifest-checker
 description: >
   Use PROACTIVELY before any coding action, file creation, or tool use.
-  Verifies .shay-rolls/manifest.json exists, is valid JSON, and has all
+  Verifies .raven/manifest.json exists, is valid JSON, and has all
   required fields. Hard stops if manifest missing — this is the only
   agent that hard blocks during coding. All other agents advise only.
 model: inherit
@@ -19,7 +19,7 @@ Manifest missing = nothing works. This is non-negotiable at all times.
 
 ## Checks (in order):
 
-1. Does `.shay-rolls/manifest.json` exist?
+1. Does `.raven/manifest.json` exist?
    - NO → HARD STOP: "❌ Manifest missing. Run: bash raven-setup.sh"
 
 2. Is it valid JSON?
@@ -40,8 +40,8 @@ Manifest missing = nothing works. This is non-negotiable at all times.
 7. Does `.gitignore` include `manifest.secrets.json` and `.env`?
    - NO → WARN: "⚠️  .gitignore missing critical entries — secrets may be exposed"
 
-8. Does `.shay-rolls/.gitignore` exist?
-   - NO → WARN: "⚠️  .shay-rolls/.gitignore missing — manifest.secrets.json may not be gitignored"
+8. Does `.raven/.gitignore` exist?
+   - NO → WARN: "⚠️  .raven/.gitignore missing — manifest.secrets.json may not be gitignored"
 
 ## On success output:
 ```

@@ -1,6 +1,6 @@
 #!/bin/bash
-# Shay-Rolls Setup — Step 0: Pre-flight checks
-# Sourced by shay-rolls-setup.sh — do not run directly
+# Raven Setup — Step 0: Pre-flight checks
+# Sourced by raven-setup.sh — do not run directly
 
 G='\033[0;32m' R='\033[0;31m' N='\033[0m'
 

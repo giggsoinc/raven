@@ -1,12 +1,12 @@
 ---
-name: shay-refactor
-description: Use when refactoring code to meet Shay-Rolls standards. Combines
+name: raven-refactor
+description: Use when refactoring code to meet Raven standards. Combines
   simplify + style enforcement + type hints in one pass. Use on files flagged
   by style-enforcer or before any PR to main.
 allowed-tools: Read Write Edit Bash
 ---
 
-# Shay-Refactor
+# Raven-Refactor
 
 ## Rules (non-negotiable)
 - Max 150 lines per file — split if over
