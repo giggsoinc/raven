@@ -60,7 +60,7 @@
         "hooks": [
           {
             "type":    "command",
-            "command": "python3 -c \"import json,sys; d=json.load(open('.shay-rolls/manifest.json')); print(json.dumps({'additionalContext': f\\\"Shay-Rolls v{d.get('standards','2.8')} active. Project: {d.get('project')}. Mode: {d.get('mode','team')}.\\\"}))\" 2>/dev/null || true"
+            "command": "python3 -c \"import json,sys; d=json.load(open('.raven/manifest.json')); print(json.dumps({'additionalContext': f\\\"Raven v{d.get('standards','2.8')} active. Project: {d.get('project')}. Mode: {d.get('mode','team')}.\\\"}))\" 2>/dev/null || true"
           }
         ]
       }

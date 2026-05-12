@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Shay-Rolls — Audit Logger v4.0
+# Raven — Audit Logger v4.0
 # Cloud-aware: routes to S3, GCS, Azure Blob, OCI, or local
 # based on manifest stack.cloud and manifest.secrets.json audit config
 # NEVER errors. NEVER blocks. Silent if not configured.
@@ -17,8 +17,8 @@ def safe(fn):
     except: return None
 
 def load_config():
-    manifest = safe(lambda: json.load(open(".shay-rolls/manifest.json"))) or {}
-    secrets  = safe(lambda: json.load(open(".shay-rolls/manifest.secrets.json"))) or {}
+    manifest = safe(lambda: json.load(open(".raven/manifest.json"))) or {}
+    secrets  = safe(lambda: json.load(open(".raven/manifest.secrets.json"))) or {}
     return manifest, secrets
 
 def build_entry(data, manifest):
@@ -76,7 +76,7 @@ def audit_path(manifest, secrets, date_str, fernet):
                  manifest.get("audit_tag","") or
                  project)
     ext = ".log.gz.enc" if fernet else ".log.gz"
-    return f"shay-rolls/{project}/{dev_safe}/{audit_tag}/{date_str}{ext}"
+    return f"raven/{project}/{dev_safe}/{audit_tag}/{date_str}{ext}"
 
 # ── AWS S3 ─────────────────────────────────────────────────────────────────────
 def write_s3(line, secrets):
@@ -180,9 +180,9 @@ def write_oci(line, secrets):
 def write_local(line, secrets):
     def _write():
         if not secrets.get("audit", {}).get("local_fallback", False): return
-        os.makedirs(".shay-rolls/audit", exist_ok=True)
+        os.makedirs(".raven/audit", exist_ok=True)
         date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        open(f".shay-rolls/audit/fallback-{date_str}.log","a").write(line+"\n")
+        open(f".raven/audit/fallback-{date_str}.log","a").write(line+"\n")
     safe(_write)
 
 # ── Main ───────────────────────────────────────────────────────────────────────

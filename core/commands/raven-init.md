@@ -10,7 +10,7 @@ Run this command when starting a new project. It will ask you questions, generat
 
 Before asking anything, check:
 
-1. Is `.shay-rolls/manifest.json` already present?
+1. Is `.raven/manifest.json` already present?
    - YES → Ask: "Manifest already exists (v{version}). Reinitialize? This will create a new version." 
    - If yes → continue. If no → STOP.
 
@@ -165,15 +165,15 @@ Looks good?
 
 If user confirms:
 
-1. Create `.shay-rolls/` directory if not exists
-2. Write `.shay-rolls/manifest.json`
-3. Write `.shay-rolls/.gitignore`:
+1. Create `.raven/` directory if not exists
+2. Write `.raven/manifest.json`
+3. Write `.raven/.gitignore`:
 ```
 manifest.secrets.json
 .cache/
 ```
 
-4. Copy `manifest.secrets.example.json` → `.shay-rolls/manifest.secrets.example.json`
+4. Copy `manifest.secrets.example.json` → `.raven/manifest.secrets.example.json`
 
 5. Output instructions:
 ```
@@ -181,17 +181,17 @@ manifest.secrets.json
 
 Next steps:
 1. Get manifest.secrets.json from your architect via secure channel
-2. Place it at: .shay-rolls/manifest.secrets.json
+2. Place it at: .raven/manifest.secrets.json
 3. Run: claude --debug to validate everything loaded
 4. Commit manifest.json to Git:
 
-   git add .shay-rolls/manifest.json
-   git add .shay-rolls/.gitignore
+   git add .raven/manifest.json
+   git add .raven/.gitignore
    git commit -m "chore: init raven manifest v1.0 [RAVEN:INIT]"
    git push
 
 ⚠️  NEVER commit manifest.secrets.json
-⚠️  NEVER commit .shay-rolls/.cache/
+⚠️  NEVER commit .raven/.cache/
 ```
 
 ---

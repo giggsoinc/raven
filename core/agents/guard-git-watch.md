@@ -13,11 +13,11 @@ tools:
 # Skill Guard — Sensitive File Protection
 
 ## Monitored files (NEVER read by any skill)
-- `.shay-rolls/manifest.secrets.json`
+- `.raven/manifest.secrets.json`
 - `.env`, `.env.*`
 - `*.pem`, `*.key`, `id_rsa`, `id_ed25519`
 - `.claude/settings.json` (read-only — no skill may modify)
-- `.shay-rolls/manifest.json` (read-only for skills — modify via /raven-approve only)
+- `.raven/manifest.json` (read-only for skills — modify via /raven-approve only)
 
 ## On detection
 If any skill attempts to read or modify monitored files:

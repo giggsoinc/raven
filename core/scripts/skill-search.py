@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-# Shay-Rolls — Skill Search + Approval v1.0
+# Raven — Skill Search + Approval v1.0
 # Sources: anthropics/skills (GitHub) + GitHub search
 # Usage: skill-search.py --query "pdf" | --install "anthropics/skills/pdf" | --list
 
 import argparse, json, sys, os, subprocess, shutil, urllib.request, urllib.parse
 
-MANIFEST   = ".shay-rolls/manifest.json"
+MANIFEST   = ".raven/manifest.json"
 SKILLS_DIR = ".claude/skills"
 G,Y,R,B,W,N = '\033[0;32m','\033[1;33m','\033[0;31m','\033[0;34m','\033[1m','\033[0m'
 
@@ -19,7 +19,7 @@ def save_manifest(m):
     json.dump(m, open(MANIFEST,'w'), indent=2)
 
 def gh_fetch(url):
-    req = urllib.request.Request(url, headers={"User-Agent":"shay-rolls/1.0"})
+    req = urllib.request.Request(url, headers={"User-Agent":"raven/1.0"})
     with urllib.request.urlopen(req, timeout=8) as r:
         return r.read()
 

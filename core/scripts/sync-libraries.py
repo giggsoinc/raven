@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Shay-Rolls — Library Sync
+# Raven — Library Sync
 # Reads requirements.txt / pyproject.toml / poetry.lock / setup.py
 # Adds all found libraries to manifest.json stack.libraries
 # CVE checks each one. Approved = added. Blocked = flagged.
@@ -11,7 +11,7 @@ from pathlib import Path
 
 DRY_RUN = "--dry-run" in sys.argv
 
-MANIFEST = ".shay-rolls/manifest.json"
+MANIFEST = ".raven/manifest.json"
 G = '\033[0;32m'
 Y = '\033[1;33m'
 R = '\033[0;31m'
@@ -111,12 +111,12 @@ def run_cve_check(lib: str) -> tuple[str, str]:
         return "skip", str(e)
 
 def main():
-    parser = argparse.ArgumentParser(description="Shay-Rolls Library Sync")
+    parser = argparse.ArgumentParser(description="Raven Library Sync")
     parser.add_argument("--dry-run", action="store_true", help="Show what would change, don't write")
     parser.add_argument("--no-cve",  action="store_true", help="Skip CVE check, approve all found libs")
     args = parser.parse_args()
 
-    print(f"\n{B}Shay-Rolls Library Sync{N}")
+    print(f"\n{B}Raven Library Sync{N}")
     print(f"{'Dry run — no changes will be written' if args.dry_run else 'Live mode — manifest will be updated'}\n")
 
     manifest = load_manifest()

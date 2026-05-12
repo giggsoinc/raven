@@ -9,7 +9,7 @@ description: Use when an architect wants to approve a pending library
 Usage: /approve {library} {version}
 
 Steps:
-1. Read .shay-rolls/manifest.json
+1. Read .raven/manifest.json
 2. Add library to stack.libraries with approved_by + approved_at
 3. Bump manifest version + add changelog entry
 4. Output: "✅ {library}=={version} approved — update manifest.json and notify dev"

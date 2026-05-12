@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Shay-Rolls — Tool Guard (PreToolUse hook)
+# Raven — Tool Guard (PreToolUse hook)
 # Fires before every Claude tool call
 # Checks against manifest allowed_tools
 # Blocks unapproved MCPs, APIs, URLs
@@ -12,7 +12,7 @@ import json, sys, os, re
 
 def load_manifest():
     try:
-        return json.load(open(".shay-rolls/manifest.json"))
+        return json.load(open(".raven/manifest.json"))
     except:
         return {}
 
@@ -34,7 +34,7 @@ def check_web_fetch(url: str, policy: dict) -> tuple[bool, str]:
 
     for pattern in blocked_patterns:
         if re.search(pattern, url, re.IGNORECASE):
-            return False, f"❌ URL blocked by Shay-Rolls policy: {url}\n   Add to manifest.allowed_tools to permit."
+            return False, f"❌ URL blocked by Raven policy: {url}\n   Add to manifest.allowed_tools to permit."
 
     if allowed_domains:
         domain = re.sub(r"https?://([^/]+).*", r"\1", url)

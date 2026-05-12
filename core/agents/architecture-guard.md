@@ -4,7 +4,7 @@ description: >
   Use PROACTIVELY when new code files are created. During coding —
   advises only, never blocks. At git commit — missing architecture
   doc becomes a hard block via pre-commit hook after 24 hours grace
-  period. Ensures .shay-rolls/architecture.md exists and is versioned.
+  period. Ensures .raven/architecture.md exists and is versioned.
 model: inherit
 tools:
   - Read
@@ -24,8 +24,8 @@ Format: "❌ BLOCKED: {rule}" (only after grace period expires)
 
 ## Checks:
 
-1. Does `.shay-rolls/architecture.md` exist?
-   - Coding: "💡 Create .shay-rolls/architecture.md before shipping.
+1. Does `.raven/architecture.md` exist?
+   - Coding: "💡 Create .raven/architecture.md before shipping.
      You have 24 hours before commits are blocked."
    - Commit (within 24h): "⚠️ Architecture doc missing. X hours remaining."
    - Commit (after 24h): "❌ Architecture doc required. Create it to unblock."

@@ -22,7 +22,7 @@ Three layers — inject, scan, log:
 | Layer | Mechanism | Owner | Dev Experience |
 |---|---|---|---|
 | Inject | MDM pushes enterprise credential to dev machine | IT | Nothing — it's just there |
-| Scan | Shay-Rolls pre-commit blocks personal key patterns | Engineering | Blocked at commit if personal key found in code |
+| Scan | Raven pre-commit blocks personal key patterns | Engineering | Blocked at commit if personal key found in code |
 | Log | Every API call logged — identity, timestamp, tokens | IT/Security | Invisible — happens in background |
 
 ### Key Design Decisions
@@ -46,7 +46,7 @@ Three enforcement options considered:
 3. MDM credential injection + code scanning
 
 ### Decision
-Option 3 — MDM injection + Shay-Rolls pre-commit scanning + audit logging.
+Option 3 — MDM injection + Raven pre-commit scanning + audit logging.
 
 ### Rationale
 
@@ -55,7 +55,7 @@ Option 3 — MDM injection + Shay-Rolls pre-commit scanning + audit logging.
 | Approval tickets take 2 weeks | Proven bypass — Arun used personal key under deadline pressure |
 | Policy without enforcement | Zaid shared a personal login with two teammates. Policy failed. |
 | MDM already deployed | No new infrastructure — extend existing MDM capability |
-| Shay-Rolls already scanning | Pre-commit hook extended with personal key pattern detection |
+| Raven already scanning | Pre-commit hook extended with personal key pattern detection |
 | Google Workspace identity scoping | Key dies automatically when employee offboards |
 
 ### Consequences
@@ -78,13 +78,13 @@ Option 3 — MDM injection + Shay-Rolls pre-commit scanning + audit logging.
 | # | Action | Owner | By When | Done When |
 |---|---|---|---|---|
 | 1 | Configure MDM to push enterprise Gemini credential to all dev machines | IT | Week 1 | All dev machines show enterprise key in environment |
-| 2 | Add personal Gemini key patterns to Shay-Rolls `secret-scan.py` | Engineering | Week 1 | Pre-commit blocks `GOOGLE_API_KEY` personal format |
+| 2 | Add personal Gemini key patterns to Raven `secret-scan.py` | Engineering | Week 1 | Pre-commit blocks `GOOGLE_API_KEY` personal format |
 | 3 | Enable GCP Audit Logs for all Gemini API calls | IT/Security | Week 1 | Every call logged with identity + tokens |
 | 4 | Configure 24hr credential cache in MDM | IT | Week 1 | Devs can work offline up to 24hrs |
 | 5 | Set up quarterly key rotation automation | IT | Week 2 | Rotation runs without dev intervention |
 | 6 | Communicate to all 70 devs — no ticket needed | Engineering Lead | Week 1 | Team notified, old process retired |
 | 7 | Revoke all personal Gemini keys in use | Security | Week 2 | Audit log shows zero personal key usage |
-| 8 | Add enterprise Gemini to Shay-Rolls `manifest.org.json` Tier 1 whitelist | Architecture | Week 1 | Auto-approved in all projects |
+| 8 | Add enterprise Gemini to Raven `manifest.org.json` Tier 1 whitelist | Architecture | Week 1 | Auto-approved in all projects |
 
 ### Success Metrics
 - Personal Gemini key usage: 0 within 30 days
@@ -101,7 +101,7 @@ Option 3 — MDM injection + Shay-Rolls pre-commit scanning + audit logging.
 | MDM fails to push credential | Infra failure | 24hr cache + IT alert on push failure |
 | Dev extracts injected key for personal use | Boundary Pusher (Zaid) | Key scoped to Workspace identity — unusable outside org context |
 | Enterprise Gemini goes down | SLA gap | Google Enterprise SLA — escalate to Google, not internal architecture problem |
-| Devs find new personal AI tools | Human nature (Arun) | Shay-Rolls scans for known personal API key patterns — update list quarterly |
+| Devs find new personal AI tools | Human nature (Arun) | Raven scans for known personal API key patterns — update list quarterly |
 
 ## Ruled Out
 - **Approval ticket process** — Two weeks average. Proven to cause bypasses under deadline pressure.

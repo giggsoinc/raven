@@ -1,5 +1,5 @@
 #!/bin/bash
-# Shay-Rolls Setup — Step 4: Generate manifest.json
+# Raven Setup — Step 4: Generate manifest.json
 # Requires all exported vars from sr-01-questions.sh
 
 G='\033[0;32m' N='\033[0m'
@@ -52,7 +52,7 @@ manifest = {
     "apps":      jl(os.environ["APPS_VAL"]),
     "libraries": []
   },
-  "standards":     "shay-rolls-v2.8",
+  "standards":     "raven-v2.8",
   "approval_mode": "auto" if mode == "solo" else "first_responder",
   "guard": {
     "enabled":  True,
@@ -73,8 +73,8 @@ manifest = {
     "web": {"blocked_url_patterns": ["api.openai.com","platform.openai.com"]}
   },
   "approved_skills": {
-    "giggso":    ["shay-rolls-core","shay-expert","shay-plan","shay-review",
-                  "shay-security","shay-refactor","shay-test","shay-document","andie"],
+    "giggso":    ["raven-core","raven-expert","raven-plan","raven-review",
+                  "raven-security","raven-refactor","raven-test","raven-document","andie"],
     "anthropic": ["debug","batch","review","security-review","init"],
     "community": []
   },
@@ -98,7 +98,7 @@ manifest = {
   }]
 }
 
-with open(f"{outdir}/.shay-rolls/manifest.json","w") as f:
+with open(f"{outdir}/.raven/manifest.json","w") as f:
     json.dump(manifest, f, indent=2)
 print("written")
 PYEOF

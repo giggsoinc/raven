@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Shay-Rolls — Secret Scanner v2.0
+# Raven — Secret Scanner v2.0
 # Checks:
 #   1. .gitignore exists at project root
 #   2. .gitignore covers critical files (.env, secrets, keys)
@@ -33,7 +33,7 @@ REQUIRED_GITIGNORE = [
     "*.p12",
     "*.pfx",
     "manifest.secrets.json",
-    ".shay-rolls/manifest.secrets.json",
+    ".raven/manifest.secrets.json",
 ]
 
 violations = []
@@ -77,9 +77,9 @@ for env_file in [".env", ".env.local", ".env.production", ".env.staging"]:
 
 # ── Check 4: manifest.secrets.json not staged ─────────────────────────────────
 files = staged_files()
-if ".shay-rolls/manifest.secrets.json" in files or "manifest.secrets.json" in files:
+if ".raven/manifest.secrets.json" in files or "manifest.secrets.json" in files:
     violations.append("❌ manifest.secrets.json staged — NEVER commit this file")
-    violations.append("   Run: git reset HEAD .shay-rolls/manifest.secrets.json")
+    violations.append("   Run: git reset HEAD .raven/manifest.secrets.json")
 
 # ── Check 5: Secret patterns in staged files ──────────────────────────────────
 for path in files:
@@ -98,12 +98,12 @@ for path in files:
 
 # ── Output ─────────────────────────────────────────────────────────────────────
 if warnings:
-    print("\n⚠️  Shay-Rolls Secret Scan — Warnings:")
+    print("\n⚠️  Raven Secret Scan — Warnings:")
     for w in warnings:
         print(f"  {w}")
 
 if violations:
-    print("\n❌ Shay-Rolls Secret Scan — VIOLATIONS (commit blocked):")
+    print("\n❌ Raven Secret Scan — VIOLATIONS (commit blocked):")
     for v in violations:
         print(f"  {v}")
     print()

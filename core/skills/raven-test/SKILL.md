@@ -1,12 +1,12 @@
 ---
-name: shay-test
+name: raven-test
 description: Use when writing or reviewing tests. Forces test-first discipline —
   writes tests before implementation. Use when asked to implement a feature
   or fix a bug to ensure test coverage exists first.
 allowed-tools: Read Write Edit Bash
 ---
 
-# Shay-Test
+# Raven-Test
 
 ## Test-first sequence
 1. Read the function/module being tested

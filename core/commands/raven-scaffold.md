@@ -9,8 +9,8 @@ description: Use when starting a new feature, module, or component.
 
 Before writing any code:
 
-1. Read .shay-rolls/manifest.json — confirm stack
-2. Read .shay-rolls/architecture.md — understand current system
+1. Read .raven/manifest.json — confirm stack
+2. Read .raven/architecture.md — understand current system
 3. Ask: "What are you building?" (one sentence)
 4. Generate:
    - **Dependency map** — what this touches, what it needs

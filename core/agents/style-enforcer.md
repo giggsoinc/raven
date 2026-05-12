@@ -24,7 +24,7 @@ Format: "💡 Suggestion: {rule} on {file}:{line}"
 All suggestions become hard blocks. List every violation clearly.
 Format: "❌ BLOCKED: {rule} on {file}:{line} — fix before commit"
 
-## Rules (from .shay-rolls/manifest.json style section):
+## Rules (from .raven/manifest.json style section):
 
 1. **Max lines per file** — default 150
    - Coding: "💡 {file} has {n} lines. Consider splitting (max 150)."

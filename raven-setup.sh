@@ -16,8 +16,8 @@ source "$SR_REPO_DIR/setup/sr-00-preflight.sh"  || exit 1
 
 # Backup existing secrets before questions wipe state
 export SR_SECRETS_BAK=""
-[ -f ".shay-rolls/manifest.secrets.json" ] && \
-    export SR_SECRETS_BAK=$(cat ".shay-rolls/manifest.secrets.json")
+[ -f ".raven/manifest.secrets.json" ] && \
+    export SR_SECRETS_BAK=$(cat ".raven/manifest.secrets.json")
 
 source "$SR_REPO_DIR/setup/sr-01-questions.sh"  || exit 1
 

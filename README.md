@@ -48,7 +48,7 @@ Enforces consistent coding standards, stack discipline, and production safety ac
 
 Progressive disclosure — ~100 tokens at startup, rules load only when triggered.
 
-**Core skills:** raven-core · shay-expert · shay-plan · shay-review · shay-security · shay-refactor · shay-test · shay-document · andie
+**Core skills:** raven-core · raven-expert · raven-plan · raven-review · raven-security · raven-refactor · raven-test · raven-document · andie
 
 **Specialist skills (19):** aws · gcp · azure · oci · kafka · postgres · redis · k8s · terraform · fastapi · nicegui · vault · security · aiml · dataeng · devops · bigdata · vector-db · dynamic
 

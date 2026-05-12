@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Shay-Rolls — Token Guard v2.0
+# Raven — Token Guard v2.0
 # CORRECT implementation based on actual Claude Code hook capabilities.
 #
 # Hook events do NOT receive token usage data.
@@ -15,14 +15,14 @@ import json, os, sys, subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
-STATE_FILE  = ".shay-rolls/.cache/token-guard-state.json"
-BACKUP_DIR  = ".shay-rolls/session-backups"
+STATE_FILE  = ".raven/.cache/token-guard-state.json"
+BACKUP_DIR  = ".raven/session-backups"
 
 def safe(fn):
     try: return fn()
     except: return None
 
-def notify_macos(title: str, msg: str, subtitle: str = "Shay-Rolls"):
+def notify_macos(title: str, msg: str, subtitle: str = "Raven"):
     """Fire a macOS notification toaster."""
     safe(lambda: subprocess.run([
         "osascript", "-e",
@@ -51,7 +51,7 @@ def handle_precompact(data: dict):
     # Build session summary
     summary_lines = [
         f"# Session Backup — {ts}",
-        f"## Auto-saved by Shay-Rolls Token Guard (PreCompact)",
+        f"## Auto-saved by Raven Token Guard (PreCompact)",
         f"",
         f"Context window reached compaction threshold.",
         f"",
@@ -67,7 +67,7 @@ def handle_precompact(data: dict):
         "",
         "## Next Steps",
         "- Review what was being worked on",
-        "- Run /shay-mem to restore context in new session",
+        "- Run /raven-mem to restore context in new session",
         "- Check git status for uncommitted changes",
     ]
 
@@ -83,26 +83,26 @@ def handle_precompact(data: dict):
 
     # macOS toaster notification
     notify_macos(
-        "🔴 Shay-Rolls — Context Nearly Full",
-        "Session compacting. Context saved to .shay-rolls/session-backups/",
-        f"Run /shay-mem to preserve session"
+        "🔴 Raven — Context Nearly Full",
+        "Session compacting. Context saved to .raven/session-backups/",
+        f"Run /raven-mem to preserve session"
     )
 
     # Print to stderr — shows in Claude Code terminal
     print(f"\n{'━'*52}", file=sys.stderr)
-    print(f"  Shay-Rolls Token Guard — PreCompact", file=sys.stderr)
+    print(f"  Raven Token Guard — PreCompact", file=sys.stderr)
     print(f"{'━'*52}", file=sys.stderr)
     print(f"  🔴 Context window reaching limit", file=sys.stderr)
     print(f"  Session backup saved: {backup_file}", file=sys.stderr)
-    print(f"  Run /shay-mem to preserve key decisions", file=sys.stderr)
+    print(f"  Run /raven-mem to preserve key decisions", file=sys.stderr)
     print(f"{'━'*52}\n", file=sys.stderr)
 
     # Return additionalContext to inject into Claude's context
     output = {
         "additionalContext": (
-            f"⚠️ SHAY-ROLLS TOKEN GUARD: Context window is nearly full and about to compact. "
+            f"⚠️ RAVEN TOKEN GUARD: Context window is nearly full and about to compact. "
             f"Session backup saved to {backup_file}. "
-            f"Please run /shay-mem to save key decisions and file changes before context resets."
+            f"Please run /raven-mem to save key decisions and file changes before context resets."
         )
     }
     print(json.dumps(output))
@@ -118,7 +118,7 @@ def handle_notification(data: dict):
     # Only surface important ones
     keywords = ["error", "fail", "blocked", "denied", "warning", "critical"]
     if any(k in msg.lower() for k in keywords):
-        notify_macos("Shay-Rolls Alert", msg[:100])
+        notify_macos("Raven Alert", msg[:100])
 
     sys.exit(0)
 

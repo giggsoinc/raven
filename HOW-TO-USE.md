@@ -82,20 +82,20 @@ YourProject/
 │   │   │       ├── style.md
 │   │   │       ├── architecture.md
 │   │   │       └── commit.md
-│   │   ├── shay-expert/                   ← L99 deep expertise mode
-│   │   ├── shay-plan/                     ← Architecture-first planning
-│   │   ├── shay-review/                   ← Manifest-aware code review
-│   │   ├── shay-security/                 ← Threat model + CVE analysis
-│   │   ├── shay-refactor/                 ← Style enforcement
-│   │   ├── shay-test/                     ← Test-first discipline
-│   │   ├── shay-document/                 ← Doc enforcement
+│   │   ├── raven-expert/                   ← L99 deep expertise mode
+│   │   ├── raven-plan/                     ← Architecture-first planning
+│   │   ├── raven-review/                   ← Manifest-aware code review
+│   │   ├── raven-security/                 ← Threat model + CVE analysis
+│   │   ├── raven-refactor/                 ← Style enforcement
+│   │   ├── raven-test/                     ← Test-first discipline
+│   │   ├── raven-document/                 ← Doc enforcement
 │   │   ├── andie/                         ← Multi-modal AI expert (4 modes)
 │   │   └── [19 specialist skills]/        ← aws gcp azure oci kafka postgres ...
 │   ├── commands/                          ← /raven-scaffold /raven-debug /raven-approve ...
 │   ├── scripts/                           ← cve-check.py secret-scan.py audit-log.py ...
 │   └── mcp/server.py                      ← MCP plugin server (5 tools)
 ├── .git/hooks/pre-commit
-└── .shay-rolls/
+└── .raven/
     ├── manifest.json                      ← Public config (Git tracked)
     ├── manifest.secrets.json              ← NEVER commit
     ├── architecture.md                    ← Living diagram template
@@ -127,7 +127,7 @@ Session starts → raven-core SKILL.md scanned (~100 tokens)
 Dev adds: import pandas
       ↓
 Claude loads rules/stack.md
-rules/stack.md reads live manifest: !`cat .shay-rolls/manifest.json`
+rules/stack.md reads live manifest: !`cat .raven/manifest.json`
       ↓
 Checks import → flags if not in approved libraries
 rules/style.md, rules/architecture.md → untouched (zero tokens wasted)
@@ -137,13 +137,13 @@ rules/style.md, rules/architecture.md → untouched (zero tokens wasted)
 
 | Prompt contains... | Routes to |
 |---|---|
-| `"expert"` / `"deep dive"` / `"L99"` | `shay-expert` |
-| `"security"` / `"CVE"` / `"threat"` | `shay-security` |
-| `"plan"` / `"architecture"` / `"scaffold"` | `shay-plan` + `/raven-scaffold` |
-| `"review"` / `"PR"` | `shay-review` |
-| `"refactor"` / `"clean"` | `shay-refactor` |
-| `"test"` / `"coverage"` | `shay-test` |
-| `"document"` / `"README"` | `shay-document` |
+| `"expert"` / `"deep dive"` / `"L99"` | `raven-expert` |
+| `"security"` / `"CVE"` / `"threat"` | `raven-security` |
+| `"plan"` / `"architecture"` / `"scaffold"` | `raven-plan` + `/raven-scaffold` |
+| `"review"` / `"PR"` | `raven-review` |
+| `"refactor"` / `"clean"` | `raven-refactor` |
+| `"test"` / `"coverage"` | `raven-test` |
+| `"document"` / `"README"` | `raven-document` |
 | `"drama"` / `"debate"` / `"stress-test"` | `andie` Drama Mode |
 | new `import X` in code | CVE check via `cve-check.py` |
 | `"commit"` / `"push"` | Pre-commit gate — all 5 checks fire |
@@ -241,7 +241,7 @@ git push → CI/CD thin check → merged
 
 ## CI/CD Setup
 
-Copy from `.shay-rolls/ci/`:
+Copy from `.raven/ci/`:
 
 | Platform | File | Destination |
 |---|---|---|
@@ -274,8 +274,8 @@ Then run `/raven-debug` to verify everything loaded:
 ## First Commit
 
 ```bash
-git add .shay-rolls/manifest.json .shay-rolls/.gitignore \
-        .shay-rolls/architecture.md CLAUDE.md .claude/
+git add .raven/manifest.json .raven/.gitignore \
+        .raven/architecture.md CLAUDE.md .claude/
 git commit -m "chore: init raven v2.8 [RAVEN:INIT]"
 git push
 ```
@@ -287,9 +287,9 @@ git push
 | File | Commit? | Who Edits |
 |---|---|---|
 | `CLAUDE.md` | ✅ | Architects |
-| `.shay-rolls/manifest.json` | ✅ | Architects |
-| `.shay-rolls/architecture.md` | ✅ | Dev lead |
-| `.shay-rolls/manifest.secrets.json` | ❌ Never | Architects only |
+| `.raven/manifest.json` | ✅ | Architects |
+| `.raven/architecture.md` | ✅ | Dev lead |
+| `.raven/manifest.secrets.json` | ❌ Never | Architects only |
 | `.claude/agents/*.md` | ✅ | Architects |
 | `.claude/skills/` | ✅ | Architects |
 | `.claude/commands/` | ✅ | Architects |
@@ -306,7 +306,7 @@ git push
 | raven-core not found | Check `.claude/skills/raven-core/SKILL.md` exists |
 | Manifest not loading | Run `/raven-debug` |
 | Pre-commit not firing | `chmod +x .git/hooks/pre-commit` |
-| CVE check skipped | Add `openai_api_key` to `.shay-rolls/manifest.secrets.json` |
+| CVE check skipped | Add `openai_api_key` to `.raven/manifest.secrets.json` |
 | Hooks not running | Check `.claude/settings.json` has all 4 hooks registered |
 
 ---

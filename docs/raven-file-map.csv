@@ -3,29 +3,29 @@ Core,Root,CLAUDE.md,"Project entry point. Claude Code reads this first on every 
 Core,Root,README.md,"Public-facing documentation. What the repo is, how to install, what it does.",Open source,Text editor,On version bump
 Core,Root,HOW-TO-USE.md,"Full enterprise setup guide. Installation, stakeholder roles, CVE tiers, CI/CD setup, troubleshooting.",Architects,Text editor,On feature addition
 Core,Root,LICENSE,"MIT license. Allows free use, modification, distribution.",Legal,Do not edit,Never
-Core,Root,shay-rolls-init.sh,"Master setup script. Asks 7 questions, creates manifest, copies all files, sets OS permissions, verifies installation.",Architects,Bash + text editor,On new feature requiring init change
+Core,Root,raven-init.sh,"Master setup script. Asks 7 questions, creates manifest, copies all files, sets OS permissions, verifies installation.",Architects,Bash + text editor,On new feature requiring init change
 Core,manifest/,manifest.schema.json,JSON schema definition for manifest.json. Validates all manifest fields.,Architects,JSON editor,When adding new manifest fields
 Core,manifest/,manifest.example.json,Working example manifest with all fields populated. Use as template for new projects.,Architects,JSON editor,When adding new fields
 Core,manifest/,manifest.org.example.json,Org-level manifest template. Locked fields pushed to all projects via Claude Code Enterprise.,CISO/CTO,JSON editor,When changing org-wide standards
-Core,manifest/,manifest.secrets.example.json,"Secrets template. NEVER commit the real version. Contains API keys, S3 config, audit key.",Architects,JSON editor,Reference only — edit real file in .shay-rolls/
+Core,manifest/,manifest.secrets.example.json,"Secrets template. NEVER commit the real version. Contains API keys, S3 config, audit key.",Architects,JSON editor,Reference only — edit real file in .raven/
 Core,core/agents/,manifest-checker.md,Priority 1 agent. Hard blocks everything if manifest.json is missing or invalid. Only agent that blocks during coding.,Architects,Markdown editor,If manifest rules change
 Core,core/agents/,stack-validator.md,Priority 2 agent. Fires on import detection. Three-tier CVE check. Triggers approval flow for unknown libraries.,Architects,Markdown editor,If CVE check logic changes
 Core,core/agents/,style-enforcer.md,"Priority 3 agent. Advises during coding. Hard blocks at git commit. Checks lines, print(), type hints, docstrings.",Architects,Markdown editor,If style rules change
 Core,core/agents/,architecture-guard.md,Priority 4 agent. Warns on new file creation. 24hr grace period then hard blocks commits until architecture.md filled.,Architects,Markdown editor,If architecture requirements change
 Core,core/agents/,claude-mem.md,"Session memory agent. Runs on session start/end. Indexes decisions, reduces repeated context by 95%. Uses Haiku model.",Architects,Markdown editor,If memory strategy changes
 Core,core/agents/,skill-guard.md,Security agent. Monitors all skill activity. Blocks restricted file access. Checks approved_skills list in manifest.,CISO,Markdown editor,If security policy changes
-Core,core/skills/shay-rolls-core/,SKILL.md,Entry skill. Loads manifest live via ! injection. Routes to rule files on demand. ~100 tokens at startup.,Architects,Markdown editor,If routing logic changes
-Core,core/skills/shay-rolls-core/rules/,stack.md,Stack rules loaded only when import detected. Checks against manifest. Calls cve-check.py.,Architects,Markdown editor,If stack policy changes
-Core,core/skills/shay-rolls-core/rules/,style.md,"Style rules loaded only on style check. Max lines, type hints, docstrings, logging.",Architects,Markdown editor,If style standards change
-Core,core/skills/shay-rolls-core/rules/,architecture.md,Architecture rules loaded on file create. Checks architecture.md exists and has version header.,Architects,Markdown editor,If architecture requirements change
-Core,core/skills/shay-rolls-core/rules/,commit.md,Commit gate rules loaded at commit time. Lists all 5 checks in order.,Architects,Markdown editor,If commit gates change
-Core,core/skills/shay-expert/,SKILL.md,"L99 mode. No hedging, no 'it depends'. World-class specialist depth on any topic.",All devs,Markdown editor,Rarely
-Core,core/skills/shay-plan/,SKILL.md,Architecture-first planning. Reads manifest live. Forces dependency map before any code.,All devs,Markdown editor,Rarely
-Core,core/skills/shay-review/,SKILL.md,Manifest-aware code review. Checks stack + style + security against approved libraries.,All devs,Markdown editor,Rarely
-Core,core/skills/shay-security/,SKILL.md,CVE-aware security review. Calls cve-check.py and secret-scan.py. Use before every merge.,All devs,Markdown editor,Rarely
-Core,core/skills/shay-refactor/,SKILL.md,"Enforces 150 lines, type hints, logging, polars over pandas in one pass.",All devs,Markdown editor,Rarely
-Core,core/skills/shay-test/,SKILL.md,Test-first discipline. Writes failing tests before implementation. pytest + edge cases + mocks.,All devs,Markdown editor,Rarely
-Core,core/skills/shay-document/,SKILL.md,Docstrings + architecture.md updates + manifest changelog on every structural change.,All devs,Markdown editor,Rarely
+Core,core/skills/raven-core/,SKILL.md,Entry skill. Loads manifest live via ! injection. Routes to rule files on demand. ~100 tokens at startup.,Architects,Markdown editor,If routing logic changes
+Core,core/skills/raven-core/rules/,stack.md,Stack rules loaded only when import detected. Checks against manifest. Calls cve-check.py.,Architects,Markdown editor,If stack policy changes
+Core,core/skills/raven-core/rules/,style.md,"Style rules loaded only on style check. Max lines, type hints, docstrings, logging.",Architects,Markdown editor,If style standards change
+Core,core/skills/raven-core/rules/,architecture.md,Architecture rules loaded on file create. Checks architecture.md exists and has version header.,Architects,Markdown editor,If architecture requirements change
+Core,core/skills/raven-core/rules/,commit.md,Commit gate rules loaded at commit time. Lists all 5 checks in order.,Architects,Markdown editor,If commit gates change
+Core,core/skills/raven-expert/,SKILL.md,"L99 mode. No hedging, no 'it depends'. World-class specialist depth on any topic.",All devs,Markdown editor,Rarely
+Core,core/skills/raven-plan/,SKILL.md,Architecture-first planning. Reads manifest live. Forces dependency map before any code.,All devs,Markdown editor,Rarely
+Core,core/skills/raven-review/,SKILL.md,Manifest-aware code review. Checks stack + style + security against approved libraries.,All devs,Markdown editor,Rarely
+Core,core/skills/raven-security/,SKILL.md,CVE-aware security review. Calls cve-check.py and secret-scan.py. Use before every merge.,All devs,Markdown editor,Rarely
+Core,core/skills/raven-refactor/,SKILL.md,"Enforces 150 lines, type hints, logging, polars over pandas in one pass.",All devs,Markdown editor,Rarely
+Core,core/skills/raven-test/,SKILL.md,Test-first discipline. Writes failing tests before implementation. pytest + edge cases + mocks.,All devs,Markdown editor,Rarely
+Core,core/skills/raven-document/,SKILL.md,Docstrings + architecture.md updates + manifest changelog on every structural change.,All devs,Markdown editor,Rarely
 Core,core/skills/andie/,SKILL.md,Work orchestrator + Drama Mode. Expert panel debates. OODA diagrams. Strategy docs. Cross-domain.,All users,Markdown editor,When Drama Mode protocol changes
 Core,core/hooks/,settings.json,Claude Code hooks config. Wires PreToolUse → tool-guard.py and PostToolUse → audit-log.py. Set to chmod 444 after install.,Architects,JSON editor (carefully),If hook triggers change
 Core,core/hooks/,pre-commit,"Local git hook. 5 checks: manifest, secrets, CVE, style, deletions. Runs on every git commit. Can be bypassed with --no-verify.",Architects,Bash editor,If commit checks change
@@ -47,12 +47,12 @@ Core,core/ci/,github-actions.yml,"GitHub Actions workflow. Runs on every push + 
 Core,core/ci/,gitlab-ci.yml,GitLab CI config. Equivalent to GitHub Actions. Copy to repo root as .gitlab-ci.yml.,DevOps,YAML editor,If CI checks change
 Core,core/ci/,on-prem-pipeline.sh,On-prem runner script. Jenkins/Gitea compatible. Runs manifest + secret checks.,DevOps,Bash editor,If on-prem CI changes
 Core,templates/,architecture.md,Living architecture template. Generated on init. Fill all sections within 24hrs or commits blocked.,Dev leads,Markdown editor,Every structural change — bump version
-Core,docs/diagrams/,shay-rolls-core-architecture.html,7-layer Core architecture diagram. HTML. Open in browser.,All,Regenerate only,On major version
-Core,docs/diagrams/,shay-rolls-enterprise-usage.html,Enterprise usage + business value diagram. HTML. CISO/CXO-facing.,All,Regenerate only,On major version
+Core,docs/diagrams/,raven-core-architecture.html,7-layer Core architecture diagram. HTML. Open in browser.,All,Regenerate only,On major version
+Core,docs/diagrams/,raven-enterprise-usage.html,Enterprise usage + business value diagram. HTML. CISO/CXO-facing.,All,Regenerate only,On major version
 Core,docs/diagrams/,gemini-enforcement.html,Drama Mode Scene 1 diagrams. OODA + flowchart + tech arch for Gemini enforcement decision.,Architects,Reference only,When decision changes
 Guard,Root,CLAUDE.md,"Guard entry point. Hard block rules, SLA table, escalation ladder. Claude Code reads on session open.",Architects,Text editor,If Guard rules change
 Guard,Root,README.md,"Guard public documentation. What Guard is, 6 agents, approval flow, SLA table.",Open source,Text editor,On version bump
-Guard,Root,shay-rolls-guard-init.sh,Guard setup script. Installs 6 agents + scripts. Requires Core installed first. Asks 3 questions.,DevOps,Bash + text,On new Guard feature
+Guard,Root,raven-guard-init.sh,Guard setup script. Installs 6 agents + scripts. Requires Core installed first. Asks 3 questions.,DevOps,Bash + text,On new Guard feature
 Guard,guard/agents/,guard-git-watch.md,Watches git operations. Force push → hard block. Deletions with GUARD:ALLOW-DELETE → approval flow.,DevOps,Markdown editor,If git policy changes
 Guard,guard/agents/,guard-db-watch.md,Watches DB operations. TRUNCATE/DROP → hard block. Mass delete >100 rows → approval flow.,DBAs,Markdown editor,If DB threshold changes
 Guard,guard/agents/,guard-infra-watch.md,Watches Terraform/S3/VM/K8s. State file → hard block. S3 delete → approval flow.,DevOps,Markdown editor,If infra policy changes
@@ -63,9 +63,9 @@ Guard,guard/scripts/,guard-notify.py,Notification brain. P1 → PagerDuty + Pris
 Guard,guard/scripts/,guard-weekly-digest.py,"Reads digest.log, formats, sends to Prism7, clears log. Run via cron: 0 8 * * 1.",DevOps,Python editor,If digest format changes
 Guard,guard/scripts/,emit-violation.py,Same as Core version. Sends Guard violations to S3 audit bucket. Silent if not configured.,DevOps,Python editor,If violation format changes
 Guard,guard/scripts/,audit-log.py,Same as Core version. PostToolUse hook for Guard sessions. Encrypted S3 write.,DevOps,Python editor,If audit format changes
-Project,.shay-rolls/,manifest.json,"THE stack declaration. Language, cloud, DB, approved libraries, guard config, style rules. Commit this.",Architects,JSON editor,Every standard or stack change — bump version
-Project,.shay-rolls/,manifest.secrets.json,"THE secrets file. Approval inbox, API keys, S3 config, encryption key. chmod 600. NEVER commit.",Architects,JSON editor,When credentials change
-Project,.shay-rolls/,architecture.md,Living architecture doc. Must be filled within 24hrs of first file creation. Version on every change.,Dev leads,Markdown editor,Every structural change
-Project,.shay-rolls/,.gitignore,Gitignores manifest.secrets.json and .cache/. Do not modify.,Do not edit,Do not edit,Never
-Project,.shay-rolls/audit/,fallback-YYYY-MM-DD.log,Local fallback audit log. Only written if S3 not configured and local_fallback:true.,CISO,Read only,Never — auto-generated
-Project,.shay-rolls/guard/,digest.log,Guard P2/P3 events buffer. Read by guard-weekly-digest.py every Monday. Cleared after send.,DevOps,Read only,Never — auto-generated
+Project,.raven/,manifest.json,"THE stack declaration. Language, cloud, DB, approved libraries, guard config, style rules. Commit this.",Architects,JSON editor,Every standard or stack change — bump version
+Project,.raven/,manifest.secrets.json,"THE secrets file. Approval inbox, API keys, S3 config, encryption key. chmod 600. NEVER commit.",Architects,JSON editor,When credentials change
+Project,.raven/,architecture.md,Living architecture doc. Must be filled within 24hrs of first file creation. Version on every change.,Dev leads,Markdown editor,Every structural change
+Project,.raven/,.gitignore,Gitignores manifest.secrets.json and .cache/. Do not modify.,Do not edit,Do not edit,Never
+Project,.raven/audit/,fallback-YYYY-MM-DD.log,Local fallback audit log. Only written if S3 not configured and local_fallback:true.,CISO,Read only,Never — auto-generated
+Project,.raven/guard/,digest.log,Guard P2/P3 events buffer. Read by guard-weekly-digest.py every Monday. Cleared after send.,DevOps,Read only,Never — auto-generated
