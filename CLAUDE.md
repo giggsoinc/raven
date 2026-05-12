@@ -1,6 +1,6 @@
-# CLAUDE.md — Shay-Rolls Discipline Engine
+# CLAUDE.md — Raven Discipline Engine
 
-This project operates under **Shay-Rolls v1.0** discipline.  
+This project operates under **Raven v2.8** discipline.  
 Read this file completely before taking any action.
 
 ---
@@ -209,5 +209,5 @@ If a skill attempts any of the above:
 
 ---
 
-*Shay-Rolls v1.0 — Built by Giggso — MIT License*  
-*github.com/giggso/shay-rolls-claude*
+*Raven v2.8 — Built by Giggso — MIT License*  
+*github.com/giggsoinc/raven*

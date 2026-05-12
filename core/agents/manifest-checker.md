@@ -20,7 +20,7 @@ Manifest missing = nothing works. This is non-negotiable at all times.
 ## Checks (in order):
 
 1. Does `.shay-rolls/manifest.json` exist?
-   - NO → HARD STOP: "❌ Manifest missing. Run: bash shay-rolls-init.sh"
+   - NO → HARD STOP: "❌ Manifest missing. Run: bash raven-setup.sh"
 
 2. Is it valid JSON?
    - NO → HARD STOP: "❌ Manifest JSON invalid. Fix before proceeding."

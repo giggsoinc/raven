@@ -1,4 +1,4 @@
-# Shay-Rolls Claude — Install Guide
+# Raven — Install Guide
 ## Solo Developer · Small Team · Enterprise
 
 ---
@@ -6,7 +6,7 @@
 ## Solo Developer — One command
 
 ```bash
-bash /path/to/shay-rolls-claude/shay-rolls-setup.sh
+bash /path/to/raven/raven-setup.sh
 ```
 
 Answer 7 questions. Done. Takes 2 minutes.
@@ -15,23 +15,23 @@ Answer 7 questions. Done. Takes 2 minutes.
 
 ## Claude Code Plugin — Any Developer
 
-Install Shay-Rolls as a Claude Code MCP plugin. Available globally across all projects.
+Install Raven as a Claude Code MCP plugin. Available globally across all projects.
 
 ```bash
 # Install plugin (run once, ever)
-claude mcp add shay-rolls -- python3 ~/.shay-rolls-claude/mcp/server.py
+claude mcp add raven -- python3 ~/.raven/mcp/server.py
 
 # Then init any project
 cd YourProject
-shay-rolls-setup
+raven-setup
 ```
 
 **What the plugin exposes in Claude Code:**
-- `shay_status` — check manifest, version, mode
-- `shay_cve_check` — CVE scan any library on demand
-- `shay_sync_libs` — sync requirements.txt → manifest
-- `shay_debug` — full health check
-- `shay_violation` — emit violation to audit log
+- `raven_status` — check manifest, version, mode
+- `raven_cve_check` — CVE scan any library on demand
+- `raven_sync_libs` — sync requirements.txt → manifest
+- `raven_debug` — full health check
+- `raven_violation` — emit violation to audit log
 
 ---
 
@@ -39,27 +39,27 @@ shay-rolls-setup
 
 **Step 1 — One developer sets up the framework repo:**
 ```bash
-git clone https://github.com/giggsoinc/shay-rolls-claude ~/.shay-rolls-claude
-git clone https://github.com/giggsoinc/shay-rolls-claude-guard ~/.shay-rolls-claude-guard
+git clone https://github.com/giggsoinc/raven ~/.raven
+git clone https://github.com/giggsoinc/raven-guard ~/.raven-guard
 ```
 
 **Step 2 — Create a shared org manifest:**
 ```bash
-cp ~/.shay-rolls-claude/manifest/manifest.org.example.json \
-   your-org-repo/shay-rolls/manifest.org.json
+cp ~/.raven/manifest/manifest.org.example.json \
+   your-org-repo/raven/manifest.org.json
 ```
 
 Edit `manifest.org.json` — set shared S3 bucket, approved libraries, forbidden frameworks.
 
 **Step 3 — Each developer installs:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/giggsoinc/shay-rolls-claude/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | bash
 ```
 
 **Step 4 — Each developer inits their project:**
 ```bash
 cd MyProject
-shay-rolls-setup
+raven-setup
 ```
 
 ---
@@ -73,7 +73,7 @@ shay-rolls-setup
 ```json
 {
   "org": "YourOrg",
-  "standards": "shay-rolls-v2.8",
+  "standards": "raven-v2.8",
   "audit": {
     "provider":   "aws",
     "s3_bucket":  "your-org-audit-bucket",
@@ -98,7 +98,7 @@ Save as `manifest.org.json` in your internal package registry or S3 bucket.
 **Step 2 — Set environment variable on every dev machine (via MDM/Intune):**
 
 ```bash
-SHAY_ROLLS_ORG_MANIFEST=s3://your-bucket/manifest.org.json
+RAVEN_ORG_MANIFEST=s3://your-bucket/manifest.org.json
 ```
 
 Or push via your MDM tool (Jamf, Intune, Puppet, Ansible).
@@ -107,22 +107,22 @@ Or push via your MDM tool (Jamf, Intune, Puppet, Ansible).
 
 Via Ansible:
 ```yaml
-- name: Install Shay-Rolls Claude
+- name: Install Raven
   shell: |
-    curl -fsSL https://raw.githubusercontent.com/giggsoinc/shay-rolls-claude/main/install.sh | bash
+    curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | bash
   become: false
 ```
 
 Via Jamf (macOS):
 ```bash
 # Jamf policy script
-curl -fsSL https://raw.githubusercontent.com/giggsoinc/shay-rolls-claude/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | bash
 ```
 
 Via Docker base image:
 ```dockerfile
 FROM ubuntu:24.04
-RUN curl -fsSL https://raw.githubusercontent.com/giggsoinc/shay-rolls-claude/main/install.sh | bash
+RUN curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | bash
 ```
 
 ### Developer onboarding (each new developer)
@@ -132,11 +132,11 @@ RUN curl -fsSL https://raw.githubusercontent.com/giggsoinc/shay-rolls-claude/mai
 git clone https://github.com/yourorg/myproject
 cd myproject
 
-# Init Shay-Rolls (reads org manifest from env var automatically)
-shay-rolls-setup
+# Init Raven (reads org manifest from env var automatically)
+raven-setup
 
 # Install Guard
-shay-rolls-guard-setup
+raven-guard-setup
 
 # Open Claude Code
 claude .
@@ -148,10 +148,10 @@ Total time: **under 3 minutes.**
 
 If your org uses Claude Code Enterprise:
 
-1. Admin uploads `shay-rolls-claude` to the org plugin registry
+1. Admin uploads `raven` to the org plugin registry
 2. Every developer gets it automatically on next Claude Code update
 3. No install, no curl, no setup
-4. `shay-rolls-setup` available as a command everywhere
+4. `raven-setup` available as a command everywhere
 
 ---
 
@@ -161,7 +161,7 @@ Every project writes to the same S3 bucket, isolated by project name:
 
 ```
 s3://your-org-audit/
-  shay-rolls/
+  raven/
     lockey/rv_at_giggso/rvgiggso/2026-05-10.log.gz.enc
     patronai/rv_at_giggso/rvgiggso/2026-05-10.log.gz.enc
     antiGravity/rv_at_giggso/rvgiggso/2026-05-10.log.gz.enc
@@ -177,7 +177,7 @@ Install Guard in every project after Core:
 
 ```bash
 cd MyProject
-shay-rolls-guard-setup
+raven-guard-setup
 ```
 
 Guard adds 6 agents that hard-block:
@@ -196,7 +196,7 @@ PagerDuty P1 fires in 15 minutes. Weekly digest to Prism7.
 ```
 Superpowers → dev methodology (TDD, planning, review)
 GSD         → context management (long sessions)
-Shay-Rolls  → governance + security layer
+Raven       → governance + security layer
 
 All three stack. No conflicts.
 ```
@@ -204,7 +204,7 @@ All three stack. No conflicts.
 ---
 
 ## GitHub
-- Core: github.com/giggsoinc/shay-rolls-claude (MIT)
-- Guard: github.com/giggsoinc/shay-rolls-claude-guard (MIT)
+- Core: github.com/giggsoinc/raven (MIT)
+- Guard: github.com/giggsoinc/raven-guard (MIT)
 
 Built by Giggso · giggso.com

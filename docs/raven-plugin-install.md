@@ -10,7 +10,7 @@
 curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | bash
 
 # Step 2 — Register as MCP plugin
-claude mcp add raven -- python3 ~/.raven-claude/mcp/server.py
+claude mcp add raven -- python3 ~/.raven/mcp/server.py
 
 # Step 3 — Verify
 claude mcp list
@@ -46,7 +46,7 @@ VS Code supports MCP servers via `settings.json`:
       "raven": {
         "type": "stdio",
         "command": "python3",
-        "args": ["${env:HOME}/.raven-claude/mcp/server.py"]
+        "args": ["${env:HOME}/.raven/mcp/server.py"]
       }
     }
   }
@@ -60,7 +60,7 @@ Or globally in VS Code user settings (`Cmd+Shift+P` → Open User Settings JSON)
     "raven": {
       "type": "stdio",
       "command": "python3",
-      "args": ["/Users/YOUR_NAME/.raven-claude/mcp/server.py"]
+      "args": ["/Users/YOUR_NAME/.raven/mcp/server.py"]
     }
   }
 }
@@ -81,7 +81,7 @@ Cursor supports MCP servers via `.cursor/mcp.json`:
   "mcpServers": {
     "raven": {
       "command": "python3",
-      "args": ["/Users/YOUR_NAME/.raven-claude/mcp/server.py"]
+      "args": ["/Users/YOUR_NAME/.raven/mcp/server.py"]
     }
   }
 }
@@ -100,7 +100,7 @@ Windsurf supports MCP via `~/.codeium/windsurf/mcp_config.json`:
   "mcpServers": {
     "raven": {
       "command": "python3",
-      "args": ["/Users/YOUR_NAME/.raven-claude/mcp/server.py"]
+      "args": ["/Users/YOUR_NAME/.raven/mcp/server.py"]
     }
   }
 }
@@ -115,7 +115,7 @@ For internal Cowork deployment — enterprise zero-click:
 ```bash
 # Admin deploys to system-wide location
 sudo mkdir -p /usr/local/raven
-sudo cp -r ~/.raven-claude/* /usr/local/raven/
+sudo cp -r ~/.raven/* /usr/local/raven/
 
 # Deploy managed MCP config
 sudo cp managed-mcp.json \
@@ -134,10 +134,10 @@ Or use `${env:HOME}` where the IDE supports env var expansion.
 
 ```
 Raven MCP server path:
-  ~/.raven-claude/mcp/server.py
+  ~/.raven/mcp/server.py
 
 Command to run:
-  python3 ~/.raven-claude/mcp/server.py
+  python3 ~/.raven/mcp/server.py
 ```
 
 ---

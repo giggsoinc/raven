@@ -1,20 +1,20 @@
 ---
-name: shay-search
+name: raven-search
 description: Use when developer wants to find, evaluate, or install a new
   Claude skill. Searches anthropics/skills and GitHub, runs security audit,
   shows preview, requires architect approval before installing.
 allowed-tools: Bash Read
 ---
 
-# /shay-search
+# /raven-search
 
 Search for skills, audit them, and install with approval.
 
 ## Usage
 ```
-/shay-search {query}           ← search
-/shay-search --install {name}  ← install with audit + approval
-/shay-search --list            ← show approved skills
+/raven-search {query}           ← search
+/raven-search --install {name}  ← install with audit + approval
+/raven-search --list            ← show approved skills
 ```
 
 ## Steps

@@ -1,6 +1,6 @@
 ---
-name: shay-debug
-description: Use to run a full Shay-Rolls boot diagnostic.
+name: raven-debug
+description: Use to run a full Raven boot diagnostic.
   Checks all files, agents, manifest, and hooks are correctly installed.
 ---
 

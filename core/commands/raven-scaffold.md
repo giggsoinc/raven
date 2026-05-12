@@ -1,5 +1,5 @@
 ---
-name: shay-scaffold
+name: raven-scaffold
 description: Use when starting a new feature, module, or component.
   Forces architecture-first planning — generates dependency map and
   implementation plan before any code is written.

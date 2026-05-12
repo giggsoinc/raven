@@ -1,6 +1,6 @@
-# /shay-rolls init
+# /raven init
 
-Initializes Shay-Rolls for a new project by generating a validated `manifest.json` interactively.
+Initializes Raven for a new project by generating a validated `manifest.json` interactively.
 
 Run this command when starting a new project. It will ask you questions, generate the manifest, validate it against the schema, and commit it to Git with a proper audit trail entry.
 
@@ -121,7 +121,7 @@ Validate: basic email format.
 
 **Question 8 — Guard enabled?**
 ```
-Enable Shay-Rolls Guard for production protection?
+Enable Raven Guard for production protection?
 ( ) yes — recommended
 ( ) no
 ```
@@ -187,7 +187,7 @@ Next steps:
 
    git add .shay-rolls/manifest.json
    git add .shay-rolls/.gitignore
-   git commit -m "chore: init shay-rolls manifest v1.0 [SHAY-ROLLS:INIT]"
+   git commit -m "chore: init raven manifest v1.0 [RAVEN:INIT]"
    git push
 
 ⚠️  NEVER commit manifest.secrets.json
@@ -215,7 +215,7 @@ Validating manifest...
 ✅ Changelog entry present
 ✅ .gitignore configured
 
-Shay-Rolls initialized for {project}.
+Raven initialized for {project}.
 Run: claude --debug
 ```
 
@@ -224,7 +224,7 @@ If validation fails:
 ❌ Validation failed:
   - {field}: {reason}
 
-Fix and re-run: /shay-rolls init
+Fix and re-run: /raven init
 ```
 
 ---
@@ -233,11 +233,11 @@ Fix and re-run: /shay-rolls init
 
 Every init creates:
 - A `changelog` entry in `manifest.json` (in Git)
-- A commit with message `[SHAY-ROLLS:INIT]` (in Git history)
+- A commit with message `[RAVEN:INIT]` (in Git history)
 - A timestamp + author on the changelog entry
 
 This means every project initialization is fully auditable in Git.
 
 ---
 
-*Shay-Rolls v1.0 — github.com/giggso/shay-rolls-claude*
+*Raven v2.8 — github.com/giggsoinc/raven*

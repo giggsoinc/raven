@@ -1,15 +1,15 @@
 ---
-name: shay-rolls-core
+name: raven-core
 description: Use when writing code, adding imports, creating files, committing,
   or receiving ANY task prompt. First layer of intelligence — reads every prompt,
   detects intent, routes to the right skill or agent automatically. Always active.
 allowed-tools: Read Bash Grep
 ---
 
-# Shay-Rolls Core
+# Raven Core
 
 ## Live Config
-!`cat .shay-rolls/manifest.json 2>/dev/null || echo "MANIFEST MISSING — run shay-rolls-init.sh"`
+!`cat .shay-rolls/manifest.json 2>/dev/null || echo "MANIFEST MISSING — run raven-setup.sh"`
 
 ## Step 0 — Prompt Analysis (fires on EVERY prompt before anything else)
 
@@ -17,19 +17,19 @@ Read the incoming prompt. Detect intent. Route accordingly.
 
 | If prompt mentions... | Route to | Action |
 |---|---|---|
-| "find skill" / "search skill" / "what skill" | `/shay-search {query}` | Run skill search |
+| "find skill" / "search skill" / "what skill" | `/raven-search {query}` | Run skill search |
 | "expert" / "L99" / "deep dive" / "world class" | `shay-expert` | Activate L99 mode |
 | "security" / "threat model" / "vulnerability" / "CVE" | `shay-security` | Security review |
-| "plan" / "phases" / "architecture first" / "scaffold" | `shay-plan` + `/shay-scaffold` | Force plan before code |
+| "plan" / "phases" / "architecture first" / "scaffold" | `shay-plan` + `/raven-scaffold` | Force plan before code |
 | "review" / "PR" / "code review" | `shay-review` | Manifest-aware review |
 | "refactor" / "clean up" / "too long" | `shay-refactor` | Style enforcement |
 | "test" / "write tests" / "coverage" | `shay-test` | Test-first |
 | "document" / "docstring" / "README" | `shay-document` | Doc enforcement |
 | "drama" / "debate" / "stress-test" / "panel" | `andie` Drama Mode | Expert panel |
-| JSX / React / npm / node_modules in prompt | WARN + block | "Shay-Rolls: manifest forbids this framework" |
+| JSX / React / npm / node_modules in prompt | WARN + block | "Raven: manifest forbids this framework" |
 | new `import X` in code | CVE check | `cve-check.py --library X` |
 | "commit" / "push" / "git add" | Pre-commit gate | All 5 checks fire |
-| "sync libraries" / "requirements changed" / "new dependency" | `/shay-sync` | Auto-sync requirements → manifest |
+| "sync libraries" / "requirements changed" / "new dependency" | `/raven-sync` | Auto-sync requirements → manifest |
 | no specific match | passive mode | Style + stack rules apply |
 
 ## Step 1 — Project context

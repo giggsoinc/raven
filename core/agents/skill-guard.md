@@ -17,7 +17,7 @@ tools:
 - `.env` `.env.*`
 - `*.pem` `*.key` `id_rsa` `id_ed25519`
 - `.claude/settings.json` — read-only, no skill may modify
-- `.shay-rolls/manifest.json` — read-only for skills, modify via /shay-approve only
+- `.shay-rolls/manifest.json` — read-only for skills, modify via /raven-approve only
 
 ## On detection
 If any skill attempts restricted file access:

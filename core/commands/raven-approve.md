@@ -1,5 +1,5 @@
 ---
-name: shay-approve
+name: raven-approve
 description: Use when an architect wants to approve a pending library
   request. Updates manifest.json and notifies the requesting developer.
 ---

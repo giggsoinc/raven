@@ -1,5 +1,5 @@
 ---
-name: shay-sync
+name: raven-sync
 description: Use when requirements.txt or pyproject.toml has changed and you
   want to sync all libraries into manifest.json. CVE checks each one.
   Approved libraries are auto-added. Blocked ones are flagged. Run after
@@ -7,7 +7,7 @@ description: Use when requirements.txt or pyproject.toml has changed and you
 allowed-tools: Bash
 ---
 
-# /shay-sync
+# /raven-sync
 
 Syncs all libraries from requirements files into manifest.json.
 
@@ -18,11 +18,11 @@ Syncs all libraries from requirements files into manifest.json.
 4. If all clean — confirm manifest.json updated
 
 ## Options
-- `/shay-sync` — full sync with CVE check
-- `/shay-sync --dry-run` — show what would change, don't write
-- `/shay-sync --no-cve` — skip CVE check, approve all found libs
+- `/raven-sync` — full sync with CVE check
+- `/raven-sync --dry-run` — show what would change, don't write
+- `/raven-sync --no-cve` — skip CVE check, approve all found libs
 
 ## When to run
 - After pip install of new libraries
-- When onboarding existing project to Shay-Rolls
+- When onboarding existing project to Raven
 - After pulling a branch with new dependencies

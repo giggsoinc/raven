@@ -1,5 +1,5 @@
 ---
-name: shay-incident
+name: raven-incident
 description: Use to create a manual incident report for Guard events
   or production issues. Classifies as P1/P2/P3 and notifies Prism7.
 ---

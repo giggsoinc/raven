@@ -53,4 +53,4 @@ Format: "❌ BLOCKED: {rule} on {file}:{line} — fix before commit"
 ## How to detect mode:
 - If invoked by pre-commit hook → COMMIT MODE
 - If invoked during coding session → CODING MODE
-- Check: is `SHAY_ROLLS_COMMIT=1` set in environment?
+- Check: is `RAVEN_COMMIT=1` set in environment?
