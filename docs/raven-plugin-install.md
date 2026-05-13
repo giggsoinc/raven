@@ -1,5 +1,11 @@
+<p align="center">
+  <img src="../assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
+</p>
+
 # Raven — Plugin Install Guide
 ## Claude Code · VS Code · Cursor · AntiGravity · Windsurf
+
+*Guardrails before you ship.*
 
 ---
 

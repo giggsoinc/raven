@@ -1,9 +1,14 @@
+<p align="center">
+  <img src="./assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
+</p>
+
 # How to Use Raven — v2.8
 
-> Enterprise AI coding discipline platform for Claude Code.
-> Built by Giggso. MIT License.
+> Claude Code implementation of the Raven AI coding discipline engine.
+> Part of the [Raven platform](https://github.com/giggsoinc/raven-core). MIT License.
+> Built by [Giggso Inc](https://github.com/giggsoinc).
 
-*Wit beyond measure — for your codebase.*
+*Guardrails before you ship.*
 
 ---
 

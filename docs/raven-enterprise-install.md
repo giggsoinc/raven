@@ -1,5 +1,11 @@
+<p align="center">
+  <img src="../assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
+</p>
+
 # Raven — Install Guide
 ## Solo Developer · Small Team · Enterprise
+
+*Guardrails before you ship.*
 
 ---
 

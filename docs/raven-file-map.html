@@ -5,9 +5,13 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@700;800&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:#f8fbff;font-family:'JetBrains Mono',monospace;padding:28px;color:#1a2a3a;}
-h1{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#0a1a2a;margin-bottom:4px;}
-.sub{font-size:9px;letter-spacing:2px;color:#8aa0b8;text-transform:uppercase;margin-bottom:28px;}
+body{background:#0d0d1a;font-family:'JetBrains Mono',monospace;padding:28px;color:#c8c8e8;}
+.raven-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #2a2a4a;}
+.raven-header img{height:48px;}
+.raven-header-text h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:#a78bfa;margin-bottom:2px;}
+.raven-header-text .sub{font-size:9px;letter-spacing:2px;color:#6b6b9a;text-transform:uppercase;}
+h1{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#a78bfa;margin-bottom:4px;}
+.sub{font-size:9px;letter-spacing:2px;color:#6b6b9a;text-transform:uppercase;margin-bottom:28px;}
 .repo-block{margin-bottom:32px;}
 .repo-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:8px 14px;border-radius:6px 6px 0 0;display:inline-block;margin-bottom:0;}
 .core-title{background:#1E2761;color:#CADCFC;}
@@ -50,8 +54,13 @@ h1{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:3
 </head>
 <body>
 
-<h1>Raven Claude — File Map</h1>
-<div class="sub">Core v2.7 + Guard v1.2 · 70 files · github.com/giggso/raven-claude</div>
+<div class="raven-header">
+  <img src="../assets/raven-icon.png" alt="Raven"/>
+  <div class="raven-header-text">
+    <h1>Raven — File Map</h1>
+    <div class="sub">Core v2.8 + Guard v1.3 · github.com/giggsoinc/raven · Guardrails before you ship.</div>
+  </div>
+</div>
 
 <div class="legend">
   <span style="font-size:8px;font-weight:700;color:#8aa0b8;letter-spacing:1px;text-transform:uppercase;">Folder:</span>
