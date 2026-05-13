@@ -38,7 +38,7 @@ Raven-Codex brings enterprise coding discipline to OpenAI Codex:
 ## Quick Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven-codex/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/codex/install.sh | bash
 cd YourProject && raven-codex-setup
 ```
 

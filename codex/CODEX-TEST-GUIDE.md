@@ -33,7 +33,7 @@ git add . && git commit -m "init test project"
 ## Step 2 — Clone Raven-Codex
 
 ```bash
-git clone https://github.com/giggsoinc/raven-codex.git ~/.raven-codex
+curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/codex/install.sh | bash
 ```
 
 ---
@@ -42,7 +42,7 @@ git clone https://github.com/giggsoinc/raven-codex.git ~/.raven-codex
 
 ```bash
 cd raven-codex-test
-bash ~/.raven-codex/raven-codex-setup.sh
+cd YourProject && raven-codex-setup
 ```
 
 Setup will ask:
@@ -58,24 +58,24 @@ This creates `.raven/manifest.json` in your test project.
 
 ## Step 4 — Connect MCP Server to Codex
 
-Add Raven as an MCP server in Codex:
+`raven-codex-setup` does this automatically — it writes to `~/.codex/config.toml`.
 
-1. Go to [chatgpt.com/codex](https://chatgpt.com/codex)
-2. Open **Settings → MCP Servers**
-3. Click **Add MCP Server**
-4. Fill in:
-   ```
-   Name: raven
-   Command: python3
-   Args: /Users/YOUR_USERNAME/.raven-codex/mcp/server.py
-   ```
-5. Click **Connect**
-
-Verify it connected:
+Verify it was registered:
+```bash
+cat ~/.codex/config.toml
+# Should contain:
+# [mcp_servers.raven]
+# command = "python3"
+# args    = ["/Users/YOU/.raven-codex/mcp/server.py"]
 ```
-In Codex chat: "Run raven_status"
+
+Then verify Raven is live:
+```
+In Codex: "Run raven_status"
 Expected: ✅ manifest loaded, version, mode
 ```
+
+If `raven_status` returns an error, check [Troubleshooting](#troubleshooting) below.
 
 ---
 
@@ -191,4 +191,4 @@ cat .raven/audit/audit.log
 
 ---
 
-*Raven-Codex v2.8 — MIT — [github.com/giggsoinc/raven-codex](https://github.com/giggsoinc/raven-codex)*
+*Raven-Codex v2.8 — MIT — [github.com/giggsoinc/raven/tree/main/codex](https://github.com/giggsoinc/raven/tree/main/codex)*

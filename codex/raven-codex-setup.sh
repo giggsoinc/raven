@@ -55,18 +55,35 @@ RAVEN_AUDIT_KEY=
 OPENAI_API_KEY=$OPENAI_KEY
 EOF
 
+# Copy AGENTS.md to project root — Codex reads this before every task
+cp "$RAVEN_DIR/AGENTS.md" "$PROJECT_DIR/AGENTS.md" 2>/dev/null || true
+
+# Write Codex MCP config (config.toml format)
+mkdir -p "$HOME/.codex"
+CODEX_CONFIG="$HOME/.codex/config.toml"
+
+if ! grep -q "\[mcp_servers.raven\]" "$CODEX_CONFIG" 2>/dev/null; then
+  cat >> "$CODEX_CONFIG" <<EOF
+
+[mcp_servers.raven]
+command = "python3"
+args    = ["$RAVEN_DIR/mcp/server.py"]
+EOF
+  echo "✅ Raven MCP server registered in ~/.codex/config.toml"
+else
+  echo "✅ Raven MCP already registered in ~/.codex/config.toml"
+fi
+
 echo ""
 echo "✅ manifest.json written to .raven/"
+echo "✅ AGENTS.md written to project root"
 echo "✅ Audit log directory created"
+echo "✅ MCP server registered"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "Next: Connect Raven MCP server to Codex"
+echo "Verify Raven is active:"
 echo ""
-echo "  1. Go to https://chatgpt.com/codex"
-echo "  2. Settings → MCP Servers → Add MCP Server"
-echo "  3. Name: raven"
-echo "     Command: python3"
-echo "     Args: $RAVEN_DIR/mcp/server.py"
-echo "  4. Test: ask Codex to run raven_status"
+echo "  In Codex: ask 'Run raven_status'"
+echo "  Expected: ✅ manifest loaded, version, mode"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""

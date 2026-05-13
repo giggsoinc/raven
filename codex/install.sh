@@ -3,9 +3,22 @@ set -e
 
 RAVEN_DIR="$HOME/.raven-codex"
 
-echo "Installing Raven-Codex..."
+echo ""
+echo "╔══════════════════════════════════════╗"
+echo "║     Raven for Codex — Installing     ║"
+echo "║        Guardrails before you ship.   ║"
+echo "╚══════════════════════════════════════╝"
+echo ""
 
-git clone https://github.com/giggsoinc/raven-codex.git "$RAVEN_DIR"
+# Clone monorepo to temp, copy codex/ to install location
+TEMP_DIR="$(mktemp -d)"
+echo "Fetching Raven..."
+git clone --depth 1 https://github.com/giggsoinc/raven.git "$TEMP_DIR/raven" --quiet
+
+# Install from codex/ subfolder
+rm -rf "$RAVEN_DIR"
+cp -r "$TEMP_DIR/raven/codex" "$RAVEN_DIR"
+rm -rf "$TEMP_DIR"
 
 chmod +x "$RAVEN_DIR/raven-codex-setup.sh"
 chmod +x "$RAVEN_DIR/scripts/"*.py 2>/dev/null || true
@@ -20,12 +33,12 @@ SHELL_PROFILE="$HOME/.zshrc"
 
 if ! grep -q "raven-codex-setup" "$SHELL_PROFILE" 2>/dev/null; then
   echo "" >> "$SHELL_PROFILE"
-  echo "# Raven-Codex" >> "$SHELL_PROFILE"
+  echo "# Raven for Codex" >> "$SHELL_PROFILE"
   echo "alias raven-codex-setup='bash $RAVEN_DIR/raven-codex-setup.sh'" >> "$SHELL_PROFILE"
 fi
 
 echo ""
-echo "✅ Raven-Codex installed at $RAVEN_DIR"
+echo "✅ Raven installed at $RAVEN_DIR"
 echo ""
 echo "Run in your project:"
 echo "  source ~/.zshrc && cd YourProject && raven-codex-setup"
