@@ -1,0 +1,11 @@
+{
+  "name": "raven-guard-codex",
+  "description": "Production protection for OpenAI Codex. Hard-blocks destructive operations (force push, DROP TABLE, TRUNCATE, Terraform state edits). P1/P2/P3 incident SLAs. Part of the Raven platform. Requires raven-codex.",
+  "version": "1.3.0",
+  "author": {
+    "name": "Giggso Inc",
+    "url": "https://github.com/giggsoinc"
+  },
+  "homepage": "https://github.com/giggsoinc/raven-guard-codex",
+  "keywords": ["security", "enterprise", "governance", "production", "guard", "codex", "openai", "incident-management"]
+}

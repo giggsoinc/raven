@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#fff;font-family:'JetBrains Mono',monospace;padding:28px;color:#1a2a3a;}
+.masthead{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;padding-bottom:16px;border-bottom:2px solid #f0f0ec;}
+.masthead h1{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#0a1a2a;}
+.masthead p{font-size:9px;letter-spacing:2px;color:#8aa0b8;text-transform:uppercase;margin-top:3px;}
+.badge{font-size:8px;font-weight:700;padding:3px 8px;border-radius:3px;letter-spacing:1px;text-transform:uppercase;}
+.personas{display:flex;gap:10px;margin-bottom:20px;}
+.persona{flex:1;border:1.5px solid #e8eef4;border-radius:10px;padding:12px;text-align:center;position:relative;}
+.persona-icon{width:36px;height:36px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;}
+.persona-title{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
+.persona-sub{font-size:8px;color:#7a9ab8;line-height:1.4;}
+.persona-tag{position:absolute;top:-7px;left:50%;transform:translateX(-50%);font-size:7px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;letter-spacing:1px;text-transform:uppercase;}
+.flow-row{display:grid;align-items:stretch;gap:8px;}
+.r3{grid-template-columns:repeat(3,1fr);}
+.r4{grid-template-columns:repeat(4,1fr);}
+.r5{grid-template-columns:repeat(5,1fr);}
+.layer-wrap{border:1.5px solid;border-radius:10px;padding:14px 16px;margin-bottom:8px;}
+.layer-label{font-size:7px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;display:inline-block;padding:2px 8px;border-radius:3px;}
+.item{border:1.5px solid #e8eef4;border-radius:8px;padding:10px;background:#f8fbff;}
+.item-title{font-size:9px;font-weight:700;color:#0a1a2a;margin-bottom:3px;letter-spacing:.3px;}
+.item-sub{font-size:7.5px;color:#6a8aaa;line-height:1.5;}
+.item-tag{display:inline-block;font-size:7px;font-weight:700;padding:1px 6px;border-radius:2px;margin-top:4px;letter-spacing:1px;text-transform:uppercase;}
+.arrow-row{text-align:center;font-size:11px;color:#90caf9;letter-spacing:4px;margin:4px 0;}
+.outcomes{width:100%;border-collapse:collapse;font-size:9px;margin-bottom:20px;}
+.outcomes th{background:#f5f8ff;border:1px solid #e8eef4;padding:7px 10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#3a5a8a;}
+.outcomes td{border:1px solid #e8eef4;padding:7px 10px;color:#2a4a6a;vertical-align:top;line-height:1.5;}
+.outcomes tr:nth-child(even) td{background:#fafbff;}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px;vertical-align:middle;}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.metric{background:#f5f8ff;border:1.5px solid #e8eef4;border-radius:8px;padding:12px;text-align:center;}
+.metric-num{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#0a1a2a;line-height:1;}
+.metric-label{font-size:8px;color:#7a9ab8;letter-spacing:1px;text-transform:uppercase;margin-top:4px;}
+.footer{font-size:8px;color:#b0c4d8;letter-spacing:2px;text-transform:uppercase;text-align:center;padding-top:12px;border-top:1px solid #f0f0ec;}
+.section-label{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8aa0b8;margin:10px 0 10px;}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div>
+    <h1>Raven Claude</h1>
+    <p>Enterprise Usage &amp; Value Diagram · v2.6 · github.com/giggso/raven-claude</p>
+  </div>
+  <div style="text-align:right;">
+    <div class="badge" style="background:#e8fff4;color:#1b5e20;border:1px solid #c8e6c9;display:inline-block;margin-bottom:4px;">Core + Guard</div><br>
+    <div class="badge" style="background:#e8f4ff;color:#1565c0;border:1px solid #bbdefb;display:inline-block;">MIT Open Source</div>
+  </div>
+</div>
+
+<div class="section-label">Who uses it</div>
+<div class="personas">
+  <div class="persona">
+    <div class="persona-tag" style="background:#e8f4ff;color:#1565c0;border:1px solid #bbdefb;">Developer</div>
+    <div class="persona-icon" style="background:#e8f4ff;color:#1565c0;">D</div>
+    <div class="persona-title">Dev Team (70+)</div>
+    <div class="persona-sub">Codes freely. Claude enforces standards automatically. No tickets, no friction.</div>
+  </div>
+  <div class="persona">
+    <div class="persona-tag" style="background:#f3e5f5;color:#6a1b9a;border:1px solid #ce93d8;">Architect</div>
+    <div class="persona-icon" style="background:#f3e5f5;color:#6a1b9a;">A</div>
+    <div class="persona-title">Lead Architect</div>
+    <div class="persona-sub">Owns manifest. Approves libraries, reviews violations, updates standards.</div>
+  </div>
+  <div class="persona">
+    <div class="persona-tag" style="background:#fff0f0;color:#b71c1c;border:1px solid #ffcdd2;">Security</div>
+    <div class="persona-icon" style="background:#fff0f0;color:#b71c1c;">C</div>
+    <div class="persona-title">CISO / Security</div>
+    <div class="persona-sub">Sees audit trail. Gets P1 alerts. Reviews violations + CVE reports.</div>
+  </div>
+  <div class="persona">
+    <div class="persona-tag" style="background:#fff8e1;color:#f57f17;border:1px solid #ffe082;">DevOps</div>
+    <div class="persona-icon" style="background:#fff8e1;color:#f57f17;">O</div>
+    <div class="persona-title">DevOps / IT</div>
+    <div class="persona-sub">Installs Guard. Manages infra protection, deletion approvals, incident SLAs.</div>
+  </div>
+  <div class="persona">
+    <div class="persona-tag" style="background:#e8fff4;color:#1b5e20;border:1px solid #c8e6c9;">Executive</div>
+    <div class="persona-icon" style="background:#e8fff4;color:#1b5e20;">X</div>
+    <div class="persona-title">CTO / CXO</div>
+    <div class="persona-sub">Sees weekly digest. Compliance posture. Policy adherence across 70+ devs.</div>
+  </div>
+</div>
+
+<div class="arrow-row">↓ ↓ ↓ ↓ ↓</div>
+
+<div class="section-label">What happens — dev lifecycle</div>
+
+<div class="layer-wrap" style="border-color:#bbdefb;background:#f8fbff;">
+  <div class="layer-label" style="background:#e8f4ff;color:#1565c0;">Stage 1 — Developer codes</div>
+  <div class="flow-row r3">
+    <div class="item">
+      <div class="item-title">Skills load (~100 tokens)</div>
+      <div class="item-sub">raven-expert · raven-plan · raven-review · andie · 8 more skills loaded silently at session start</div>
+      <div class="item-tag" style="background:#e8fff4;color:#1b5e20;border:1px solid #c8e6c9;">progressive disclosure</div>
+    </div>
+    <div class="item">
+      <div class="item-title">Agents advise (no blocks)</div>
+      <div class="item-sub">style-enforcer · stack-validator · architecture-guard — advise during coding, never interrupt flow</div>
+      <div class="item-tag" style="background:#fff8e1;color:#f57f17;border:1px solid #ffe082;">guidance only</div>
+    </div>
+    <div class="item">
+      <div class="item-title">Claude Mem indexes</div>
+      <div class="item-sub">Architecture decisions, bug fixes, approved libraries — indexed locally. 95% less repeated context.</div>
+      <div class="item-tag" style="background:#f3e5f5;color:#6a1b9a;border:1px solid #ce93d8;">haiku model</div>
+    </div>
+  </div>
+</div>
+
+<div class="layer-wrap" style="border-color:#ce93d8;background:#fdf8ff;">
+  <div class="layer-label" style="background:#f3e5f5;color:#6a1b9a;">Stage 2 — New library detected</div>
+  <div class="flow-row r3">
+    <div class="item">
+      <div class="item-title">Tier 1 — Org whitelist</div>
+      <div class="item-sub">requests · polars · boto3 · fastapi · pytest and 40+ org-approved libs → auto-approved instantly</div>
+      <div class="item-tag" style="background:#e8fff4;color:#1b5e20;border:1px solid #c8e6c9;">zero friction</div>
+    </div>
+    <div class="item">
+      <div class="item-title">Tier 2 — Category approved</div>
+      <div class="item-sub">Any HTTP client · any test lib · any serializer → auto-approved by category match</div>
+      <div class="item-tag" style="background:#e8fff4;color:#1b5e20;border:1px solid #c8e6c9;">zero friction</div>
+    </div>
+    <div class="item">
+      <div class="item-title">Tier 3 — CVE check + approval</div>
+      <div class="item-sub">PyPI Safety + GPT-5.4-Cyber dual scan. Email to Prism7. Auto-PR. First responder approves.</div>
+      <div class="item-tag" style="background:#fff0f0;color:#b71c1c;border:1px solid #ffcdd2;">CVSS&gt;7 = hard block</div>
+    </div>
+  </div>
+</div>
+
+<div class="layer-wrap" style="border-color:#ffe082;background:#fffdf0;">
+  <div class="layer-label" style="background:#fff8e1;color:#f57f17;">Stage 3 — git commit (pre-commit hook)</div>
+  <div class="flow-row r5">
+    <div class="item">
+      <div class="item-title">Manifest</div>
+      <div class="item-sub">Valid JSON? Stack declared? Hard stop if missing.</div>
+      <div class="item-tag" style="background:#fff0f0;color:#b71c1c;border:1px solid #ffcdd2;">hard block</div>
+    </div>
+    <div class="item">
+      <div class="item-title">Secrets</div>
+      <div class="item-sub">API keys · passwords · AWS keys scanned in staged files.</div>
+      <div class="item-tag" style="background:#fff0f0;color:#b71c1c;border:1px solid #ffcdd2;">hard block</div>
+    </div>
+    <div class="item">
+      <div class="item-title">CVE</div>
+      <div class="item-sub">All imports checked. Critical CVE = reject commit.</div>
+      <div class="item-tag" style="background:#fff0f0;color:#b71c1c;border:1px solid #ffcdd2;">hard block</div>
+    </div>
+    <div class="item">
+      <div class="item-title">Style</div>
+      <div class="item-sub">print() · &gt;150 lines · no type hints = commit rejected.</div>
+      <div class="item-tag" style="background:#fff0f0;color:#b71c1c;border:1px solid #ffcdd2;">hard block</div>
+    </div>
+    <div class="item">
+      <div class="item-title">Deletions</div>
+      <div class="item-sub">File deletions without [GUARD:ALLOW-DELETE] flag = blocked.</div>
+      <div class="item-tag" style="background:#fff8e1;color:#f57f17;border:1px solid #ffe082;">approval flow</div>
+    </div>
+  </div>
+</div>
+
+<div class="layer-wrap" style="border-color:#ffcdd2;background:#fff8f8;">
+  <div class="layer-label" style="background:#fff0f0;color:#b71c1c;">Stage 4 — git push + Guard (server-side, cannot bypass)</div>
+  <div class="flow-row r4">
+    <div class="item">
+      <div class="item-title">pre-receive hook</div>
+      <div class="item-sub">Fires on every push. Cannot bypass with --no-verify. Server enforces.</div>
+      <div class="item-tag" style="background:#fff0f0;color:#b71c1c;border:1px solid #ffcdd2;">unforgeable</div>
+    </div>
+    <div class="item">
+      <div class="item-title">Guard agents</div>
+      <div class="item-sub">git-watch · db-watch · infra-watch · firewall-watch · observability-watch all active</div>
+      <div class="item-tag" style="background:#fff0f0;color:#b71c1c;border:1px solid #ffcdd2;">always-on</div>
+    </div>
+    <div class="item">
+      <div class="item-title">CI/CD</div>
+      <div class="item-sub">Thin trigger on every push + PR. Blocks merge if violations found.</div>
+      <div class="item-tag" style="background:#fff0f0;color:#b71c1c;border:1px solid #ffcdd2;">server-side</div>
+    </div>
+    <div class="item">
+      <div class="item-title">100-word push report</div>
+      <div class="item-sub">Every push generates health summary → developer + Prism7 + audit trail.</div>
+      <div class="item-tag" style="background:#e8fff4;color:#1b5e20;border:1px solid #c8e6c9;">every push</div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow-row">↓</div>
+
+<div class="section-label">What leadership sees</div>
+<table class="outcomes">
+  <tr>
+    <th>Stakeholder</th>
+    <th>What they see</th>
+    <th>When</th>
+    <th>Impact</th>
+  </tr>
+  <tr>
+    <td><span class="dot" style="background:#b71c1c;"></span>CISO</td>
+    <td>P1/P2/P3 incident alerts · CVE violation log · secret detection events · Guard audit trail</td>
+    <td>Real-time (P1) · Daily digest (P2/P3)</td>
+    <td>Full visibility. No blind spots. Every destructive action audited.</td>
+  </tr>
+  <tr>
+    <td><span class="dot" style="background:#1565c0;"></span>CTO</td>
+    <td>Token usage per dev · Approval flow status · Standards compliance rate · Push health reports</td>
+    <td>Weekly digest · On-demand via /shay-debug</td>
+    <td>70+ devs disciplined. No manual code review overhead.</td>
+  </tr>
+  <tr>
+    <td><span class="dot" style="background:#6a1b9a;"></span>Lead Architect</td>
+    <td>Library approval requests · Manifest changelog · Architecture.md drift alerts · CVE reports</td>
+    <td>Per-event email to Prism7</td>
+    <td>Stack stays clean. Every approved lib tracked. Full Git audit trail.</td>
+  </tr>
+  <tr>
+    <td><span class="dot" style="background:#f57f17;"></span>DevOps / IT</td>
+    <td>Infra deletion requests · Terraform state alerts · Firewall change approvals · VM termination events</td>
+    <td>Real-time (hard block) · Approval flow (P2)</td>
+    <td>Production protected. No accidental destruction. SLA enforced.</td>
+  </tr>
+</table>
+
+<div class="section-label">What this replaces</div>
+<div class="metrics">
+  <div class="metric">
+    <div class="metric-num">0</div>
+    <div class="metric-label">Manual code reviews for standards</div>
+  </div>
+  <div class="metric">
+    <div class="metric-num">0</div>
+    <div class="metric-label">Unaudited library approvals</div>
+  </div>
+  <div class="metric">
+    <div class="metric-num">0</div>
+    <div class="metric-label">Committed secrets reaching repo</div>
+  </div>
+  <div class="metric">
+    <div class="metric-num">100%</div>
+    <div class="metric-label">Push events logged + health checked</div>
+  </div>
+</div>
+
+<div style="background:#fffdf0;border:1.5px solid #ffe082;border-radius:8px;padding:12px 16px;margin-bottom:20px;">
+  <div class="section-label" style="color:#f57f17;margin-bottom:8px;">Honest scope — what Raven is not</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:8.5px;color:#5a5a3a;line-height:1.6;">
+    <div>❌ Not a replacement for DB-level access controls — it scans code, DB enforces</div>
+    <div>❌ Not a network firewall — it detects changes in code, MDM/proxy enforces</div>
+    <div>❌ Not an LLM security product — Claude is guidance, not the security boundary</div>
+    <div>❌ Not a SIEM — it's a dev discipline layer, not a full security operations platform</div>
+  </div>
+</div>
+
+<div class="footer">Raven Claude Core v2.6 + Guard v1.1 · MIT License · github.com/giggso/raven-claude · Built by Giggso</div>
+
+</body>
+</html>

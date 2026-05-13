@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "raven": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["${HOME}/.raven-codex/mcp/server.py"],
+      "description": "Raven discipline engine — CVE scan, secret detection, audit log, PR gate"
+    }
+  }
+}

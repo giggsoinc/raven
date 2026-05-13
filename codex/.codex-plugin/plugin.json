@@ -1,0 +1,28 @@
+{
+  "name": "raven-codex",
+  "displayName": "Raven — AI Coding Discipline",
+  "version": "2.8.0",
+  "description": "Enterprise AI coding discipline for OpenAI Codex. CVE scanning, secret detection, PR gate enforcement, encrypted audit logs.",
+  "shortDescription": "Enterprise security discipline — CVE scan, secret detection, PR gates, audit logs.",
+  "longDescription": "Raven enforces enterprise-grade coding discipline on every Codex task. Before any code reaches a PR it runs: CVE scanning on all imported libraries, secret detection across changed files, manifest validation against your declared stack, and writes an encrypted audit log of every action taken. Raven posts a visible status on every PR — ✅ cleared, 🔴 blocked, or ⚠️ did not run — so nothing slips through unreviewed. Part of the Raven platform, which runs the same enforcement layer on Claude Code, OpenAI Codex, and GitHub CI — making discipline platform-agnostic.",
+  "author": {
+    "name": "Giggso Inc",
+    "url": "https://github.com/giggsoinc"
+  },
+  "homepage": "https://github.com/giggsoinc/raven-codex",
+  "repository": "https://github.com/giggsoinc/raven-codex",
+  "license": "MIT",
+  "category": "security",
+  "keywords": ["security", "enterprise", "governance", "cve", "secrets", "audit", "compliance", "pr-gate"],
+  "capabilities": ["cve-scan", "secret-detection", "audit-log", "pr-gate", "manifest-validation"],
+  "brandColor": "#1a1a2e",
+  "defaultPrompt": "Run raven_status to confirm Raven is active on this project.",
+  "privacy": "https://github.com/giggsoinc/raven-codex/blob/main/PRIVACY.md",
+  "skills": [
+    "./skills/raven-status/SKILL.md",
+    "./skills/raven-cve-check/SKILL.md",
+    "./skills/raven-secret-scan/SKILL.md",
+    "./skills/raven-audit/SKILL.md"
+  ],
+  "mcpServers": "./.mcp.json"
+}
