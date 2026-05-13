@@ -1,4 +1,5 @@
 
-GUARD/
+
 claude-plugins-official/
 .DS_Store
+guard/.git

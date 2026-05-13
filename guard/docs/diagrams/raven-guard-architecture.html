@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@700;800&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#fff;font-family:'JetBrains Mono',monospace;padding:32px;color:#1a2a3a;}
+  h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px;}
+  .sub{font-size:9px;letter-spacing:3px;color:#8aa0b8;text-transform:uppercase;margin-bottom:32px;}
+  h2{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin:32px 0 16px;color:#0a1a2a;border-bottom:2px solid #e8eef4;padding-bottom:8px;}
+  .layer{border:1.5px solid #dde8f4;border-radius:10px;padding:20px;margin-bottom:16px;}
+  .layer-hdr{font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;padding:4px 10px;border-radius:4px;display:inline-block;}
+  .grid{display:flex;flex-wrap:wrap;gap:10px;}
+  .card{background:#f8fbff;border:1.5px solid #dde8f4;border-radius:8px;padding:10px 12px;min-width:140px;flex:1;}
+  .card-title{font-size:10px;font-weight:700;color:#0a1a2a;margin-bottom:4px;}
+  .card-sub{font-size:8px;color:#5a7a9a;line-height:1.5;}
+  .tag{font-size:7px;font-weight:700;padding:2px 6px;border-radius:3px;text-transform:uppercase;letter-spacing:1px;display:inline-block;margin-top:4px;}
+  .t-block{background:#fff0f0;color:#b71c1c;border:1px solid #ffcdd2;}
+  .t-flow{background:#e8f4ff;color:#1565c0;border:1px solid #bbdefb;}
+  .t-p1{background:#b71c1c;color:#fff;}
+  .t-p2{background:#f57f17;color:#fff;}
+  .t-p3{background:#1565c0;color:#fff;}
+  .eline{display:flex;align-items:center;gap:0;overflow-x:auto;margin-bottom:8px;flex-wrap:wrap;}
+  .ebox{padding:8px 14px;border-radius:6px;font-size:9px;font-weight:700;text-align:center;white-space:nowrap;margin:4px 0;}
+  .earrow{font-size:16px;color:#90caf9;padding:0 6px;}
+</style>
+</head>
+<body>
+
+<h1>Raven Guard</h1>
+<div class="sub">Architecture Diagram · v1.1 · github.com/giggso/raven-claude-guard</div>
+
+<!-- GUARD FLOW -->
+<h2>Detection → Response Flow</h2>
+<div class="eline">
+  <div class="ebox" style="background:#e8f4ff;border:1.5px solid #bbdefb;color:#1565c0;">System event detected</div>
+  <div class="earrow">→</div>
+  <div class="ebox" style="background:#f3e5f5;border:1.5px solid #ce93d8;color:#6a1b9a;">Guard agent fires</div>
+  <div class="earrow">→</div>
+  <div class="ebox" style="background:#fff8e1;border:1.5px solid #ffe082;color:#f57f17;">Incident manager classifies</div>
+  <div class="earrow">→</div>
+  <div class="ebox" style="background:#fff0f0;border:1.5px solid #ffcdd2;color:#b71c1c;">P1: HARD BLOCK + page</div>
+</div>
+<div class="eline">
+  <div class="ebox" style="background:#fff8e1;border:1.5px solid #ffe082;color:#f57f17;opacity:0;">placeholder</div>
+  <div class="earrow" style="opacity:0;">→</div>
+  <div class="ebox" style="opacity:0;">placeholder</div>
+  <div class="earrow" style="opacity:0;">→</div>
+  <div class="ebox" style="opacity:0;">placeholder</div>
+  <div class="earrow">→</div>
+  <div class="ebox" style="background:#fff8e1;border:1.5px solid #ffe082;color:#f57f17;">P2: Approval flow + email lead</div>
+</div>
+<div class="eline">
+  <div class="ebox" style="opacity:0;">placeholder</div>
+  <div class="earrow" style="opacity:0;">→</div>
+  <div class="ebox" style="opacity:0;">placeholder</div>
+  <div class="earrow" style="opacity:0;">→</div>
+  <div class="ebox" style="opacity:0;">placeholder</div>
+  <div class="earrow">→</div>
+  <div class="ebox" style="background:#e8f4ff;border:1.5px solid #bbdefb;color:#1565c0;">P3: Log + daily digest</div>
+</div>
+
+<!-- GUARD AGENTS -->
+<h2>Guard Agents — What Each Watches</h2>
+<div class="layer" style="border-color:#ffcdd2;">
+  <div class="layer-hdr" style="background:#fff0f0;color:#b71c1c;">6 Agents · Always watching · Fire on system events</div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">guard-git-watch</div>
+      <div class="card-sub">File deletions · Force push<br/>Branch deletion · Config wipes</div>
+      <div class="tag t-block">force push → hard block</div>
+      <div class="tag t-flow" style="margin-left:4px;">deletion → approval flow</div>
+    </div>
+    <div class="card">
+      <div class="card-title">guard-db-watch</div>
+      <div class="card-sub">TRUNCATE · DROP TABLE<br/>DELETE >100 rows<br/>Schema drops · Index deletion</div>
+      <div class="tag t-block">truncate → hard block</div>
+      <div class="tag t-flow" style="margin-left:4px;">mass delete → approval</div>
+    </div>
+    <div class="card">
+      <div class="card-title">guard-infra-watch</div>
+      <div class="card-sub">Terraform state · S3 deletes<br/>VM terminations · Network changes<br/>Namespace deletions</div>
+      <div class="tag t-block">state file → hard block</div>
+      <div class="tag t-flow" style="margin-left:4px;">S3 delete → approval</div>
+    </div>
+    <div class="card">
+      <div class="card-title">guard-observability-watch</div>
+      <div class="card-sub">Error rate spikes · Unusual access<br/>Data exfiltration signals<br/>Auth anomalies · Metric spikes</div>
+      <div class="tag t-p1" style="margin-right:4px;">P1: &gt;50x spike</div>
+      <div class="tag t-p2">P2: &gt;10x spike</div>
+    </div>
+    <div class="card">
+      <div class="card-title">guard-firewall-watch</div>
+      <div class="card-sub">Firewall rule changes<br/>0.0.0.0/0 port opens<br/>RDP/SSH to public · SG deletion</div>
+      <div class="tag t-block">0.0.0.0/0 → hard block</div>
+      <div class="tag t-block" style="margin-left:4px;">RDP 3389 → hard block</div>
+    </div>
+    <div class="card">
+      <div class="card-title">guard-incident-manager</div>
+      <div class="card-sub">Coordinates all Guard agents<br/>P1/P2/P3 classification<br/>SLA timers · Escalation ladder<br/>Audit trail ownership</div>
+      <div class="tag t-p1" style="margin-right:4px;">P1: 15min SLA</div>
+      <div class="tag t-p2" style="margin-right:4px;">P2: 1hr SLA</div>
+      <div class="tag t-p3">P3: 24hr</div>
+    </div>
+  </div>
+</div>
+
+<!-- HARD BLOCKS -->
+<h2>Hard Block Rules — No Exceptions</h2>
+<div class="layer" style="border-color:#ffcdd2;">
+  <div class="layer-hdr" style="background:#fff0f0;color:#b71c1c;">Cannot be overridden · Cannot be bypassed</div>
+  <div class="grid">
+    <div class="card" style="border-color:#ffcdd2;">
+      <div class="card-title" style="color:#b71c1c;">Git</div>
+      <div class="card-sub">Force push to any branch<br/>Repo config wipe</div>
+    </div>
+    <div class="card" style="border-color:#ffcdd2;">
+      <div class="card-title" style="color:#b71c1c;">Database</div>
+      <div class="card-sub">TRUNCATE TABLE<br/>DROP TABLE / DROP SCHEMA<br/>DELETE without WHERE</div>
+    </div>
+    <div class="card" style="border-color:#ffcdd2;">
+      <div class="card-title" style="color:#b71c1c;">Infrastructure</div>
+      <div class="card-sub">Terraform state file touched<br/>terraform destroy in CI<br/>K8s namespace deletion</div>
+    </div>
+    <div class="card" style="border-color:#ffcdd2;">
+      <div class="card-title" style="color:#b71c1c;">Network</div>
+      <div class="card-sub">0.0.0.0/0 port open<br/>RDP (3389) exposed<br/>SSH (22) to public range<br/>Security group deleted</div>
+    </div>
+  </div>
+</div>
+
+<!-- APPROVAL FLOW -->
+<h2>Approval Flow — Intentional Destructive Actions</h2>
+<div class="layer" style="border-color:#ffe082;">
+  <div class="layer-hdr" style="background:#fff8e1;color:#f57f17;">Dev flags intent → approval required → audit logged</div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">Developer flags intent</div>
+      <div class="card-sub">Commit message:<br/><code>feat: remove legacy [GUARD:ALLOW-DELETE]</code></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Guard detects + routes</div>
+      <div class="card-sub">Email → Prism7 shared inbox<br/>Auto-PR created for audit trail</div>
+    </div>
+    <div class="card">
+      <div class="card-title">First responder decides</div>
+      <div class="card-sub">Single-use token link<br/>Approve → PR merges<br/>Reject → hard block activated</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Audit trail</div>
+      <div class="card-sub">Approver · timestamp · PR link<br/>Stored in Git history forever</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLA + ESCALATION -->
+<h2>Incident SLA + Escalation</h2>
+<div class="layer" style="border-color:#f48fb1;">
+  <div class="layer-hdr" style="background:#fce4ec;color:#880e4f;">Escalation ladder · SLA enforced</div>
+  <div class="grid">
+    <div class="card" style="border-color:#ffcdd2;">
+      <div class="card-title"><span class="tag t-p1">P1 Critical</span></div>
+      <div class="card-sub" style="margin-top:6px;">Production down · data loss risk<br/>SLA: 15 minutes<br/>→ Escalation contact SMS<br/>→ Prism7 CRITICAL flag<br/>→ Auto-rollback if possible</div>
+    </div>
+    <div class="card" style="border-color:#ffe0b2;">
+      <div class="card-title"><span class="tag t-p2">P2 High</span></div>
+      <div class="card-sub" style="margin-top:6px;">Degraded · potential breach<br/>SLA: 1 hour<br/>→ Prism7 HIGH flag<br/>→ Team lead email<br/>→ Approval flow started</div>
+    </div>
+    <div class="card" style="border-color:#bbdefb;">
+      <div class="card-title"><span class="tag t-p3">P3 Medium</span></div>
+      <div class="card-sub" style="margin-top:6px;">Anomaly · policy violation<br/>SLA: 24 hours<br/>→ Prism7 daily digest<br/>→ Logged for review</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Escalation Ladder</div>
+      <div class="card-sub">Strike 1 → warn<br/>Strike 2 → Prism7 flagged<br/>Strike 3 → escalation contact direct<br/>SLA breach → next level up</div>
+    </div>
+  </div>
+</div>
+
+<!-- LEGEND -->
+<div style="display:flex;gap:12px;margin-top:24px;padding-top:16px;border-top:2px solid #e8eef4;flex-wrap:wrap;align-items:center;">
+  <span style="font-size:8px;color:#8aa0b8;letter-spacing:2px;text-transform:uppercase;font-weight:700;">Legend:</span>
+  <span class="tag t-block">Hard block — no override</span>
+  <span class="tag t-flow">Approval flow required</span>
+  <span class="tag t-p1">P1 Critical — 15min SLA</span>
+  <span class="tag t-p2">P2 High — 1hr SLA</span>
+  <span class="tag t-p3">P3 Medium — 24hr SLA</span>
+  <span style="font-size:8px;color:#8aa0b8;margin-left:8px;">MIT License · github.com/giggso/raven-claude-guard</span>
+</div>
+
+</body>
+</html>
