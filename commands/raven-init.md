@@ -1,3 +1,9 @@
+---
+name: raven-init
+description: Initialize Raven for a new project. Generates manifest.json interactively, validates against schema, commits with audit trail.
+allowed-tools: Read, Write, Edit, Bash
+---
+
 # /raven init
 
 Initializes Raven for a new project by generating a validated `manifest.json` interactively.
