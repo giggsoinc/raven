@@ -269,6 +269,38 @@ fi
 echo ""
 
 # =============================================================================
+# CHECK 6 — DB Guard: No inline SQL in non-SQL source files
+# =============================================================================
+
+echo -e "${BLUE}[6/6] DB Guard — SQL discipline check...${NC}"
+
+SQL_VIOLATIONS=0
+APP_EXTENSIONS="py java go cs ts js rb php"
+SQL_PATTERN='(SELECT[[:space:]]+.+[[:space:]]+FROM|INSERT[[:space:]]+INTO|UPDATE[[:space:]]+.+[[:space:]]+SET|DELETE[[:space:]]+FROM|CREATE[[:space:]]+TABLE|ALTER[[:space:]]+TABLE|DROP[[:space:]]+TABLE|cursor\.execute|db\.query|\.raw\()'
+
+STAGED_APP=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(py|java|go|cs|ts|js|rb|php)$' || true)
+
+if [ -z "$STAGED_APP" ]; then
+    echo -e "  ${GREEN}✅ No app source files staged${NC}"
+else
+    for FILE in $STAGED_APP; do
+        CONTENT=$(git show ":$FILE" 2>/dev/null)
+        MATCHES=$(echo "$CONTENT" | grep -nE "$SQL_PATTERN" | grep -v "^\s*#\|^\s*//" | head -5 || true)
+        if [ -n "$MATCHES" ]; then
+            echo -e "  ${RED}❌ HARD BLOCK: Inline SQL detected in $FILE${NC}"
+            echo "$MATCHES" | while read -r LINE; do
+                echo -e "     ${RED}→ $LINE${NC}"
+            done
+            echo -e "     ${YELLOW}Extract SQL to queries/*.sql and load via file reader${NC}"
+            ((VIOLATIONS++))
+            SQL_VIOLATIONS=1
+        fi
+    done
+    [ "$SQL_VIOLATIONS" -eq 0 ] && echo -e "  ${GREEN}✅ No inline SQL found in source files${NC}"
+fi
+echo ""
+
+# =============================================================================
 # RESULT
 # =============================================================================
 

@@ -13,6 +13,16 @@
     ],
     "PostToolUse": [
       {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type":    "command",
+            "command": "python3 .claude/scripts/db-guard.py",
+            "async":   true
+          }
+        ]
+      },
+      {
         "matcher": "*",
         "hooks": [
           {
