@@ -72,6 +72,21 @@ echo ""
 bundle_mcp "raven (codex)"   "$RAVEN_DIR/codex/mcp"
 bundle_mcp "raven (.claude)" "$RAVEN_DIR/.claude/scripts"
 
+# ── Hook scripts: core/scripts/ → .claude/scripts/ ───────────────────────────
+echo "▶ Hook scripts sync (core/scripts/ → .claude/scripts/)"
+HOOK_SCRIPTS_SRC="$RAVEN_DIR/core/scripts"
+HOOK_SCRIPTS_DST="$RAVEN_DIR/.claude/scripts"
+if [[ -d "$HOOK_SCRIPTS_SRC" ]]; then
+  [[ "$DRY_RUN" == "false" ]] && mkdir -p "$HOOK_SCRIPTS_DST"
+  for f in "$HOOK_SCRIPTS_SRC"/*.py "$HOOK_SCRIPTS_SRC"/*.sh; do
+    [[ -f "$f" ]] || continue
+    [[ "$DRY_RUN" == "false" ]] && cp "$f" "$HOOK_SCRIPTS_DST/" && chmod +x "$HOOK_SCRIPTS_DST/$(basename "$f")"
+    echo "  ✅ $(basename "$f")"
+  done
+else
+  echo "  ⚠️  core/scripts/ not found — skipping"
+fi
+
 echo ""
 
 # ── Andie skill sync ─────────────────────────────────────────────────────────
