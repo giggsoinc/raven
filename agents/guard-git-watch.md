@@ -1,5 +1,5 @@
 ---
-name: skill-guard
+name: guard-git-watch
 description: Use PROACTIVELY when any skill attempts to read sensitive files
   or perform restricted actions. Watches for unexpected reads of
   manifest.secrets.json, .env, SSH keys, or modifications to settings.json
