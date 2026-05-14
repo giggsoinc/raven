@@ -150,11 +150,16 @@ fi
 if [[ "$DRY_RUN" == "false" ]]; then
   mkdir -p "$RAVEN_DIR/agents"
   cp "$PLUGIN_SRC/agents/"*.md "$RAVEN_DIR/agents/" 2>/dev/null || true
-  mkdir -p "$RAVEN_DIR/commands"
-  cp "$PLUGIN_SRC/commands/"*.md "$RAVEN_DIR/commands/" 2>/dev/null || true
+  # Commands migrate to skills/<name>/SKILL.md (preferred format)
+  for cmd in "$PLUGIN_SRC/commands/"*.md; do
+    [[ -f "$cmd" ]] || continue
+    cmd_name="$(basename "$cmd" .md)"
+    mkdir -p "$RAVEN_DIR/skills/$cmd_name"
+    cp "$cmd" "$RAVEN_DIR/skills/$cmd_name/SKILL.md"
+  done
 fi
 echo "  ✅ agents/   ($(ls "$RAVEN_DIR/agents/" 2>/dev/null | wc -l | tr -d ' ') files)"
-echo "  ✅ commands/ ($(ls "$RAVEN_DIR/commands/" 2>/dev/null | wc -l | tr -d ' ') files)"
+echo "  ✅ commands → skills/ ($(ls "$RAVEN_DIR/commands/" 2>/dev/null | wc -l | tr -d ' ') migrated)"
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
