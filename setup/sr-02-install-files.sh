@@ -5,6 +5,7 @@
 G='\033[0;32m' N='\033[0m'
 
 mkdir -p "$PROJECT_DIR"/{.claude/{agents,commands,scripts},.raven/{.cache,audit,guard}}
+mkdir -p "$PROJECT_DIR"/{docs/{observations,knowledge},.raven/.cache/dynamic-skills}
 mkdir -p "$PROJECT_DIR/.claude/skills/"{raven-core/rules,raven-expert,raven-plan,\
 raven-review,raven-security,raven-refactor,raven-test,raven-document,andie}
 
@@ -20,7 +21,11 @@ cp "$SR_REPO_DIR/core/skills/raven-core/rules/"*.md          "$PROJECT_DIR/.clau
 for SK in raven-expert raven-plan raven-review raven-security raven-refactor raven-test raven-document andie; do
     cp "$SR_REPO_DIR/core/skills/$SK/SKILL.md" "$PROJECT_DIR/.claude/skills/$SK/"
 done
-cp "$SR_REPO_DIR/templates/architecture.md"   "$PROJECT_DIR/.raven/architecture.md"
+cp "$SR_REPO_DIR/templates/architecture.md"       "$PROJECT_DIR/.raven/architecture.md"
+cp "$SR_REPO_DIR/templates/erd-template.md"       "$PROJECT_DIR/docs/erd-template.md" 2>/dev/null || true
+cp "$SR_REPO_DIR/docs/observations/security_log.md" "$PROJECT_DIR/docs/observations/security_log.md"
+cp "$SR_REPO_DIR/docs/knowledge/internal_raven_ops.md" "$PROJECT_DIR/docs/knowledge/internal_raven_ops.md"
+cp "$SR_REPO_DIR/docs/knowledge/general_security_patterns.md" "$PROJECT_DIR/docs/knowledge/general_security_patterns.md"
 mkdir -p "$PROJECT_DIR/.raven/ci"
 cp "$SR_REPO_DIR/core/ci/"*                   "$PROJECT_DIR/.raven/ci/"
 

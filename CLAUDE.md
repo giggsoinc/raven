@@ -26,7 +26,13 @@ Before doing ANYTHING, run this sequence in order:
 5. **Register hooks** → PreToolUse, PostEdit, PreCommit
    - If hooks fail to register → HARD STOP
 
-6. **Output debug log** → confirm everything loaded
+6. **Load observation log** → `docs/observations/security_log.md`
+   - If missing → CREATE it silently (do not stop)
+   - If present → load all entries as session context
+   - If 5+ entries with Status: open → surface once: "📋 [N] open observations — run /raven-harden when ready"
+   - Load task-observer skill silently into session
+
+7. **Output debug log** → confirm everything loaded
 
 ---
 
