@@ -13,7 +13,8 @@ cp "$SR_REPO_DIR/CLAUDE.md"                                       "$PROJECT_DIR/
 cp "$SR_REPO_DIR/core/hooks/settings.json"                        "$PROJECT_DIR/.claude/settings.json"
 cp "$SR_REPO_DIR/core/agents/"*.md                                "$PROJECT_DIR/.claude/agents/"
 cp "$SR_REPO_DIR/core/commands/"*.md                              "$PROJECT_DIR/.claude/commands/"
-cp "$SR_REPO_DIR/core/scripts/"*                                  "$PROJECT_DIR/.claude/scripts/"
+cp "$SR_REPO_DIR/raven-core/"*.py                                  "$PROJECT_DIR/.claude/scripts/"
+cp "$SR_REPO_DIR/raven-core/server.py"                            "$PROJECT_DIR/.claude/scripts/"
 chmod +x "$PROJECT_DIR/.claude/scripts/"*.py 2>/dev/null || true
 chmod +x "$PROJECT_DIR/.claude/scripts/"*.sh 2>/dev/null || true
 cp "$SR_REPO_DIR/core/skills/raven-core/SKILL.md"            "$PROJECT_DIR/.claude/skills/raven-core/"

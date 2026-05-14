@@ -1,9 +1,10 @@
 {
   "mcpServers": {
     "raven": {
-      "type":    "stdio",
+      "type": "stdio",
       "command": "python3",
-      "args":    ["/Users/giggso/AntiGravity_Projects/RAVEN/CLAUDE/RAVEN/mcp/server.py"]
+      "args": ["${workspaceFolder}/.claude/scripts/server.py"],
+      "env": {}
     }
   }
 }

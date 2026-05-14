@@ -1,0 +1,220 @@
+{
+  "$schema": "./manifest.schema.json",
+  "project": "PatronAI",
+  "version": "1.0",
+  "stack": {
+    "language": [
+      "python3.12"
+    ],
+    "frontend": [
+      "vuejs"
+    ],
+    "data": [
+      "polars",
+      "s3"
+    ],
+    "db": [
+      "postgresql",
+      "opensearch"
+    ],
+    "infra": [
+      "terraform",
+      "docker-compose"
+    ],
+    "cloud": "aws",
+    "libraries": []
+  },
+  "standards": "raven-v1",
+  "min_compatible_version": "1.0",
+  "approval_mode": "first_responder",
+  "approval_mode_version": "1.0",
+  "approval_mode_changeable": true,
+  "tokens": {
+    "model": "claude-code-enterprise",
+    "control": "per_developer",
+    "warnings": [
+      25,
+      50,
+      75,
+      80,
+      90,
+      95
+    ],
+    "overflow_sla": {
+      "standard_hours": 4,
+      "urgent_hours": 1,
+      "critical_minutes": 15
+    }
+  },
+  "guard": {
+    "enabled": true,
+    "version": "1.0",
+    "git": {
+      "force_push": "hard_block",
+      "branch_deletion": "approval_flow",
+      "file_deletion": "approval_flow",
+      "deletion_flag": "GUARD:ALLOW-DELETE"
+    },
+    "db": {
+      "mass_deletion_threshold": 100,
+      "truncation": "hard_block",
+      "schema_drop": "hard_block",
+      "index_deletion": "approval_flow"
+    },
+    "infra": {
+      "s3_delete": "approval_flow",
+      "terraform_state": "hard_block",
+      "vm_terminate": "approval_flow",
+      "network_change": "approval_flow"
+    },
+    "firewall": {
+      "open_world": "hard_block",
+      "rule_change": "approval_flow",
+      "egress_change": "approval_flow"
+    },
+    "incidents": {
+      "p1_sla_minutes": 15,
+      "p2_sla_minutes": 60,
+      "p3_sla_hours": 24
+    }
+  },
+  "offline": {
+    "cache_ttl_hours": 24,
+    "allow_commits_offline": false
+  },
+  "style": {
+    "max_lines_per_file": 150,
+    "require_type_hints": true,
+    "require_docstrings": true,
+    "require_logging": true,
+    "forbid_print_statements": true,
+    "max_function_lines": 50,
+    "require_base_classes": true
+  },
+  "architecture": {
+    "require_diagram": true,
+    "require_versioning": true,
+    "diagram_file": ".raven/architecture.md",
+    "version_bump_on_change": true
+  },
+  "approved_skills": {
+    "_note": "Only skills listed here are permitted. Any unlisted skill triggers a warning.",
+    "giggso": [
+      "raven-core",
+      "raven-expert",
+      "raven-plan",
+      "raven-review",
+      "raven-security",
+      "raven-refactor",
+      "raven-test",
+      "raven-document"
+    ],
+    "anthropic": [
+      "claude-code-guide",
+      "explore",
+      "general-purpose",
+      "plan",
+      "statusline-setup",
+      "debug",
+      "batch",
+      "claude-api",
+      "simplify",
+      "review",
+      "security-review",
+      "init"
+    ],
+    "community": []
+  },
+  "allowed_tools": {
+    "_note": "Controls which MCPs, APIs, and external tools Claude can use.",
+    "default_policy": "warn",
+    "_policy_options": "warn | block | allow_all",
+    "mcps": [
+      {
+        "name": "github",
+        "approved": true,
+        "auth_var": "GITHUB_ENTERPRISE_TOKEN"
+      },
+      {
+        "name": "slack",
+        "approved": true,
+        "auth_var": "SLACK_BOT_TOKEN"
+      },
+      {
+        "name": "gdrive",
+        "approved": true,
+        "auth_var": "GOOGLE_WORKSPACE_TOKEN"
+      },
+      {
+        "name": "notebooklm",
+        "approved": false,
+        "auth_var": "GOOGLE_WORKSPACE_TOKEN",
+        "_note": "Set approved:true when enterprise NotebookLM API available"
+      },
+      {
+        "name": "airtaas",
+        "approved": true,
+        "auth_var": "AIRTAAS_API_KEY"
+      }
+    ],
+    "apis": [
+      {
+        "name": "gemini",
+        "approved": true,
+        "auth_var": "GEMINI_ENTERPRISE_KEY",
+        "blocked_personal": true
+      },
+      {
+        "name": "anthropic",
+        "approved": true,
+        "auth_var": "ANTHROPIC_API_KEY"
+      }
+    ],
+    "web": {
+      "allowed_domains": [],
+      "blocked_url_patterns": [
+        "api.openai.com",
+        "platform.openai.com",
+        "notebooklm.google.com"
+      ],
+      "blocked_bash_patterns": [
+        "sk-[A-Za-z0-9]{20,}",
+        "OPENAI_API_KEY"
+      ]
+    },
+    "agents": {
+      "allow_subagents": true,
+      "log_all_calls": true,
+      "require_approval": false
+    }
+  },
+  "db_policy": {
+    "connection_var": "DB_URL",
+    "scan_raw_sql": true,
+    "block_dynamic_schema": true
+  },
+  "project_rules": {
+    "_note": "Project-specific rules enforced by raven-core on every prompt.",
+    "forbidden_frameworks": [],
+    "_forbidden_example": [
+      "react",
+      "vite",
+      "jsx",
+      "npm",
+      "node"
+    ],
+    "forbidden_file_extensions": [],
+    "_forbidden_ext_example": [
+      ".jsx",
+      ".tsx",
+      "package.json"
+    ],
+    "license": "",
+    "_license_example": "GPL-3.0",
+    "commit_convention": "conventional",
+    "require_approval_gates": false,
+    "ui_framework": "",
+    "_ui_example": "nicegui",
+    "phase_gated": false
+  }
+}

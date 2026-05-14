@@ -1,0 +1,646 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/giggso/raven-claude/manifest/manifest.schema.json",
+  "title": "Raven Manifest",
+  "description": "Project manifest for Raven Claude Code discipline engine",
+  "type": "object",
+  "required": [
+    "project",
+    "version",
+    "stack",
+    "standards",
+    "changelog"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "project": {
+      "type": "string",
+      "description": "Project name \u2014 unique within your org",
+      "minLength": 1,
+      "maxLength": 100,
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "examples": [
+        "PatronAI",
+        "Trinity",
+        "GenLock"
+      ]
+    },
+    "version": {
+      "type": "string",
+      "description": "Manifest version \u2014 bump on any change",
+      "pattern": "^\\d+\\.\\d+$",
+      "examples": [
+        "1.0",
+        "1.1",
+        "2.0"
+      ]
+    },
+    "stack": {
+      "type": "object",
+      "description": "Declared tech stack \u2014 locked at project start",
+      "required": [
+        "language"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "language": {
+          "type": "array",
+          "description": "Primary programming languages",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": [
+              "python3.10",
+              "python3.11",
+              "python3.12",
+              "typescript",
+              "javascript",
+              "go",
+              "rust",
+              "java",
+              "kotlin",
+              "sql",
+              "plsql",
+              "shell"
+            ]
+          },
+          "examples": [
+            [
+              "python3.12"
+            ],
+            [
+              "python3.12",
+              "typescript"
+            ]
+          ]
+        },
+        "frontend": {
+          "type": "array",
+          "description": "Frontend frameworks",
+          "items": {
+            "type": "string",
+            "enum": [
+              "vuejs",
+              "reactjs",
+              "nextjs",
+              "nuxtjs",
+              "svelte",
+              "none"
+            ]
+          },
+          "examples": [
+            [
+              "vuejs"
+            ],
+            [
+              "reactjs",
+              "typescript"
+            ]
+          ]
+        },
+        "data": {
+          "type": "array",
+          "description": "Data processing libraries \u2014 Polars preferred over Pandas",
+          "items": {
+            "type": "string",
+            "enum": [
+              "polars",
+              "pandas",
+              "dask",
+              "spark",
+              "s3",
+              "gcs",
+              "azure-blob",
+              "numpy",
+              "scipy"
+            ]
+          },
+          "examples": [
+            [
+              "polars",
+              "s3"
+            ]
+          ]
+        },
+        "db": {
+          "type": "array",
+          "description": "Database engines",
+          "items": {
+            "type": "string",
+            "enum": [
+              "postgresql",
+              "oracle-26ai",
+              "opensearch",
+              "elasticsearch",
+              "falkordb",
+              "neo4j",
+              "dynamodb",
+              "firestore",
+              "mongodb",
+              "kafka",
+              "rabbitmq",
+              "redis",
+              "memcached"
+            ]
+          },
+          "examples": [
+            [
+              "postgresql"
+            ],
+            [
+              "postgresql",
+              "opensearch",
+              "falkordb"
+            ]
+          ]
+        },
+        "infra": {
+          "type": "array",
+          "description": "Infrastructure and orchestration tools",
+          "items": {
+            "type": "string",
+            "enum": [
+              "terraform",
+              "pulumi",
+              "cdk",
+              "docker-compose",
+              "kubernetes",
+              "kubespray",
+              "helm",
+              "kustomize",
+              "ansible"
+            ]
+          },
+          "examples": [
+            [
+              "terraform",
+              "docker-compose"
+            ]
+          ]
+        },
+        "cloud": {
+          "type": "string",
+          "description": "Primary cloud provider",
+          "enum": [
+            "aws",
+            "gcp",
+            "azure",
+            "oci",
+            "on-prem",
+            "multi"
+          ],
+          "examples": [
+            "aws",
+            "gcp",
+            "on-prem"
+          ]
+        },
+        "libraries": {
+          "type": "array",
+          "description": "Approved libraries \u2014 populated via approval flow",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "version",
+              "approved_by",
+              "approved_at"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "approved_by": {
+                "type": "string"
+              },
+              "approved_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "pr": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "standards": {
+      "type": "string",
+      "description": "Raven standards version to enforce",
+      "enum": [
+        "raven-v1",
+        "raven-v2"
+      ],
+      "examples": [
+        "raven-v1"
+      ]
+    },
+    "min_compatible_version": {
+      "type": "string",
+      "description": "Minimum Raven version compatible with this manifest",
+      "pattern": "^\\d+\\.\\d+$",
+      "default": "1.0"
+    },
+    "approval_mode": {
+      "type": "string",
+      "description": "Who can approve library additions and deletions",
+      "enum": [
+        "first_responder",
+        "majority_vote",
+        "owner_only"
+      ],
+      "default": "first_responder"
+    },
+    "approval_mode_version": {
+      "type": "string",
+      "description": "Version of the approval mode \u2014 bump when changed",
+      "pattern": "^\\d+\\.\\d+$",
+      "default": "1.0"
+    },
+    "approval_mode_changeable": {
+      "type": "boolean",
+      "description": "Can the approval mode be changed? Requires architect approval.",
+      "default": true
+    },
+    "tokens": {
+      "type": "object",
+      "description": "Claude Code Enterprise token configuration",
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "type": "string",
+          "enum": [
+            "claude-code-enterprise",
+            "claude-code-pro"
+          ],
+          "default": "claude-code-enterprise"
+        },
+        "control": {
+          "type": "string",
+          "enum": [
+            "per_developer",
+            "per_project",
+            "per_team"
+          ],
+          "default": "per_developer"
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Percentage thresholds to trigger warnings",
+          "items": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99
+          },
+          "default": [
+            25,
+            50,
+            75,
+            80,
+            90,
+            95
+          ]
+        },
+        "overflow_sla": {
+          "type": "object",
+          "description": "SLA tiers for token overflow approval",
+          "properties": {
+            "standard_hours": {
+              "type": "integer",
+              "default": 4
+            },
+            "urgent_hours": {
+              "type": "integer",
+              "default": 1
+            },
+            "critical_minutes": {
+              "type": "integer",
+              "default": 15
+            }
+          }
+        }
+      }
+    },
+    "guard": {
+      "type": "object",
+      "description": "Raven Guard configuration",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+$",
+          "default": "1.0"
+        },
+        "git": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "force_push": {
+              "type": "string",
+              "enum": [
+                "hard_block",
+                "approval_flow",
+                "warn"
+              ],
+              "default": "hard_block"
+            },
+            "branch_deletion": {
+              "type": "string",
+              "enum": [
+                "hard_block",
+                "approval_flow",
+                "warn"
+              ],
+              "default": "approval_flow"
+            },
+            "file_deletion": {
+              "type": "string",
+              "enum": [
+                "hard_block",
+                "approval_flow",
+                "warn"
+              ],
+              "default": "approval_flow"
+            },
+            "deletion_flag": {
+              "type": "string",
+              "description": "Commit message flag for intentional deletions",
+              "default": "GUARD:ALLOW-DELETE"
+            }
+          }
+        },
+        "db": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mass_deletion_threshold": {
+              "type": "integer",
+              "description": "Row count that triggers Guard",
+              "default": 100
+            },
+            "truncation": {
+              "type": "string",
+              "enum": [
+                "hard_block",
+                "approval_flow"
+              ],
+              "default": "hard_block"
+            },
+            "schema_drop": {
+              "type": "string",
+              "enum": [
+                "hard_block",
+                "approval_flow"
+              ],
+              "default": "hard_block"
+            },
+            "index_deletion": {
+              "type": "string",
+              "enum": [
+                "hard_block",
+                "approval_flow",
+                "warn"
+              ],
+              "default": "approval_flow"
+            }
+          }
+        },
+        "infra": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "s3_delete": {
+              "type": "string",
+              "enum": [
+                "hard_block",
+                "approval_flow"
+              ],
+              "default": "approval_flow"
+            },
+            "terraform_state": {
+              "type": "string",
+              "enum": [
+                "hard_block",
+                "approval_flow"
+              ],
+              "default": "hard_block"
+            },
+            "vm_terminate": {
+              "type": "string",
+              "enum": [
+                "hard_block",
+                "approval_flow"
+              ],
+              "default": "approval_flow"
+            },
+            "network_change": {
+              "type": "string",
+              "enum": [
+                "hard_block",
+                "approval_flow"
+              ],
+              "default": "approval_flow"
+            }
+          }
+        },
+        "firewall": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "open_world": {
+              "type": "string",
+              "description": "0.0.0.0/0 port open \u2014 always hard block",
+              "enum": [
+                "hard_block"
+              ],
+              "default": "hard_block"
+            },
+            "rule_change": {
+              "type": "string",
+              "enum": [
+                "hard_block",
+                "approval_flow"
+              ],
+              "default": "approval_flow"
+            },
+            "egress_change": {
+              "type": "string",
+              "enum": [
+                "hard_block",
+                "approval_flow"
+              ],
+              "default": "approval_flow"
+            }
+          }
+        },
+        "incidents": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "p1_sla_minutes": {
+              "type": "integer",
+              "default": 15
+            },
+            "p2_sla_minutes": {
+              "type": "integer",
+              "default": 60
+            },
+            "p3_sla_hours": {
+              "type": "integer",
+              "default": 24
+            }
+          }
+        }
+      }
+    },
+    "offline": {
+      "type": "object",
+      "description": "Offline / air-gapped behaviour",
+      "additionalProperties": false,
+      "properties": {
+        "cache_ttl_hours": {
+          "type": "integer",
+          "description": "Hours before cached manifest expires",
+          "default": 24
+        },
+        "allow_commits_offline": {
+          "type": "boolean",
+          "description": "Allow commits when offline using cached manifest",
+          "default": false
+        }
+      }
+    },
+    "style": {
+      "type": "object",
+      "description": "Code style rules enforced by style-enforcer agent",
+      "additionalProperties": false,
+      "properties": {
+        "max_lines_per_file": {
+          "type": "integer",
+          "default": 150
+        },
+        "require_type_hints": {
+          "type": "boolean",
+          "default": true
+        },
+        "require_docstrings": {
+          "type": "boolean",
+          "default": true
+        },
+        "require_logging": {
+          "type": "boolean",
+          "default": true
+        },
+        "forbid_print_statements": {
+          "type": "boolean",
+          "default": true
+        },
+        "max_function_lines": {
+          "type": "integer",
+          "default": 50
+        },
+        "require_base_classes": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "architecture": {
+      "type": "object",
+      "description": "Architecture documentation requirements",
+      "additionalProperties": false,
+      "properties": {
+        "require_diagram": {
+          "type": "boolean",
+          "default": true
+        },
+        "require_versioning": {
+          "type": "boolean",
+          "default": true
+        },
+        "diagram_file": {
+          "type": "string",
+          "default": ".raven/architecture.md"
+        },
+        "version_bump_on_change": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "_layer": {
+      "type": "string",
+      "description": "Manifest layer \u2014 org (enterprise-wide) or project (per-repo)",
+      "enum": [
+        "org",
+        "project"
+      ],
+      "default": "project"
+    },
+    "_locked": {
+      "type": "array",
+      "description": "Fields locked by org manifest \u2014 cannot be overridden by project manifest",
+      "items": {
+        "type": "string"
+      },
+      "examples": [
+        [
+          "standards",
+          "approval_mode",
+          "guard.enabled",
+          "style",
+          "tokens.control"
+        ]
+      ]
+    },
+    "changelog": {
+      "type": "array",
+      "description": "Audit trail \u2014 every manifest change logged here. Required.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "version",
+          "changed_by",
+          "changed_at",
+          "changes"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+$"
+          },
+          "changed_by": {
+            "type": "string",
+            "format": "email"
+          },
+          "changed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "changes": {
+            "type": "string",
+            "description": "Human-readable description of what changed"
+          },
+          "pr": {
+            "type": "string",
+            "description": "PR URL that introduced this change"
+          },
+          "approved_by": {
+            "type": "string",
+            "description": "Who approved this change"
+          }
+        }
+      }
+    }
+  }
+}

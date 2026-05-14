@@ -1,26 +1,18 @@
 {
   "name": "raven",
-  "version": "2.8.0",
-  "description": "Enterprise AI coding discipline platform for Claude Code. CVE scanning, secret detection, production protection, encrypted audit logs. Wit beyond measure — for your codebase. Designed to stack alongside Superpowers and GSD.",
-  "author": "Giggso Inc",
+  "description": "Raven Discipline Engine — AI-native engineering discipline for Claude Code. Guards, specialists, dynamic skill generation, and session-persistent learning.",
+  "version": "2.9.0",
+  "author": {
+    "name": "Giggso / AntiGravity Projects",
+    "email": "giggso.ravi@gmail.com",
+    "url": "https://github.com/giggsoinc/raven"
+  },
   "license": "MIT",
   "homepage": "https://github.com/giggsoinc/raven",
-  "categories": ["security", "enterprise", "governance", "productivity"],
-  "tags": ["cve", "secrets", "git-hooks", "audit", "enterprise", "compliance"],
-  "compatible_with": ["superpowers", "gsd"],
+  "categories": ["security", "enterprise", "governance", "discipline", "specialists"],
+  "tags": ["cve", "secrets", "git-hooks", "audit", "enterprise", "compliance", "specialists", "guards"],
   "install": {
     "type": "bash",
     "command": "bash raven-setup.sh"
-  },
-  "skills": [
-    "raven-core",
-    "raven-expert",
-    "raven-plan",
-    "raven-review",
-    "raven-security",
-    "raven-refactor",
-    "raven-test",
-    "raven-document",
-    "andie"
-  ]
+  }
 }

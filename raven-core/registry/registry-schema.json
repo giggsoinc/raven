@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Raven Registry",
+  "description": "Central manifest of all projects using Raven. Lives at ~/.raven/registry.json locally and backed up to giggsoinc/raven-registry on GitHub.",
+  "type": "object",
+  "required": ["schema_version", "raven_current_version", "registry_repo", "last_updated", "projects"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Registry schema version",
+      "example": "1.0"
+    },
+    "raven_current_version": {
+      "type": "string",
+      "description": "Current Raven engine version from raven-core/VERSION",
+      "example": "2.8.0"
+    },
+    "registry_repo": {
+      "type": "string",
+      "description": "GitHub URL of the raven-registry backup repo",
+      "example": "https://github.com/giggsoinc/raven-registry.git"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO8601 timestamp of last registry update"
+    },
+    "projects": {
+      "type": "array",
+      "description": "All projects with Raven installed",
+      "items": {
+        "type": "object",
+        "required": ["name", "path", "installed_version", "last_synced"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Project name — matches directory name by default"
+          },
+          "path": {
+            "type": "string",
+            "description": "Absolute path to project root on this machine"
+          },
+          "remote": {
+            "type": ["string", "null"],
+            "description": "GitHub remote URL — null if no remote"
+          },
+          "installed_version": {
+            "type": "string",
+            "description": "Raven version installed in this project (from .raven/raven_version)"
+          },
+          "last_synced": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO8601 timestamp of last successful sync"
+          },
+          "registered_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO8601 timestamp when project was first registered"
+          },
+          "components": {
+            "type": "object",
+            "description": "Which Raven components are installed in this project",
+            "properties": {
+              "scripts": { "type": "boolean" },
+              "mcp": { "type": "boolean" },
+              "skills": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
