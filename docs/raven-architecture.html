@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raven — Architecture & Flow</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d1117;
+    color: #e6edf3;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    padding: 40px 32px 80px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+  .logo {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 0 24px rgba(124,58,237,0.4);
+  }
+  h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+  h1 span { color: #7c3aed; }
+  .tagline {
+    color: #8b949e;
+    font-size: 14px;
+    margin-bottom: 48px;
+    margin-left: 64px;
+  }
+
+  /* Section headers */
+  .section {
+    margin-bottom: 48px;
+  }
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    background: rgba(124,58,237,0.1);
+    border: 1px solid rgba(124,58,237,0.3);
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #e6edf3;
+  }
+  .section-desc {
+    font-size: 13px;
+    color: #8b949e;
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  /* Diagram cards */
+  .diagram-card {
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 12px;
+    padding: 32px;
+    overflow-x: auto;
+  }
+  .diagram-card .mermaid {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Three flow cards */
+  .flow-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .flow-card {
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+  }
+  .flow-num {
+    position: absolute;
+    top: -12px; left: 20px;
+    background: #7c3aed;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 20px;
+  }
+  .flow-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #e6edf3;
+  }
+  .flow-steps {
+    list-style: none;
+    font-size: 12px;
+    color: #8b949e;
+    line-height: 1.8;
+  }
+  .flow-steps li::before { content: "→ "; color: #7c3aed; font-weight: 700; }
+  .flow-steps li.done::before { content: "✅ "; }
+  .flow-steps li.warn::before { content: "⚙️  "; }
+
+  /* Registry table */
+  .reg-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 16px;
+  }
+  .reg-table th {
+    text-align: left;
+    padding: 10px 16px;
+    background: #21262d;
+    color: #8b949e;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .reg-table th:first-child { border-radius: 8px 0 0 0; }
+  .reg-table th:last-child  { border-radius: 0 8px 0 0; }
+  .reg-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid #21262d;
+    color: #e6edf3;
+  }
+  .reg-table tr:last-child td { border-bottom: none; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge.green  { background: rgba(35,134,54,0.2);  color: #3fb950; border: 1px solid rgba(35,134,54,0.4); }
+  .badge.yellow { background: rgba(187,128,9,0.2);  color: #d29922; border: 1px solid rgba(187,128,9,0.4); }
+  .badge.purple { background: rgba(124,58,237,0.2); color: #a78bfa; border: 1px solid rgba(124,58,237,0.4); }
+  .badge.gray   { background: rgba(110,118,129,0.2);color: #8b949e; border: 1px solid rgba(110,118,129,0.4); }
+
+  /* Divider */
+  hr { border: none; border-top: 1px solid #21262d; margin: 48px 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">🦅</div>
+  <h1>Raven — <span>Architecture & Flow</span></h1>
+</div>
+<p class="tagline">How Raven works across multiple repos, for any user, on any machine.</p>
+
+
+<!-- SECTION 1: Architecture -->
+<div class="section">
+  <div class="section-label">01  Architecture</div>
+  <div class="section-title">The Full System — Who Owns What</div>
+  <div class="section-desc">
+    raven-core is the single source of truth. Everything flows outward from it.
+    Projects never pull manually — Raven pushes to them.
+  </div>
+  <div class="diagram-card">
+    <div class="mermaid">
+flowchart TB
+    subgraph CORE ["☁️  GitHub — giggsoinc"]
+        direction TB
+        RC["📦 raven-core\n─────────────────\nVERSION = 2.8.0\nbundle.sh\ncve-check.py\nsecret-scan.py\naudit-log.py\nemit-violation.py\nserver.py (MCP)\nregistry/\n  raven-register.py\n  raven-sync.py"]
+        RR["🗄️ raven-registry\n─────────────────\nregistry.json\nhistory/"]
+        RAVEN["🔧 giggsoinc/raven\n─────────────────\nCLAUDE/RAVEN/\n  core/\n  guard/\n  codex/\n  mcp/\n  scripts/\n  skills/"]
+        RA["⚡ raven-action\n─────────────────\nGitHub Actions\nPR gate\nscripts/"]
+    end
+
+    subgraph LOCAL ["💻 Developer Machine"]
+        direction TB
+        REG["~/.raven/\n─────────────────\nregistry.json\nremote/ ← clone"]
+
+        subgraph PROJECTS ["Registered Projects"]
+            P1["lockey/\n.raven/raven_version\n.claude/scripts/\n.claude/mcp/\n.claude/skills/"]
+            P2["fin-processor/\n.raven/raven_version\n.claude/scripts/\n.claude/skills/"]
+            P3["new-project/\n.raven/raven_version\n.claude/scripts/\n.claude/skills/"]
+        end
+    end
+
+    RC -->|"bundle.sh\n(auto on commit)"| RAVEN
+    RC -->|"bundle.sh\n(auto on commit)"| RA
+    RC -->|"raven-sync.py"| P1
+    RC -->|"raven-sync.py"| P2
+    RC -->|"raven-sync.py"| P3
+    REG <-->|"push/pull\nbackup"| RR
+    P1 <-->|"git push"| CORE
+    RAVEN -.->|"skills installed\ninto projects"| PROJECTS
+
+    style RC fill:#1a0a2e,stroke:#7c3aed,color:#e6edf3
+    style RR fill:#0a1628,stroke:#1f6feb,color:#e6edf3
+    style RAVEN fill:#0a1628,stroke:#1f6feb,color:#e6edf3
+    style RA fill:#0a1628,stroke:#1f6feb,color:#e6edf3
+    style REG fill:#1a2a1a,stroke:#238636,color:#e6edf3
+    style P1 fill:#161b22,stroke:#21262d,color:#8b949e
+    style P2 fill:#161b22,stroke:#21262d,color:#8b949e
+    style P3 fill:#161b22,stroke:#21262d,color:#8b949e
+    style CORE fill:#0d1117,stroke:#30363d,color:#8b949e
+    style LOCAL fill:#0d1117,stroke:#30363d,color:#8b949e
+    style PROJECTS fill:#0d1117,stroke:#21262d,color:#8b949e
+    </div>
+  </div>
+</div>
+
+
+<!-- SECTION 2: Three Flows -->
+<div class="section">
+  <div class="section-label">02  Flows</div>
+  <div class="section-title">Three Things That Happen — Zero Manual Steps</div>
+  <div class="section-desc">
+    Every operation is triggered by a git commit or a single Claude command.
+  </div>
+
+  <div class="flow-grid">
+    <div class="flow-card">
+      <div class="flow-num">FLOW A</div>
+      <div class="flow-title">Engine Update<br><span style="color:#8b949e;font-weight:400">When you improve raven-core</span></div>
+      <ul class="flow-steps">
+        <li>Edit anything in raven-core</li>
+        <li>git commit</li>
+        <li class="warn">pre-commit hook runs CVE + security checks</li>
+        <li class="warn">post-commit hook fires bundle.sh</li>
+        <li class="done">Scripts copied to SHAY-ROLLS</li>
+        <li class="done">Scripts copied to raven-action</li>
+        <li class="done">Andie skill synced</li>
+        <li class="done">tools-landscape synced</li>
+        <li class="done">Version stamp written everywhere</li>
+        <li>You push raven-core + SHAY-ROLLS</li>
+      </ul>
+    </div>
+
+    <div class="flow-card">
+      <div class="flow-num">FLOW B</div>
+      <div class="flow-title">New Project Setup<br><span style="color:#8b949e;font-weight:400">First time on a project</span></div>
+      <ul class="flow-steps">
+        <li>Run raven-setup.sh in project dir</li>
+        <li class="warn">Setup asks 8 questions</li>
+        <li class="done">manifest.json created</li>
+        <li class="done">Scripts + MCP + skills installed</li>
+        <li class="done">Git hooks wired up</li>
+        <li class="done">Auto-registers in ~/.raven/registry.json</li>
+        <li class="done">Registry pushed to giggsoinc/raven-registry</li>
+        <li>Project now tracked — gets all future updates</li>
+      </ul>
+    </div>
+
+    <div class="flow-card">
+      <div class="flow-num">FLOW C</div>
+      <div class="flow-title">Project Sync<br><span style="color:#8b949e;font-weight:400">After a VERSION bump</span></div>
+      <ul class="flow-steps">
+        <li>Run /raven-registry-sync --all</li>
+        <li class="warn">Reads ~/.raven/registry.json</li>
+        <li class="warn">Diffs each project's raven_version vs VERSION</li>
+        <li class="done">Copies scripts → .claude/scripts/</li>
+        <li class="done">Copies MCP → .claude/mcp/</li>
+        <li class="done">Copies skills → .claude/skills/</li>
+        <li class="done">Writes .raven/raven_version</li>
+        <li class="done">git commit + push per project</li>
+        <li class="done">Registry updated + pushed to GitHub</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- SECTION 3: Detailed Flow A -->
+<div class="section">
+  <div class="section-label">03  Flow A in Detail</div>
+  <div class="section-title">Engine Update — What Fires and Where It Goes</div>
+  <div class="section-desc">
+    One commit to raven-core triggers everything. You never touch bundle.sh directly.
+  </div>
+  <div class="diagram-card">
+    <div class="mermaid">
+sequenceDiagram
+    participant Dev as 👤 Developer
+    participant RC  as 📦 raven-core
+    participant PRE as 🔒 pre-commit hook
+    participant POST as ⚡ post-commit hook
+    participant BND as 🔧 bundle.sh
+    participant SR  as 🦅 SHAY-ROLLS/RAVEN
+    participant RA  as ⚡ raven-action
+
+    Dev->>RC: git commit
+    RC->>PRE: fires automatically
+    PRE->>PRE: CVE check · secrets scan · style check
+    PRE-->>Dev: ❌ BLOCKED (if violations)
+    PRE-->>RC: ✅ PASS → commit written
+    RC->>POST: fires automatically
+    POST->>BND: bash bundle.sh
+    BND->>SR: copy scripts · MCP · Andie · tools-landscape
+    BND->>RA: copy scripts
+    BND->>SR: write .raven/raven_version
+    BND->>RA: write .raven/raven_version
+    BND-->>Dev: ✅ Done — commit each platform repo
+    Dev->>RC: git push raven-core
+    Dev->>SR: git push SHAY-ROLLS
+    Dev->>RA: git push raven-action
+    </div>
+  </div>
+</div>
+
+
+<!-- SECTION 4: Detailed Flow C -->
+<div class="section">
+  <div class="section-label">04  Flow C in Detail</div>
+  <div class="section-title">Project Sync — Keeping All Registered Projects Current</div>
+  <div class="section-desc">
+    Claude runs this via /raven-registry-sync. Works across any number of projects.
+    Projects with a GitHub remote are pushed automatically. Local-only projects are committed but not pushed.
+  </div>
+  <div class="diagram-card">
+    <div class="mermaid">
+flowchart LR
+    CMD["Claude runs\n/raven-registry-sync\n--all"]
+
+    CMD --> REG["Read\n~/.raven/\nregistry.json"]
+
+    REG --> DIFF{"Compare\ninstalled vs\ncurrent VERSION"}
+
+    DIFF -->|"✅ current"| SKIP["Skip — no action"]
+    DIFF -->|"⚠️ stale"| SYNC["raven-sync.py"]
+
+    SYNC --> S1["Copy\n4 engine scripts\n→ .claude/scripts/"]
+    SYNC --> S2["Copy\nserver.py\n→ .claude/mcp/"]
+    SYNC --> S3["Copy\nAndie skill\n→ .claude/skills/andie/"]
+    SYNC --> S4["Copy\ntools-landscape\n→ .claude/skills/\ntools-landscape/"]
+    SYNC --> S5["Write\n.raven/raven_version\n= 2.8.0"]
+
+    S1 & S2 & S3 & S4 & S5 --> GIT["git add .claude/\ngit commit"]
+
+    GIT -->|"has remote"| PUSH["git push\n→ GitHub"]
+    GIT -->|"no remote"| LOCAL["committed\nlocally only"]
+
+    PUSH & LOCAL --> UREG["Update\n~/.raven/registry.json\ninstalled_version\nlast_synced"]
+
+    UREG --> GHUB["Push registry\n→ giggsoinc/\nraven-registry"]
+
+    style CMD fill:#1a0a2e,stroke:#7c3aed,color:#e6edf3
+    style SYNC fill:#1a0a2e,stroke:#7c3aed,color:#e6edf3
+    style GHUB fill:#0a1628,stroke:#1f6feb,color:#e6edf3
+    style PUSH fill:#0a1628,stroke:#1f6feb,color:#e6edf3
+    style SKIP fill:#161b22,stroke:#21262d,color:#8b949e
+    style LOCAL fill:#1a2a1a,stroke:#238636,color:#e6edf3
+    </div>
+  </div>
+</div>
+
+
+<!-- SECTION 5: Registry State -->
+<div class="section">
+  <div class="section-label">05  Registry</div>
+  <div class="section-title">What the Registry Tracks — Current State</div>
+  <div class="section-desc">
+    Lives at ~/.raven/registry.json locally. Backed up to giggsoinc/raven-registry on GitHub.
+    Survives deleting any project repo. Survives wiping your machine (restore from GitHub clone).
+  </div>
+  <div class="diagram-card">
+    <table class="reg-table">
+      <thead>
+        <tr>
+          <th>Project</th>
+          <th>Path</th>
+          <th>Installed</th>
+          <th>Status</th>
+          <th>Remote</th>
+          <th>Scripts</th>
+          <th>MCP</th>
+          <th>Skills</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>lockey</strong></td>
+          <td style="color:#8b949e;font-size:12px">/AntiGravity_Projects/lockey</td>
+          <td>2.8.0</td>
+          <td><span class="badge green">✅ current</span></td>
+          <td><span class="badge purple">GitHub</span></td>
+          <td><span class="badge green">✅</span></td>
+          <td><span class="badge green">✅</span></td>
+          <td style="font-size:11px;color:#8b949e">raven-core · security · andie · tools-landscape + more</td>
+        </tr>
+        <tr>
+          <td><strong>fin-processor</strong></td>
+          <td style="color:#8b949e;font-size:12px">/AntiGravity_Projects/Proj1/fin-processor</td>
+          <td>2.8.0</td>
+          <td><span class="badge green">✅ current</span></td>
+          <td><span class="badge gray">local only</span></td>
+          <td><span class="badge green">✅</span></td>
+          <td><span class="badge gray">—</span></td>
+          <td style="font-size:11px;color:#8b949e">raven-core · security · andie · tools-landscape</td>
+        </tr>
+        <tr>
+          <td><strong>Dev-Claude-Arch</strong></td>
+          <td style="color:#8b949e;font-size:12px">/AntiGravity_Projects/Dev-Claude-Arch</td>
+          <td>2.8.0</td>
+          <td><span class="badge green">✅ current</span></td>
+          <td><span class="badge gray">local only</span></td>
+          <td><span class="badge green">✅</span></td>
+          <td><span class="badge gray">—</span></td>
+          <td style="font-size:11px;color:#8b949e">shay-* skills (legacy)</td>
+        </tr>
+        <tr>
+          <td style="color:#8b949e"><em>your-new-project</em></td>
+          <td style="color:#8b949e;font-size:12px"><em>any path</em></td>
+          <td style="color:#8b949e"><em>—</em></td>
+          <td><span class="badge yellow">run raven-setup.sh</span></td>
+          <td style="color:#8b949e"><em>auto-detected</em></td>
+          <td style="color:#8b949e"><em>auto</em></td>
+          <td style="color:#8b949e"><em>auto</em></td>
+          <td style="color:#8b949e"><em>auto-detected from .claude/skills/</em></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- SECTION 6: Machine wipe recovery -->
+<div class="section">
+  <div class="section-label">06  Resilience</div>
+  <div class="section-title">What Survives What</div>
+  <div class="section-desc">The registry and all Raven repos are on GitHub. Nothing critical is local-only.</div>
+  <div class="diagram-card">
+    <div class="mermaid">
+flowchart LR
+    subgraph LOST ["💥 You lose your machine or delete a repo"]
+        L1["Deleted: lockey/"]
+        L2["Wiped: ~/.raven/"]
+        L3["Deleted: raven-core/"]
+    end
+
+    subgraph RECOVER ["🔄 Recovery"]
+        R1["git clone giggsoinc/lockey\n→ lockey restored"]
+        R2["git clone giggsoinc/raven-registry ~/.raven/remote\ncp registry.json ~/.raven/\n→ registry restored"]
+        R3["git clone giggsoinc/raven-core\n→ bundle.sh + scripts back"]
+    end
+
+    L1 --> R1
+    L2 --> R2
+    L3 --> R3
+
+    R1 & R2 & R3 --> DONE["✅ Back to full state\nRun /raven-registry-sync\nto re-stamp projects"]
+
+    style DONE fill:#1a2a1a,stroke:#238636,color:#e6edf3
+    style LOST fill:#2a0a0a,stroke:#da3633,color:#8b949e
+    style RECOVER fill:#0a1628,stroke:#1f6feb,color:#8b949e
+    </div>
+  </div>
+</div>
+
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      primaryColor: '#1a0a2e',
+      primaryTextColor: '#e6edf3',
+      primaryBorderColor: '#7c3aed',
+      lineColor: '#7c3aed',
+      secondaryColor: '#0a1628',
+      tertiaryColor: '#161b22',
+      background: '#0d1117',
+      mainBkg: '#161b22',
+      nodeBorder: '#30363d',
+      clusterBkg: '#0d1117',
+      titleColor: '#e6edf3',
+      edgeLabelBackground: '#161b22',
+      actorBkg: '#161b22',
+      actorBorder: '#7c3aed',
+      actorTextColor: '#e6edf3',
+      activationBorderColor: '#7c3aed',
+      activationBkgColor: '#1a0a2e',
+      sequenceNumberColor: '#e6edf3',
+      noteBkgColor: '#21262d',
+      noteTextColor: '#e6edf3',
+      noteBorderColor: '#30363d',
+      signalColor: '#a78bfa',
+      signalTextColor: '#e6edf3',
+      labelBoxBkgColor: '#161b22',
+      labelBoxBorderColor: '#7c3aed',
+      labelTextColor: '#e6edf3',
+      loopTextColor: '#e6edf3',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      fontSize: '13px'
+    },
+    flowchart: { curve: 'basis', padding: 20 },
+    sequence: { actorMargin: 60, width: 160, height: 50, boxMargin: 10 }
+  });
+</script>
+</body>
+</html>
