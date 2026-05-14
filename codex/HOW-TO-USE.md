@@ -261,7 +261,7 @@ curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/codex/install.
 | Secret scan | On file save | On PR open |
 | Setup command | `raven-setup` | `raven-codex-setup` |
 | Install dir | `~/.raven/` | `~/.raven-codex/` |
-| Engine | [raven-core](https://github.com/giggsoinc/raven-core) | [raven-core](https://github.com/giggsoinc/raven-core) |
+| Engine | [raven/raven-core](https://github.com/giggsoinc/raven/tree/main/raven-core) | [raven/raven-core](https://github.com/giggsoinc/raven/tree/main/raven-core) |
 
 ---
 
