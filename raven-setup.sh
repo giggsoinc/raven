@@ -30,3 +30,15 @@ source "$SR_REPO_DIR/setup/sr-05-secrets.sh"       || exit 1
 echo ""
 echo -e "${W}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
 source "$SR_REPO_DIR/setup/sr-06-verify.sh"        || exit 1
+
+# Register project in Raven registry
+RAVEN_REGISTER="$(dirname "$SR_REPO_DIR")/raven-core/registry/raven-register.py"
+if [[ -f "$RAVEN_REGISTER" ]]; then
+  echo ""
+  echo -e "${W}Registering project in Raven registry...${N}"
+  python3 "$RAVEN_REGISTER" --path "$(pwd)" || \
+    echo "  ⚠️  Registry update failed — run manually: python3 $RAVEN_REGISTER"
+else
+  echo ""
+  echo -e "  ⚠️  raven-register.py not found — skipping registry step"
+fi
