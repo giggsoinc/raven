@@ -32,7 +32,7 @@ echo -e "${W}━━━━━━━━━━━━━━━━━━━━━━�
 source "$SR_REPO_DIR/setup/sr-06-verify.sh"        || exit 1
 
 # Register project in Raven registry
-RAVEN_REGISTER="$(dirname "$SR_REPO_DIR")/raven-core/registry/raven-register.py"
+RAVEN_REGISTER="$SR_REPO_DIR/raven-core/registry/raven-register.py"
 if [[ -f "$RAVEN_REGISTER" ]]; then
   echo ""
   echo -e "${W}Registering project in Raven registry...${N}"

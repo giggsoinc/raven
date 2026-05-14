@@ -1,21 +1,13 @@
 #!/usr/bin/env python3
-# Raven — Secret Scanner v2.1
-# Modes:
-#   pre-commit (default) — scans staged files via git diff --cached
-#   --pr                 — scans PR diff between base and head (CI mode)
-#   --file <path>        — scans a single file directly
-# Exit 1 = hard block.
+# Raven — Secret Scanner v2.0
+# Checks:
+#   1. .gitignore exists at project root
+#   2. .gitignore covers critical files (.env, secrets, keys)
+#   3. Secret patterns in staged files
+#   4. .env files present but not gitignored
+# Called by pre-commit hook. Exit 1 = hard block.
 
-import sys, os, re, subprocess, argparse
-
-parser = argparse.ArgumentParser(description="Raven Secret Scanner")
-parser.add_argument("--pr",                action="store_true", help="PR mode — scan diff vs base branch")
-parser.add_argument("--changed-files-only",action="store_true", help="Only scan files changed in PR")
-parser.add_argument("--file",              default=None,        help="Scan a single file")
-parser.add_argument("--base-ref",          default=None,        help="Base branch ref for PR diff")
-args = parser.parse_args()
-
-PR_MODE = args.pr or args.changed_files_only
+import sys, os, re, subprocess
 
 # ── Secret patterns ────────────────────────────────────────────────────────────
 PATTERNS = [
@@ -48,33 +40,12 @@ violations = []
 warnings   = []
 
 def staged_files():
-    if PR_MODE:
-        base = args.base_ref or os.environ.get("GITHUB_BASE_REF", "main")
-        try:
-            out = subprocess.check_output(
-                ["git", "diff", "--name-only", "--diff-filter=ACM", f"origin/{base}...HEAD"]
-            ).decode().split()
-            return out
-        except:
-            return []
-    if args.file:
-        return [args.file]
     out = subprocess.check_output(
         ["git","diff","--cached","--name-only","--diff-filter=ACM"]
     ).decode().split()
     return out
 
 def file_content(path):
-    if args.file:
-        try:
-            return open(path).read()
-        except:
-            return ""
-    if PR_MODE:
-        try:
-            return open(path).read()
-        except:
-            return ""
     try:
         return subprocess.check_output(["git","show",f":{path}"]).decode(errors="ignore")
     except:
