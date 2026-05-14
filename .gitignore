@@ -4,3 +4,5 @@ claude-plugins-official/
 .DS_Store
 guard/.git
 raven-plugin.zip
+.claude/.raven/
+codex/.raven/
