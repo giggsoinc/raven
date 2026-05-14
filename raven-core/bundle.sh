@@ -10,9 +10,9 @@ DRY_RUN=false
 [[ "$1" == "--dry-run" ]] && DRY_RUN=true
 
 # Resolve paths relative to this script's location
-CORE_DIR="$(cd "$(dirname "$0")" && pwd)"       # raven-core/
-RAVEN_DIR="$(dirname "$CORE_DIR")"              # repo root (giggsoinc/raven)
-PLATFORM_DIR="$(dirname "$RAVEN_DIR")"          # parent of repo
+CORE_DIR="$(cd "$(dirname "$0")" && pwd)"       # .../RAVEN/raven-core/
+RAVEN_DIR="$(dirname "$CORE_DIR")"              # .../RAVEN/
+ANTIGRAVITY_DIR="$(cd "$CORE_DIR/../../../.." && pwd)"  # .../AntiGravity_Projects/
 CURRENT_VERSION="$(cat "$CORE_DIR/VERSION" 2>/dev/null || echo "unknown")"
 
 ENGINE_SCRIPTS=("cve-check.py" "secret-scan.py" "audit-log.py" "emit-violation.py" "db-guard.py")
@@ -64,7 +64,7 @@ bundle_mcp() {
 
 # ── Engine scripts → platform repos ─────────────────────────────────────────
 bundle_scripts "raven (codex)"  "$RAVEN_DIR/codex/scripts"
-bundle_scripts "raven-action"   "$PLATFORM_DIR/raven-action/scripts"
+bundle_scripts "raven-action"   "$ANTIGRAVITY_DIR/raven-action/scripts"
 
 echo ""
 
