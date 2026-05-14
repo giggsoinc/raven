@@ -5,7 +5,7 @@
 # Raven-Codex
 
 > OpenAI Codex implementation of the Raven AI coding discipline engine.
-> Part of the [Raven platform](https://github.com/giggsoinc/raven-core). MIT License.
+> Part of the [Raven platform](https://github.com/giggsoinc/raven). MIT License.
 > Built by [Giggso Inc](https://github.com/giggsoinc).
 
 *Guardrails before you ship.*
@@ -31,7 +31,7 @@ Raven-Codex brings enterprise coding discipline to OpenAI Codex:
 | **CVE scan** | On import detection | On PR open |
 | **Secret scan** | On file save | On PR open |
 | **Audit log** | Every tool call | Every PR event |
-| **Engine** | [raven-core](https://github.com/giggsoinc/raven-core) | [raven-core](https://github.com/giggsoinc/raven-core) |
+| **Engine** | [raven/raven-core](https://github.com/giggsoinc/raven/tree/main/raven-core) | [raven/raven-core](https://github.com/giggsoinc/raven/tree/main/raven-core) |
 
 ---
 
