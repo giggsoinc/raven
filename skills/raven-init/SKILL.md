@@ -12,34 +12,29 @@ Run this command when starting a new project. It will ask you questions, generat
 
 ---
 
-## Hard Rules — Read Before Pre-checks
+## Pre-checks
+
+1. Is `.raven/manifest.json` already present?
+   - YES → Load it. Trust it. Proceed with the declared stack. Do not ask to reinitialize. Do not modify it unless the user explicitly requests a change.
+   - NO → Greenfield. Run interactive creation below.
+
+2. (Greenfield only) Is Git initialized?
+   - NO → Warn: "Git not initialized. Run `git init` first. Audit trail requires Git."
+
+---
+
+## Greenfield Creation Rules
 
 ```
 NEVER auto-detect or pre-populate answers from:
   - existing venv or .venv directories
   - requirements.txt / pyproject.toml / package.json
-  - existing .env files or environment variables
+  - .env files or environment variables
   - any other project files on disk
 
 Every answer comes from the user. No exceptions.
-Existing project files are NOT a source of truth for the manifest.
 The manifest is what the user declares — not what the project happens to contain.
 ```
-
-## Pre-checks
-
-Before asking anything, check only these three things:
-
-1. Is `.raven/manifest.json` already present?
-   - YES → Ask: "Manifest already exists (v{version}). Reinitialize? This will create a new version."
-   - If yes → continue. If no → STOP.
-
-2. Is `manifest.org.example.json` or an org manifest present?
-   - YES → Load org defaults. Locked fields will be pre-filled and cannot be changed.
-   - NO → Use schema defaults only.
-
-3. Is Git initialized in this directory?
-   - NO → Warn: "Git not initialized. Run `git init` first. Audit trail requires Git."
 
 ---
 
