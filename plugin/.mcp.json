@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "raven": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["${workspaceFolder}/.claude/scripts/server.py"],
+      "env": {}
+    }
+  }
+}
