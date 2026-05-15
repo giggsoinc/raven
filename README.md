@@ -4,143 +4,116 @@
 
 # Raven
 
-> Claude Code implementation of the Raven AI coding discipline engine.
-> Part of the [Raven platform](https://github.com/giggsoinc/raven-core). MIT License.
-> Built by [Giggso Inc](https://github.com/giggsoinc).
+> AI coding discipline for Claude Code, GitHub Copilot, and OpenAI Codex.
+> 35 skills · 10 guard agents · CVE scanning · secret detection · audit logs.
+> MIT License · Built by [Giggso](https://giggso.com)
 
 *Guardrails before you ship.*
 
-## Install — One Command
+---
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | bash
-```
+## Choose Your Install
 
-Then from **any project directory**:
-```bash
-cd YourProject && raven-setup
-```
+Pick your situation. Each links to the full guide.
 
-That's it. Two commands. No zip. No path hunting.
+<table>
+<thead>
+<tr>
+<th>Who</th>
+<th>OS</th>
+<th>One command</th>
+<th>Guide</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td rowspan="2"><b>Individual developer</b><br><sub>installs for yourself</sub></td>
+<td>macOS / Linux</td>
+<td><code>curl -fsSL .../install.sh | bash</code></td>
+<td><a href="HOW-TO-USE.md#dev-mac-linux">→ Full guide</a></td>
+</tr>
+<tr>
+<td>Windows</td>
+<td><code>iwr .../install.ps1 | iex</code></td>
+<td><a href="HOW-TO-USE.md#dev-windows">→ Full guide</a></td>
+</tr>
+<tr>
+<td rowspan="2"><b>IT / Admin</b><br><sub>deploys for the whole team</sub></td>
+<td>macOS / Linux</td>
+<td><code>sudo bash install-enterprise.sh</code></td>
+<td><a href="HOW-TO-USE.md#enterprise-mac-linux">→ Full guide</a></td>
+</tr>
+<tr>
+<td>Windows</td>
+<td><code>install-enterprise.ps1</code> (coming soon)</td>
+<td><a href="HOW-TO-USE.md#enterprise-windows">→ Full guide</a></td>
+</tr>
+<tr>
+<td><b>Codex / Copilot</b><br><sub>plugin, no terminal needed</sub></td>
+<td>Any</td>
+<td>Install plugin from <code>giggsoinc/raven-codex</code></td>
+<td><a href="HOW-TO-USE.md#codex-copilot">→ Full guide</a></td>
+</tr>
+</tbody>
+</table>
 
 ---
 
 ## What It Does
 
-Enforces consistent coding standards, stack discipline, and production safety across distributed dev teams — without killing developer productivity.
+Enforces consistent quality, stack discipline, and security across your team — without blocking developer flow.
 
 | During coding | At git commit | At CI/CD |
 |---|---|---|
-| Agents advise | Pre-commit hook blocks | Pipeline validates |
-| Skills guide | CVE check fires | Thin trigger only |
-| No hard blocks | All violations caught | Last safety net |
+| Agents advise in real time | Pre-commit hook fires | Pipeline thin-check |
+| Skills guide by work type | CVE scan on every import | Last safety net |
+| No hard blocks during typing | Secret detection on staged files | Blocks unreviewed code |
 
----
+**Works for any project type — not just code:**
 
-## Components
-
-### Core Agents — `.claude/agents/`
-
-| Agent | Fires On | Action |
+| Project type | Examples | Raven enforces |
 |---|---|---|
-| manifest-checker | Every action | Hard block if manifest missing |
-| style-enforcer | File edit | Advise during coding, block at commit |
-| stack-validator | Import detected | CVE check, approval flow |
-| architecture-guard | New file | Warn → 24h grace → block |
-| claude-mem | PreCompact | Save session state, macOS toaster |
-
-### Skills — `.claude/skills/`
-
-Progressive disclosure — ~100 tokens at startup, rules load only when triggered.
-
-**Core skills:** raven-core · raven-expert · raven-plan · raven-review · raven-security · raven-refactor · raven-test · raven-document · andie
-
-**Specialist skills (23):** aws · gcp · azure · oci · kafka · postgres · redis · k8s · terraform · fastapi · nicegui · vault · security · aiml · dataeng · devops · bigdata · vector-db · dynamic · odoo · salesforce · log-management · agent-chaining
-
-### Commands — `.claude/commands/`
-
-| Command | Does |
-|---|---|
-| `/raven-scaffold` | Plan before code — dependency map + file structure |
-| `/raven-approve {lib}` | Architect approves library request |
-| `/raven-debug` | Full boot diagnostic |
-| `/raven-mem` | Save session state before context reset |
-| `/raven-sync` | Sync requirements.txt → manifest |
-
-### Scripts — `.claude/scripts/`
-
-| Script | Does |
-|---|---|
-| `cve-check.py` | Three-tier CVE — PyPI Safety + gpt-5.5 |
-| `secret-scan.py` | Detects API keys, passwords, tokens in staged files |
-| `sync-libraries.py` | Auto-discovers libs from requirements.txt |
-| `token-guard.py` | PreCompact warning + session backup |
-| `audit-log.py` | Encrypted audit → S3 / GCS / Azure / OCI |
-
-### Pre-commit Hook — `.git/hooks/pre-commit`
-
-5 checks — any failure = hard block:
-1. Framework repo detection (skip if `.raven-framework` present)
-2. Manifest valid
-3. Secrets not staged
-4. CVE check on all imports
-5. Style violations (print, lines, type hints)
+| Software | Python, TypeScript, Go, Java | Style, CVE, secrets, tests |
+| Infrastructure | Terraform, Kubernetes, Helm | Change docs, naming, secret hygiene |
+| Data | dbt, Airflow, Jupyter, SQL | Query quality, schema docs, PII |
+| Salesforce | Apex, SFDC metadata | Bulk patterns, test coverage, hardcoded IDs |
+| Odoo | Python modules, XML views | Module structure, ORM discipline |
+| Documentation | Markdown, architecture diagrams | Structure, broken links, sync |
 
 ---
 
-## Library Approval — Three Tiers
+## What's Included
 
-| Tier | Condition | Result |
+**35 Skills** — load at startup (~100 tokens each), rules fire only when triggered
+
+> Andie (orchestration) · raven-core · raven-expert · raven-plan · raven-review ·
+> raven-security · raven-refactor · raven-test · raven-document ·
+> aws · gcp · azure · oci · kafka · postgres · redis · k8s · terraform ·
+> fastapi · nicegui · vault · security · aiml · dataeng · devops · bigdata ·
+> vector-db · dynamic · odoo · salesforce · log-management · agent-chaining ·
+> tools-landscape · task-observer
+
+**10 Guard Agents** — always on, fire silently
+
+> manifest-checker · stack-validator · style-enforcer · architecture-guard ·
+> db-guard · skill-guard · claude-mem · guard-git-watch · odoo-guard · salesforce-guard
+
+**MCP Tools** — `raven_status` · `raven_cve_check` · `raven_sync_libs` · `raven_debug` · `raven_violation`
+
+**Slash Commands** — `/raven-scaffold` · `/raven-debug` · `/raven-review` · `/raven-approve` · `/raven-harden` · `/raven-incident`
+
+---
+
+## Companion Repos
+
+| Repo | For | Does |
 |---|---|---|
-| 1 | Org whitelist | Auto-approved, zero friction |
-| 2 | Category whitelist | Auto-approved, zero friction |
-| 3 | Unknown | Approval flow → Prism7 → PR |
-| 3 | CVE CVSS >7 | Hard block, no override |
-
----
-
-## MCP Plugin
-
-```bash
-# Install as Claude Code MCP plugin
-claude mcp add raven -- python3 ~/.raven/mcp/server.py
-```
-
-Tools: `raven_status` · `raven_cve_check` · `raven_sync_libs` · `raven_debug` · `raven_violation`
-
----
-
-## Works Alongside
-
-```
-Superpowers → dev methodology (TDD, planning, review)
-GSD         → context management (long sessions)
-Raven       → governance + security layer
-
-All three stack. No conflicts.
-```
-
----
-
-## Install
-
-```bash
-cd YourProject
-bash ../raven/raven-setup.sh
-```
-
-See [HOW-TO-USE.md](HOW-TO-USE.md) for full enterprise guide.
-
----
-
-## Companion Repo
-
-[giggsoinc/raven-guard](https://github.com/giggsoinc/raven-guard) — Production protection.
-Git watch · DB watch · Infra watch · Firewall watch · Incident management.
-Install after Raven Core.
+| [giggsoinc/raven](https://github.com/giggsoinc/raven) | Developers | This repo — Claude Code |
+| [giggsoinc/raven-codex](https://github.com/giggsoinc/raven-codex) | Codex / Copilot users | Plugin version |
+| [giggsoinc/raven-guard](https://github.com/giggsoinc/raven-guard) | DevOps / architects | Production protection |
 
 ---
 
 ## License
 
-MIT — [Giggso](https://giggso.com)
+MIT — [Giggso](https://giggso.com) · [HOW-TO-USE.md](HOW-TO-USE.md) for full documentation

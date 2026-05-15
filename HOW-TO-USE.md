@@ -4,153 +4,433 @@
 
 # How to Use Raven — v2.9
 
-> Claude Code implementation of the Raven AI coding discipline engine.
-> Part of the [Raven platform](https://github.com/giggsoinc/raven-core). MIT License.
-> Built by [Giggso Inc](https://github.com/giggsoinc).
-
-*Guardrails before you ship.*
+> Claude Code · GitHub Copilot · OpenAI Codex · MIT License · [Giggso](https://giggso.com)
 
 ---
 
-## Two Repos — Two Audiences
+## Choose Your Path
 
-| Repo | Audience | Job |
-|---|---|---|
-| [giggsoinc/raven](https://github.com/giggsoinc/raven) (Core) | Developers | Coding discipline |
-| [giggsoinc/raven-guard](https://github.com/giggsoinc/raven-guard) | DevOps / Architects | Production protection |
+<table>
+<thead>
+<tr>
+<th>Who are you?</th>
+<th>OS</th>
+<th>Jump to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td rowspan="2">
+  <b>Individual developer</b><br>
+  <sub>Installing for yourself on your own machine</sub>
+</td>
+<td>macOS or Linux</td>
+<td><a href="#dev-mac-linux">→ Dev Install — macOS & Linux</a></td>
+</tr>
+<tr>
+<td>Windows</td>
+<td><a href="#dev-windows">→ Dev Install — Windows</a></td>
+</tr>
+<tr>
+<td rowspan="2">
+  <b>IT admin / architect</b><br>
+  <sub>Deploying for your whole team, zero dev action needed</sub>
+</td>
+<td>macOS or Linux</td>
+<td><a href="#enterprise-mac-linux">→ Enterprise — macOS & Linux</a></td>
+</tr>
+<tr>
+<td>Windows</td>
+<td><a href="#enterprise-windows">→ Enterprise — Windows</a></td>
+</tr>
+<tr>
+<td>
+  <b>Codex / GitHub Copilot user</b><br>
+  <sub>No terminal, no install script — plugin only</sub>
+</td>
+<td>Any</td>
+<td><a href="#codex-copilot">→ Codex & Copilot Plugin</a></td>
+</tr>
+</tbody>
+</table>
 
 ---
 
-## Prerequisites
+<a id="dev-mac-linux"></a>
 
-| Requirement | macOS / Linux | Windows |
-|---|---|---|
-| Claude Code | `claude --version` | `claude --version` (PowerShell) |
-| Git | `git --version` | `git --version` |
-| Python 3.10+ | `python3 --version` | `python --version` |
-| OpenAI API key | Optional — enables CVE deep scan | Optional |
+## Dev Install — macOS & Linux
 
----
+### What you need first
 
-## How It Works — Two Steps, Done
+| | Check |
+|---|---|
+| Claude Code | `claude --version` — [download](https://claude.ai/download) if missing |
+| Git | `git --version` |
+| Python 3.10+ | `python3 --version` |
 
-| Step | What it does | When |
-|---|---|---|
-| **Step 1 — Install** | Downloads Raven. Wires all 35 skills + 10 agents into `~/.claude/` globally. Registers MCP. | **Once per machine** |
-| **Step 2 — Setup** | Scans your project, asks 1 question, creates the manifest. | **Once per project** |
+### Step 1 — Install Raven globally (one command, one time per machine)
 
-After Step 1, every Claude Code session on your machine has all skills available — no repeat work.
-
----
-
-## Step 1 — Install Raven (once per machine)
-
-**macOS / Linux:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | bash
 ```
 
-**Windows (PowerShell):**
-```powershell
-iwr https://raw.githubusercontent.com/giggsoinc/raven/main/install.ps1 | iex
-```
+**What this does:**
+- Downloads Raven to `~/.raven/`
+- Copies all 35 skills + 10 agents into `~/.claude/` — available in every Claude Code session from now on
+- Registers the MCP server globally
+- Makes `raven-setup` available as a command anywhere
 
-That's it. Claude Code now has Raven globally. All 35 skills, all 10 agents, MCP tools, commands.
-
-### Manual install (no curl / iwr)
-
-**macOS / Linux:**
+**Manual install (no curl):**
 ```bash
 git clone https://github.com/giggsoinc/raven.git ~/.raven
 bash ~/.raven/install.sh
 ```
 
-**Windows:**
-```powershell
-git clone https://github.com/giggsoinc/raven.git $env:USERPROFILE\.raven
-powershell -ExecutionPolicy Bypass -File $env:USERPROFILE\.raven\install.ps1
-```
+### Step 2 — Per-project setup (one time per project)
 
-> **Windows prerequisites:**
-> - Python: [python.org](https://python.org) — check "Add to PATH" during install
-> - Git: [git-scm.com](https://git-scm.com)
-> - Claude Code: `winget install Anthropic.Claude` or [claude.ai/download](https://claude.ai/download)
-
----
-
-## Step 2 — Per-project setup (once per project)
-
-**macOS / Linux:**
 ```bash
-cd YourProject && raven-setup
-```
-
-**Windows:**
-```powershell
 cd YourProject
-raven-setup.ps1
+raven-setup
 ```
 
-Raven scans the directory silently → shows what it found → asks what to enforce → creates `manifest.json`. One question. Done.
+Raven scans the directory silently, shows what it found, and asks **one question**. Done in under 2 minutes.
 
----
+**Example — Terraform project:**
+```
+─────────────────────────────────────────────────
+  RAVEN — first run
+─────────────────────────────────────────────────
+  Scanned this directory. Here's what I see:
 
-## Step 3 — Open Claude Code
+    Terraform configs      ✓  (14 files)
+    Helm charts            ✓
+    Docker Compose         ✓
+    Platform               macOS (auto-detected)
+    No source code         —
+
+  This looks like a pure infrastructure workspace.
+  Code linting rules will not apply.
+
+  What's the main thing you want enforced?
+    1) No undocumented infrastructure changes
+    2) Secrets never in config files
+    3) Consistent naming conventions
+    4) All of the above (recommended)
+
+  → 4
+─────────────────────────────────────────────────
+```
+
+Two more questions follow (project name, email), then the manifest is created.
+
+### Step 3 — Open Claude Code
 
 ```bash
 claude .
 ```
 
-Andie fires. Raven is live.
+Raven greets you immediately — no blank screen, no setup needed.
+
+### Step 4 — Update later
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | bash
+```
+
+Re-running install updates Raven and re-wires `~/.claude/`. Project manifests are untouched.
 
 ---
 
-## Update
+<a id="dev-windows"></a>
 
-```bash
-# macOS / Linux
-curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | bash
+## Dev Install — Windows
 
-# Windows
+### What you need first
+
+| | How to install |
+|---|---|
+| Python 3.10+ | [python.org](https://python.org) — **check "Add to PATH"** during install |
+| Git | [git-scm.com](https://git-scm.com) |
+| Claude Code | `winget install Anthropic.Claude` or [claude.ai/download](https://claude.ai/download) |
+
+> All commands below run in **PowerShell**. Not Command Prompt.
+
+### Step 1 — Install Raven globally (one command, one time per machine)
+
+```powershell
 iwr https://raw.githubusercontent.com/giggsoinc/raven/main/install.ps1 | iex
 ```
 
-Re-running install updates Raven and re-wires everything. Per-project manifests are untouched.
+**What this does:**
+- Downloads Raven to `$env:USERPROFILE\.raven\`
+- Copies all 35 skills + 10 agents into `$env:USERPROFILE\.claude\`
+- Registers the MCP server globally
+- Makes `raven-setup.ps1` available
 
-> **Enterprise deploy (zero-click for teams):**
-> IT drops `managed-mcp.json` at the system path — every developer gets Raven auto-loaded.
->
-> | Platform | Path |
-> |---|---|
-> | macOS | `/Library/Application Support/ClaudeCode/managed-mcp.json` |
-> | Windows | `C:\ProgramData\ClaudeCode\managed-mcp.json` |
-> | Linux | `/etc/claude-code/managed-mcp.json` |
+**Manual install (no iwr):**
+```powershell
+git clone https://github.com/giggsoinc/raven.git $env:USERPROFILE\.raven
+powershell -ExecutionPolicy Bypass -File $env:USERPROFILE\.raven\install.ps1
+```
+
+### Step 2 — Per-project setup (one time per project)
+
+```powershell
+cd YourProject
+raven-setup.ps1
+```
+
+Same detection and 1-question flow as macOS/Linux. Works natively — no WSL needed.
+
+### Step 3 — Open Claude Code
+
+```powershell
+claude .
+```
+
+### Execution policy note
+
+If PowerShell blocks the script:
+```powershell
+powershell -ExecutionPolicy Bypass -File $env:USERPROFILE\.raven\install.ps1
+```
 
 ---
 
-## Setup — Questions Asked
+<a id="enterprise-mac-linux"></a>
 
-| Question | Notes |
-|---|---|
-| Project directory | Enter path or press Enter for current dir |
-| Mode | solo / team / enterprise |
-| Work type | **code / infra / review / mixed** — determines which validators apply |
-| Project name | Letters, numbers, hyphens |
-| Your email | Audit trail |
-| Language(s) | Adapts to work type — infra shows yaml/hcl, code shows Python/TS/Go |
-| Cloud | Number or freeform |
-| Database(s) | Multi-select — `1,3` |
-| Shared inbox | Approval email (team/enterprise only) |
-| OpenAI API key | Blank = PyPI Safety only (still works) |
+## Enterprise — macOS & Linux
 
-### Work type — what it controls
+> **For IT admins and architects deploying to a team.**
+> Run this once on each managed machine. Developers need zero installation steps.
 
-| work_type | Language validation | Library check | Infra file check |
+### What this deploys
+
+| Component | Where | Effect |
+|---|---|---|
+| Raven source | `/usr/local/raven/` | System-wide, all users |
+| `managed-mcp.json` | `/Library/Application Support/ClaudeCode/` (mac) or `/etc/claude-code/` (linux) | Every Claude Code session auto-loads Raven MCP tools |
+| `managed-settings.json` | Same managed path | Hooks and permission policy enforced for all users |
+| `manifest.org.json` | `/usr/local/raven/` | Org-level locked rules — devs cannot override |
+| All 35 skills + agents | Each user's `~/.claude/` | Provisioned at install time (optional) |
+| `raven-setup` command | `/usr/local/bin/` | Available system-wide |
+
+### Run the enterprise installer
+
+```bash
+sudo bash install-enterprise.sh
+```
+
+The script asks 4 questions:
+1. Organisation name
+2. IT / architect email (audit trail)
+3. Approval mode — `first_responder` / `majority_vote` / `owner_only`
+4. Token control — `per_developer` / `per_project` / `per_team`
+
+Then it asks: **"Provision all existing users now?"**
+- Say yes → all current users on the machine get skills in `~/.claude/` immediately
+- Say no → users run `install.sh` themselves on first login (add to onboarding script)
+
+### Developer experience after enterprise deploy
+
+Developer opens a new machine. No install steps. No README to read. They just:
+
+```bash
+cd MyProject
+raven-setup        # 2-minute project manifest setup
+claude .           # Raven greets them immediately
+```
+
+If IT provisioned `~/.claude/` for them, even `raven-setup` may be skipped if the project already has a manifest checked into git.
+
+### Org manifest — locked fields
+
+`/usr/local/raven/manifest.org.json` locks fields every project manifest must comply with. Example:
+
+```json
+{
+  "_layer": "org",
+  "_locked": ["standards", "approval_mode", "guard.enabled", "tokens.control"],
+  "standards": "raven-v2.9",
+  "approval_mode": "majority_vote",
+  "guard": { "enabled": true },
+  "tokens": { "control": "per_developer" }
+}
+```
+
+Developers can't change these. Their project manifest inherits them.
+
+### For new hires
+
+Add to your onboarding provisioning script:
+
+```bash
+sudo bash /usr/local/raven/install.sh
+# installs and wires ~/.claude/ for the new user
+```
+
+### Update all users
+
+```bash
+sudo bash /usr/local/raven/install-enterprise.sh
+# pulls latest, regenerates managed files, re-provisions all users
+```
+
+---
+
+<a id="enterprise-windows"></a>
+
+## Enterprise — Windows
+
+> Windows enterprise script (`install-enterprise.ps1`) is in progress.
+> Current workaround below covers the same outcome manually.
+
+### Managed MCP — deploy to all users now
+
+1. Clone Raven to a shared location (e.g. `C:\Program Files\Raven\`):
+
+```powershell
+git clone https://github.com/giggsoinc/raven.git "C:\Program Files\Raven"
+```
+
+2. Create `managed-mcp.json` and drop it at the system Claude Code path:
+
+```powershell
+$managedDir = "C:\ProgramData\ClaudeCode"
+New-Item -ItemType Directory -Path $managedDir -Force | Out-Null
+
+@{
+  mcpServers = @{
+    raven = @{
+      type    = "stdio"
+      command = "python"
+      args    = @("C:\Program Files\Raven\mcp\server.py")
+    }
+  }
+} | ConvertTo-Json -Depth 5 | Set-Content "$managedDir\managed-mcp.json"
+```
+
+Every Claude Code session on this machine now auto-loads Raven MCP tools.
+
+3. Provision skills for each developer via MDM/GPO login script:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "C:\Program Files\Raven\install.ps1"
+```
+
+### Org manifest
+
+Create `C:\Program Files\Raven\manifest.org.json` with your locked org fields (same JSON structure as the macOS/Linux version above).
+
+### Developer experience
+
+Same as macOS/Linux enterprise — developer opens Claude Code, Raven is already there.
+
+---
+
+<a id="codex-copilot"></a>
+
+## Codex & Copilot Plugin
+
+> No terminal. No install script. Plugin install only.
+> Works with OpenAI Codex and GitHub Copilot (any OS, any machine).
+
+### Install
+
+1. Go to [giggsoinc/raven-codex](https://github.com/giggsoinc/raven-codex)
+2. Install the plugin in your Codex or Copilot interface
+3. That's it — all 49 skills load automatically
+
+### What's different from Claude Code
+
+| Feature | Claude Code | Codex / Copilot |
+|---|---|---|
+| All 35 skills | ✅ | ✅ (49 in plugin) |
+| Andie orchestration | ✅ | ✅ — mandatory first step |
+| Pre-commit hook | ✅ | ❌ — no hook system |
+| Secret detection at save | ✅ | Conversational only |
+| CVE hard block | ✅ | Warn only |
+| MCP tools | ✅ | ❌ |
+| Audit log | ✅ | ❌ — no persistence |
+| Manifest | Per project | Per session |
+
+### How sessions work
+
+Every session starts with Andie automatically — this is enforced via `AGENTS.md` and the plugin's `systemPrompt`:
+
+```
+Step 1: Andie loads
+Step 2: Andie runs PRE-FLIGHT (detects context, recommends framework, assembles team)
+Step 3: Andie routes to the right specialist
+Step 4: Work begins
+```
+
+You never interact with a specialist directly. Andie picks it based on what you're working on.
+
+### Manifest in Codex
+
+Codex doesn't have a file system hook for manifest creation. If your project has `.raven/manifest.json` checked into git, Andie reads it. If not, Andie runs a lightweight inline setup (3 questions) at the start of the first session.
+
+---
+
+## After Any Install — What To Expect
+
+When you open Claude Code in a project for the first time after installing:
+
+**Project has a manifest:**
+```
+─────────────────────────────────────────────────
+  Raven ✅  |  MyProject  |  infra
+─────────────────────────────────────────────────
+  I'm Andie — your AI discipline layer.
+  Guards active. 35 skills loaded.
+
+  What are you working on today?
+
+  Try:
+  • "Review my changes before I commit"
+  • "I'm adding a new feature — help me plan it"
+  • "Scan this file for security issues"
+  • /raven-debug  to run a full diagnostic
+─────────────────────────────────────────────────
+```
+
+**No manifest yet:**
+```
+─────────────────────────────────────────────────
+  Raven — not set up yet for this project
+─────────────────────────────────────────────────
+  I scanned this directory. Here's what I see:
+
+    Terraform configs    ✓  (14 files)
+    Helm charts          ✓
+
+  Want me to set it up? It takes 2 minutes.
+    1) Yes — set up Raven now
+    2) No  — just help me with my work anyway
+    3) What exactly does Raven do here?
+─────────────────────────────────────────────────
+```
+
+---
+
+## Setup Questions — What Gets Asked
+
+Raven asks the **minimum questions needed** based on what it detected in your directory.
+
+| Work type detected | Language question | DB questions | Other |
 |---|---|---|---|
-| `code` | Full — hard block on unknown languages | Full | Skipped |
-| `infra` | Skipped for `.yaml/.yml/.tf/.hcl/.json` | Skipped | Applied |
+| `code` | Full language list | Yes | Cloud |
+| `infra` | yaml / hcl / dockerfile | Yes | Cloud |
+| `data` | sql / python / yaml | Yes | Cloud |
+| `salesforce` | Auto-set (apex + xml) | Skipped | Cloud |
+| `odoo` | Auto-set (python + xml) | Yes | Cloud |
+| `docs` | Auto-set (markdown) | Skipped | Skipped |
 | `review` | Skipped entirely | Skipped | Skipped |
-| `mixed` | Applied to `.py/.ts/.go` — skipped for infra files | Applied to code | Applied |
+| `mixed` | Full list | Yes | Cloud |
+
+Maximum questions across any flow: **5** (project name, email, cloud, language, notification email).
+Typical: **3**.
 
 ---
 
@@ -158,231 +438,20 @@ Re-running install updates Raven and re-wires everything. Per-project manifests 
 
 ```
 YourProject/
-├── CLAUDE.md
+├── CLAUDE.md                          ← Raven boot instructions for Claude Code
+├── .raven/
+│   ├── manifest.json                  ← Your project config (commit this)
+│   ├── manifest.secrets.json          ← Secrets (NEVER commit)
+│   ├── architecture.md               ← Living diagram template
+│   └── ci/                           ← github-actions.yml / gitlab-ci.yml
 ├── .claude/
-│   ├── settings.json                      ← Hooks: PreToolUse, PostToolUse, PreCompact
-│   ├── agents/                            ← 5 Core agents
-│   ├── skills/
-│   │   ├── raven-core/                    ← Progressive disclosure (~100 tokens at startup)
-│   │   │   ├── SKILL.md
-│   │   │   └── rules/                    ← Loaded only when triggered
-│   │   │       ├── stack.md
-│   │   │       ├── style.md
-│   │   │       ├── architecture.md
-│   │   │       └── commit.md
-│   │   ├── raven-expert/                   ← L99 deep expertise mode
-│   │   ├── raven-plan/                     ← Architecture-first planning
-│   │   ├── raven-review/                   ← Manifest-aware code review
-│   │   ├── raven-security/                 ← Threat model + CVE analysis
-│   │   ├── raven-refactor/                 ← Style enforcement
-│   │   ├── raven-test/                     ← Test-first discipline
-│   │   ├── raven-document/                 ← Doc enforcement
-│   │   ├── andie/                         ← Multi-modal AI expert (4 modes)
-│   │   └── [23 specialist skills]/        ← aws gcp azure oci kafka postgres odoo salesforce log-management agent-chaining ...
-│   ├── commands/                          ← /raven-scaffold /raven-debug /raven-approve ...
-│   ├── scripts/                           ← cve-check.py secret-scan.py audit-log.py ...
-│   └── mcp/server.py                      ← MCP plugin server (5 tools)
-├── .git/hooks/pre-commit
-└── .raven/
-    ├── manifest.json                      ← Public config (Git tracked)
-    ├── manifest.secrets.json              ← NEVER commit
-    ├── architecture.md                    ← Living diagram template
-    └── ci/                               ← github-actions.yml gitlab-ci.yml on-prem-pipeline.sh
+│   ├── settings.json                  ← Hooks: PreToolUse, PostEdit, PreCommit
+│   ├── agents/                        ← 10 guard agents
+│   ├── skills/                        ← 35 skills
+│   ├── commands/                      ← Slash commands
+│   └── scripts/                       ← cve-check.py secret-scan.py audit-log.py
+└── .git/hooks/pre-commit              ← 5-check gate before every commit
 ```
-
----
-
-## Hooks — Always On
-
-Raven registers 4 hooks in `.claude/settings.json` automatically:
-
-| Hook | Fires | Action |
-|---|---|---|
-| `PreToolUse` | Before any Claude tool | `tool-guard.py` — blocks restricted actions |
-| `PostToolUse` | After every tool | `audit-log.py` — encrypted log to S3/GCS/Azure/OCI (async) |
-| `PreCompact` | Before context compacts | `token-guard.py` — session backup + macOS notification |
-| `Notification` | Claude session events | `token-guard.py` (async) |
-
----
-
-## Skills — Progressive Disclosure
-
-Only metadata loads at startup (~100 tokens per skill). Rules load only when triggered.
-
-```
-Session starts → raven-core SKILL.md scanned (~100 tokens)
-
-Dev adds: import pandas
-      ↓
-Claude loads rules/stack.md
-rules/stack.md reads live manifest: !`cat .raven/manifest.json`
-      ↓
-Checks import → flags if not in approved libraries
-rules/style.md, rules/architecture.md → untouched (zero tokens wasted)
-```
-
-**Routing table** (raven-core detects intent and routes):
-
-| Prompt contains... | Routes to |
-|---|---|
-| `"expert"` / `"deep dive"` / `"L99"` | `raven-expert` |
-| `"security"` / `"CVE"` / `"threat"` | `raven-security` |
-| `"plan"` / `"architecture"` / `"scaffold"` | `raven-plan` + `/raven-scaffold` |
-| `"review"` / `"PR"` | `raven-review` |
-| `"refactor"` / `"clean"` | `raven-refactor` |
-| `"test"` / `"coverage"` | `raven-test` |
-| `"document"` / `"README"` | `raven-document` |
-| `"drama"` / `"debate"` / `"stress-test"` | `andie` Drama Mode |
-| new `import X` in code | CVE check via `cve-check.py` |
-| `"commit"` / `"push"` | Pre-commit gate — all 5 checks fire |
-
----
-
-## Slash Commands
-
-| Command | Use When |
-|---|---|
-| `/raven-scaffold` | Starting a new feature — forces plan before code |
-| `/raven-debug` | Something not working — full boot diagnostic |
-| `/raven-approve {lib} {version}` | Architect approves a library request |
-| `/raven-incident {p1\|p2\|p3} {description}` | Manual incident creation |
-| `/raven-sync` | Sync requirements.txt → manifest libraries |
-| `/raven-search {query}` | Find a skill for a capability |
-| `/raven-mem` | Save session state before context reset |
-
----
-
-## Pre-commit Hook — 5 Checks
-
-Every `git commit` runs all 5. Any failure = hard block.
-
-| Check | What It Does |
-|---|---|
-| 1. Framework detection | Skips if `.raven-framework` present (Raven's own repos) |
-| 2. Manifest valid | JSON valid, all required fields present |
-| 3. Secrets not staged | No API keys, passwords, or tokens in staged files |
-| 4. CVE check | Scans all imports — three-tier approval system |
-| 5. Style check | Line count, print statements, type hints, docstrings |
-
----
-
-## CVE Check — Three Tiers
-
-| Tier | Condition | Action | Friction |
-|---|---|---|---|
-| 1 | Org whitelist (fastapi, httpx, boto3...) | Auto-approve | Zero |
-| 2 | Category whitelist (HTTP clients, test libs) | Auto-approve | Zero |
-| 3 Clean | Unknown, no CVE | Approval flow | Low |
-| 3 Moderate | CVE CVSS 4–7 | Approval flow + warn | Medium |
-| 3 Critical | CVE CVSS >7 | Hard block — no override | Full |
-
-Engines: PyPI Safety DB (fast, always) + gpt-5.5 (deep, requires OpenAI key).
-
----
-
-## MCP Plugin
-
-```bash
-claude mcp add raven -- python3 ~/.raven/mcp/server.py
-```
-
-MCP tools: `raven_status` · `raven_cve_check` · `raven_sync_libs` · `raven_debug` · `raven_violation`
-
----
-
-## Enterprise Deploy (Zero-Click)
-
-IT drops `managed-mcp.json` at the system path — every developer gets Raven auto-loaded:
-
-| Platform | Path |
-|---|---|
-| macOS | `/Library/Application Support/ClaudeCode/managed-mcp.json` |
-| Windows | `C:\ProgramData\ClaudeCode\managed-mcp.json` |
-| Linux | `/etc/claude-code/managed-mcp.json` |
-
-The `managed-mcp.json` in this repo is ready to deploy.
-
----
-
-## Install Guard (architects / DevOps only)
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven-guard/main/install.sh | bash
-cd YourProject && raven-guard-setup
-```
-
-Requires Raven Core installed first.
-
----
-
-## Developer Flow
-
-```
-Write code → agents advise, skills guide (no blocks during coding)
-Add library → Tier 1/2: instant | Tier 3: email Prism7 + auto PR
-git commit → pre-commit fires:
-  ✅ Manifest  ✅ Secrets  ✅ CVE  ✅ Style  ✅ Guard → CLEARED or BLOCKED
-git push → CI/CD thin check → merged
-```
-
----
-
-## CI/CD Setup
-
-Copy from `.raven/ci/`:
-
-| Platform | File | Destination |
-|---|---|---|
-| GitHub | `github-actions.yml` | `.github/workflows/raven.yml` |
-| GitLab | `gitlab-ci.yml` | `.gitlab-ci.yml` |
-| On-prem | `on-prem-pipeline.sh` | Add to Jenkins/Gitea pipeline |
-
----
-
-## Open Claude Code
-
-```bash
-claude .
-```
-
-Then run `/raven-debug` to verify everything loaded:
-
-```
-✅ CLAUDE.md
-✅ manifest.json valid
-✅ 5 agents loaded
-✅ Skills: raven-core + 8 core skills + 23 specialists
-✅ pre-commit hook executable
-✅ Hooks: PreToolUse PostToolUse PreCompact Notification
-✅ CLEARED
-```
-
----
-
-## First Commit
-
-```bash
-git add .raven/manifest.json .raven/.gitignore \
-        .raven/architecture.md CLAUDE.md .claude/
-git commit -m "chore: init raven v2.8 [RAVEN:INIT]"
-git push
-```
-
----
-
-## File Reference
-
-| File | Commit? | Who Edits |
-|---|---|---|
-| `CLAUDE.md` | ✅ | Architects |
-| `.raven/manifest.json` | ✅ | Architects |
-| `.raven/architecture.md` | ✅ | Dev lead |
-| `.raven/manifest.secrets.json` | ❌ Never | Architects only |
-| `.claude/agents/*.md` | ✅ | Architects |
-| `.claude/skills/` | ✅ | Architects |
-| `.claude/commands/` | ✅ | Architects |
-| `.claude/settings.json` | ✅ | Architects |
-| `.git/hooks/pre-commit` | ❌ Local only | raven-setup installs |
 
 ---
 
@@ -390,55 +459,31 @@ git push
 
 | Problem | Fix |
 |---|---|
-| Agents not loading | Check `.claude/agents/` — valid YAML frontmatter required |
-| raven-core not found | Check `.claude/skills/raven-core/SKILL.md` exists |
-| Manifest not loading | Run `/raven-debug` |
-| Pre-commit not firing | `chmod +x .git/hooks/pre-commit` (macOS/Linux) |
+| Claude Code blank screen after install | Re-run `install.sh` / `install.ps1` — rewires `~/.claude/` |
+| `raven-setup` command not found | Run `source ~/.zshrc` or restart terminal |
+| Stack validator blocks `.tf` / `.yaml` files | Set `work_type: infra` in manifest, or re-run `raven-setup` |
+| Pre-commit not firing | `chmod +x .git/hooks/pre-commit` |
 | CVE check skipped | Add `openai_api_key` to `.raven/manifest.secrets.json` |
-| Hooks not running | Check `.claude/settings.json` has all 4 hooks registered |
-| Stack validator blocks YAML/Terraform | Set `work_type: infra` or `mixed` in manifest |
-| Windows: `python3` not found | Windows uses `python` — both are supported in raven-setup.ps1 |
-| Windows: `bash` not found | Use `raven-setup.ps1` instead of `raven-setup.sh` |
-| Windows: execution policy error | Run: `powershell -ExecutionPolicy Bypass -File raven-setup.ps1` |
+| Agents not loading | Check `.claude/agents/` — each file needs valid YAML frontmatter |
+| Enterprise: MCP not auto-loading | Verify `managed-mcp.json` is at the correct system path for your OS |
+| Windows: `python3` not found | Windows uses `python` — `install.ps1` handles this automatically |
+| Windows: execution policy error | `powershell -ExecutionPolicy Bypass -File install.ps1` |
+| Codex: Andie not firing first | Check `AGENTS.md` is present and `systemPrompt` is set in `.codex-plugin/plugin.json` |
 
 ---
 
-## Works Alongside
+## File Reference
 
-```
-Superpowers → dev methodology (TDD, planning, review)
-GSD         → context management (long sessions)
-Raven       → governance + security layer
-
-All three stack. No conflicts.
-```
-
----
-
-## Updating Raven
-
-```bash
-cd ~/.raven && git pull
-```
-
-Re-run `raven-setup` in any project to get new hooks, skills, and scripts.
-
----
-
-## Security Audit — Before Installing Any Public Skill
-
-Skills execute inside your dev environment — they can read files, run bash, make network calls. Treat them like untrusted code.
-
-| Step | Check | Red flag |
+| File | Commit? | Who manages |
 |---|---|---|
-| 1 | Read every line of `SKILL.md` | Instructions to read `.env`, secrets, or SSH keys |
-| 2 | Check `allowed-tools` in frontmatter | `Write`, `Edit`, `Bash` without justification |
-| 3 | Check bundled scripts | Any `curl` or `wget` to unknown URL |
-| 4 | Check for hidden instructions | Whitespace, encoded text, obfuscated content |
-| 5 | Verify source repo | Recent commits? Active maintainer? Known author? |
-| 6 | Add to `manifest.approved_skills` | Never leave skill list open |
-
-Raven protection: `skill-guard` agent monitors and blocks restricted file access. `manifest.approved_skills` is the only whitelist.
+| `CLAUDE.md` | ✅ | Architects |
+| `.raven/manifest.json` | ✅ | Architects / raven-setup |
+| `.raven/architecture.md` | ✅ | Dev lead |
+| `.raven/manifest.secrets.json` | ❌ Never | Architects only |
+| `.claude/agents/` | ✅ | Architects |
+| `.claude/skills/` | ✅ | Architects |
+| `.claude/settings.json` | ✅ | Architects |
+| `.git/hooks/pre-commit` | ❌ Local only | raven-setup installs |
 
 ---
 
