@@ -32,7 +32,12 @@ Before doing ANYTHING, run this sequence in order:
    - If 5+ entries with Status: open → surface once: "📋 [N] open observations — run /raven-harden when ready"
    - Load task-observer skill silently into session
 
-7. **Output debug log** → confirm everything loaded
+7. **Invoke Andie** → Andie is the mandatory orchestration layer for all user requests
+   - Load `skills/andie/SKILL.md` as the session entry point
+   - All specialist skills are reached through Andie's routing after PRE-FLIGHT
+   - Do NOT go directly to a specialist skill — Andie runs first, every time
+
+8. **Output debug log** → confirm everything loaded
 
 ---
 
