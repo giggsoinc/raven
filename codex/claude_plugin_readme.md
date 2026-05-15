@@ -3,7 +3,7 @@
 ## Overview
 
 Raven is a Claude Code plugin that installs engineering discipline into every Claude session:
-33 specialist skills · 10 guard agents · 10 slash commands · dynamic expert generation.
+23 specialist skills · 10 guard agents · 10 slash commands · dynamic expert generation.
 
 There are three ways to install Raven depending on your setup.
 
@@ -57,7 +57,7 @@ Or assign it to specific teams or roles if your console supports scoped access.
 ### Step 6 — Verify
 
 Ask Claude: *"What Raven skills do you have available?"*
-Expected response: lists the 33 specialists and 10 guard agents.
+Expected response: lists the 23 specialists and 10 guard agents.
 
 ---
 
@@ -84,7 +84,7 @@ Claude Code reads this at startup and installs the plugin automatically for ever
 
 | Component | Count | What it does |
 |---|---|---|
-| Specialist skills | 33 | Expert-level guidance per platform — DB, cloud, security, Salesforce, Odoo, AI/ML, Kafka, K8s, Terraform and more |
+| Specialist skills | 23 | Expert-level guidance per platform — DB, cloud, security, Salesforce, Odoo, AI/ML, Kafka, K8s, Terraform and more |
 | Guard agents | 10 | Always-on discipline — blocks inline SQL, secrets, undeclared stacks, fat triggers, missing architecture |
 | Slash commands | 10 | `/raven-init` `/raven-harden` `/raven-debug` `/raven-incident` `/raven-registry-sync` and more |
 | Dynamic specialist | 1 | Generates an expert profile on demand for any platform not yet curated — caches and promotes at 3 uses |
