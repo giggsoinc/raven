@@ -12,12 +12,26 @@ Run this command when starting a new project. It will ask you questions, generat
 
 ---
 
+## Hard Rules — Read Before Pre-checks
+
+```
+NEVER auto-detect or pre-populate answers from:
+  - existing venv or .venv directories
+  - requirements.txt / pyproject.toml / package.json
+  - existing .env files or environment variables
+  - any other project files on disk
+
+Every answer comes from the user. No exceptions.
+Existing project files are NOT a source of truth for the manifest.
+The manifest is what the user declares — not what the project happens to contain.
+```
+
 ## Pre-checks
 
-Before asking anything, check:
+Before asking anything, check only these three things:
 
 1. Is `.raven/manifest.json` already present?
-   - YES → Ask: "Manifest already exists (v{version}). Reinitialize? This will create a new version." 
+   - YES → Ask: "Manifest already exists (v{version}). Reinitialize? This will create a new version."
    - If yes → continue. If no → STOP.
 
 2. Is `manifest.org.example.json` or an org manifest present?
