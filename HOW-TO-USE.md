@@ -32,50 +32,99 @@
 
 ---
 
-## Install — macOS / Linux
+## How It Works — Two Steps, Done
 
+| Step | What it does | When |
+|---|---|---|
+| **Step 1 — Install** | Downloads Raven. Wires all 35 skills + 10 agents into `~/.claude/` globally. Registers MCP. | **Once per machine** |
+| **Step 2 — Setup** | Scans your project, asks 1 question, creates the manifest. | **Once per project** |
+
+After Step 1, every Claude Code session on your machine has all skills available — no repeat work.
+
+---
+
+## Step 1 — Install Raven (once per machine)
+
+**macOS / Linux:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | bash
 ```
 
-This clones Raven to `~/.raven/` and makes `raven-setup` available globally.
+**Windows (PowerShell):**
+```powershell
+iwr https://raw.githubusercontent.com/giggsoinc/raven/main/install.ps1 | iex
+```
 
-Then from **any project directory**:
+That's it. Claude Code now has Raven globally. All 35 skills, all 10 agents, MCP tools, commands.
 
+### Manual install (no curl / iwr)
+
+**macOS / Linux:**
+```bash
+git clone https://github.com/giggsoinc/raven.git ~/.raven
+bash ~/.raven/install.sh
+```
+
+**Windows:**
+```powershell
+git clone https://github.com/giggsoinc/raven.git $env:USERPROFILE\.raven
+powershell -ExecutionPolicy Bypass -File $env:USERPROFILE\.raven\install.ps1
+```
+
+> **Windows prerequisites:**
+> - Python: [python.org](https://python.org) — check "Add to PATH" during install
+> - Git: [git-scm.com](https://git-scm.com)
+> - Claude Code: `winget install Anthropic.Claude` or [claude.ai/download](https://claude.ai/download)
+
+---
+
+## Step 2 — Per-project setup (once per project)
+
+**macOS / Linux:**
 ```bash
 cd YourProject && raven-setup
 ```
 
-### Manual install (no curl)
-
-```bash
-git clone https://github.com/giggsoinc/raven.git ~/.raven
+**Windows:**
+```powershell
 cd YourProject
-bash ~/.raven/raven-setup.sh
+raven-setup.ps1
 ```
+
+Raven scans the directory silently → shows what it found → asks what to enforce → creates `manifest.json`. One question. Done.
 
 ---
 
-## Install — Windows (Native PowerShell)
+## Step 3 — Open Claude Code
 
-No WSL required. Python and Git must be installed natively.
-
-```powershell
-# Clone Raven
-git clone https://github.com/giggsoinc/raven.git $env:USERPROFILE\.raven
-
-# Go to your project
-cd YourProject
-
-# Run setup
-powershell -ExecutionPolicy Bypass -File $env:USERPROFILE\.raven\raven-setup.ps1
+```bash
+claude .
 ```
 
-> **Windows notes:**
-> - Python must be in PATH (install from [python.org](https://python.org) — check "Add to PATH")
-> - Git must be in PATH (install from [git-scm.com](https://git-scm.com))
-> - Claude Code for Windows: install via `winget install Anthropic.Claude` or from [claude.ai/download](https://claude.ai/download)
-> - Managed settings path for enterprise deploy: `C:\ProgramData\ClaudeCode\managed-mcp.json`
+Andie fires. Raven is live.
+
+---
+
+## Update
+
+```bash
+# macOS / Linux
+curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | bash
+
+# Windows
+iwr https://raw.githubusercontent.com/giggsoinc/raven/main/install.ps1 | iex
+```
+
+Re-running install updates Raven and re-wires everything. Per-project manifests are untouched.
+
+> **Enterprise deploy (zero-click for teams):**
+> IT drops `managed-mcp.json` at the system path — every developer gets Raven auto-loaded.
+>
+> | Platform | Path |
+> |---|---|
+> | macOS | `/Library/Application Support/ClaudeCode/managed-mcp.json` |
+> | Windows | `C:\ProgramData\ClaudeCode\managed-mcp.json` |
+> | Linux | `/etc/claude-code/managed-mcp.json` |
 
 ---
 
