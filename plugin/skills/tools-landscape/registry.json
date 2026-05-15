@@ -1,0 +1,814 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-05-13",
+  "maintainer": "giggso.ravi@gmail.com",
+  "note": "Update last_updated and run bundle.sh after any change.",
+
+  "categories": {
+
+    "llm": {
+      "label": "LLM / AI Models",
+      "tools": [
+        {
+          "name": "Claude Sonnet 4.6",
+          "vendor": "Anthropic",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "mid",
+          "strengths": ["long context (200k)", "code generation", "agentic workflows", "instruction following", "safety"],
+          "weaknesses": ["no image generation", "slower than Haiku tier"],
+          "best_for": ["code review", "document analysis", "agent orchestration", "structured output"],
+          "not_for": ["real-time low-latency", "image generation"],
+          "vs": {
+            "GPT-4o": "better on long context and code; GPT-4o stronger on multimodal and vision",
+            "Gemini 2.0 Flash": "better reasoning depth; Gemini faster and cheaper for high-volume",
+            "Llama 3.3": "commercial with full support; Llama free but self-hosted ops burden"
+          }
+        },
+        {
+          "name": "Claude Opus 4.7",
+          "vendor": "Anthropic",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "high",
+          "strengths": ["highest reasoning quality", "complex multi-step tasks", "nuanced judgment"],
+          "weaknesses": ["most expensive", "slowest in Claude family"],
+          "best_for": ["architecture decisions", "complex analysis", "high-stakes reasoning"],
+          "not_for": ["high-volume pipelines", "real-time use cases"],
+          "vs": {
+            "GPT-4o": "stronger on complex reasoning; GPT-4o better multimodal",
+            "Gemini 2.0 Pro": "comparable quality; pricing differs by use case"
+          }
+        },
+        {
+          "name": "GPT-4o",
+          "vendor": "OpenAI",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "mid",
+          "strengths": ["multimodal (vision + audio)", "broad ecosystem", "function calling", "tool use"],
+          "weaknesses": ["context window smaller than Claude", "cost at scale"],
+          "best_for": ["multimodal apps", "voice interfaces", "broad general use"],
+          "not_for": ["very long document analysis", "extreme cost sensitivity"],
+          "vs": {
+            "Claude Sonnet 4.6": "better multimodal; Claude better on long context",
+            "Gemini 2.0 Flash": "richer ecosystem; Gemini cheaper at volume",
+            "o3": "faster and cheaper; o3 for deep reasoning tasks"
+          }
+        },
+        {
+          "name": "o3",
+          "vendor": "OpenAI",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "high",
+          "strengths": ["deep multi-step reasoning", "math", "science", "complex problem solving"],
+          "weaknesses": ["slow", "expensive", "overkill for most tasks"],
+          "best_for": ["research", "mathematical proofs", "complex chain-of-thought"],
+          "not_for": ["speed-sensitive", "routine tasks", "high-volume"]
+        },
+        {
+          "name": "Gemini 2.0 Flash",
+          "vendor": "Google",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "low",
+          "strengths": ["fast", "cheap", "1M context window", "multimodal", "Google ecosystem integration"],
+          "weaknesses": ["reasoning depth below Claude/GPT-4o", "less predictable on structured output"],
+          "best_for": ["high-volume pipelines", "long document ingestion", "Google Workspace integration"],
+          "not_for": ["critical reasoning tasks", "fine-grained instruction following"],
+          "vs": {
+            "Claude Haiku 4.5": "comparable speed/price; Gemini larger context window",
+            "GPT-4o mini": "cheaper; GPT-4o mini better ecosystem integration"
+          }
+        },
+        {
+          "name": "Gemini 2.0 Pro",
+          "vendor": "Google",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "mid-high",
+          "strengths": ["1M context window", "deep Google integration", "multimodal", "code"],
+          "weaknesses": ["inconsistent on nuanced instructions vs Claude"],
+          "best_for": ["Google Cloud native stacks", "massive document sets", "multimodal pipelines"]
+        },
+        {
+          "name": "Llama 3.3 70B",
+          "vendor": "Meta",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (self-hosted) / low (hosted)",
+          "strengths": ["free", "self-hostable", "no data leaves your infra", "strong for size"],
+          "weaknesses": ["ops burden if self-hosted", "behind frontier on reasoning"],
+          "best_for": ["air-gapped environments", "cost-sensitive high volume", "fine-tuning on custom data"],
+          "not_for": ["highest reasoning quality", "teams without MLOps capacity"],
+          "vs": {
+            "Claude Haiku 4.5": "free but self-hosted ops; Haiku managed with no ops burden",
+            "Mistral Large": "comparable quality; both open weights"
+          }
+        },
+        {
+          "name": "Mistral Large",
+          "vendor": "Mistral AI",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "low (hosted) / free (weights)",
+          "strengths": ["strong multilingual", "European data residency", "open weights", "efficient"],
+          "weaknesses": ["smaller ecosystem than OpenAI/Anthropic"],
+          "best_for": ["EU data residency requirements", "multilingual apps", "cost-sensitive reasoning"],
+          "not_for": ["cutting-edge reasoning benchmarks"]
+        },
+        {
+          "name": "DeepSeek R1",
+          "vendor": "DeepSeek",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (weights) / very low (API)",
+          "strengths": ["exceptional reasoning for cost", "open weights", "MIT license", "math/code"],
+          "weaknesses": ["Chinese vendor — data sovereignty concerns", "smaller support ecosystem"],
+          "best_for": ["cost-sensitive reasoning tasks", "research", "self-hosted reasoning pipelines"],
+          "not_for": ["regulated industries with data sovereignty requirements"]
+        },
+        {
+          "name": "Cohere Command R+",
+          "vendor": "Cohere",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "mid",
+          "strengths": ["RAG-optimised", "enterprise support", "grounded responses", "tool use"],
+          "weaknesses": ["smaller ecosystem", "less general than GPT-4o/Claude"],
+          "best_for": ["enterprise RAG pipelines", "document grounding", "search-augmented generation"]
+        }
+      ]
+    },
+
+    "llm_infra": {
+      "label": "Open Source LLM Infrastructure",
+      "tools": [
+        {
+          "name": "Ollama",
+          "vendor": "Ollama",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free",
+          "strengths": ["dead simple local LLM serving", "one command to run any model", "Mac/Linux/Windows"],
+          "weaknesses": ["single machine only", "no production clustering"],
+          "best_for": ["local dev", "offline use", "quick model testing"],
+          "not_for": ["production serving", "multi-GPU clusters"]
+        },
+        {
+          "name": "vLLM",
+          "vendor": "UC Berkeley / open source",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free",
+          "strengths": ["PagedAttention — highest throughput", "OpenAI-compatible API", "multi-GPU", "production-grade"],
+          "weaknesses": ["complex setup", "GPU memory requirements"],
+          "best_for": ["production LLM serving at scale", "self-hosted OpenAI API replacement"],
+          "not_for": ["local dev without GPU", "teams without MLOps"]
+        },
+        {
+          "name": "LiteLLM",
+          "vendor": "BerriAI",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (self-hosted) / paid (cloud)",
+          "strengths": ["unified API over 100+ LLMs", "fallback routing", "cost tracking", "load balancing"],
+          "weaknesses": ["another proxy layer to maintain"],
+          "best_for": ["multi-provider LLM routing", "cost optimisation across providers", "fallback resilience"]
+        },
+        {
+          "name": "OpenRouter",
+          "vendor": "OpenRouter",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "pay-per-token",
+          "strengths": ["single API for all major models", "automatic fallback", "model price comparison", "no infra"],
+          "weaknesses": ["third-party data routing — check compliance"],
+          "best_for": ["rapid prototyping across models", "cost comparison", "teams without LLM infra"]
+        },
+        {
+          "name": "LocalAI",
+          "vendor": "go-skynet / open source",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free",
+          "strengths": ["OpenAI API compatible", "CPU inference", "audio + image + text", "no GPU required"],
+          "weaknesses": ["slower than GPU-based solutions", "complex config"],
+          "best_for": ["air-gapped CPU-only environments", "self-hosted OpenAI drop-in"]
+        }
+      ]
+    },
+
+    "vector_db": {
+      "label": "Vector Databases",
+      "tools": [
+        {
+          "name": "Pinecone",
+          "vendor": "Pinecone",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "mid",
+          "strengths": ["fully managed", "production-proven", "fast at scale", "simple API"],
+          "weaknesses": ["expensive at high volume", "vendor lock-in", "no self-host"],
+          "best_for": ["fast production RAG", "teams without vector DB ops experience"],
+          "not_for": ["cost-sensitive high-volume", "self-hosted requirements"]
+        },
+        {
+          "name": "Weaviate",
+          "vendor": "Weaviate",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (self-hosted) / paid (cloud)",
+          "strengths": ["hybrid search (vector + keyword)", "GraphQL API", "modules system", "self-hostable"],
+          "weaknesses": ["complex schema setup", "higher ops burden self-hosted"],
+          "best_for": ["hybrid search workloads", "structured + semantic search combined"]
+        },
+        {
+          "name": "ChromaDB",
+          "vendor": "Chroma",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free",
+          "strengths": ["simplest setup", "Python-native", "in-memory or persistent", "great for prototyping"],
+          "weaknesses": ["not production-proven at scale", "limited filtering"],
+          "best_for": ["local dev", "prototyping RAG pipelines", "small-scale apps"],
+          "not_for": ["large-scale production", "high-concurrency"]
+        },
+        {
+          "name": "pgvector",
+          "vendor": "PostgreSQL extension",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free",
+          "strengths": ["no new infra — add to existing Postgres", "ACID transactions", "SQL interface", "joins with relational data"],
+          "weaknesses": ["slower than dedicated vector DBs at very large scale", "limited ANN algorithm options"],
+          "best_for": ["teams already on Postgres", "small-to-medium vector workloads", "wanting SQL + vectors together"],
+          "not_for": ["billion-scale embeddings", "pure vector-only workloads needing max speed"]
+        },
+        {
+          "name": "Qdrant",
+          "vendor": "Qdrant",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (self-hosted) / paid (cloud)",
+          "strengths": ["Rust-based — very fast", "rich filtering", "payload storage", "self-hostable"],
+          "weaknesses": ["younger ecosystem than Pinecone/Weaviate"],
+          "best_for": ["high-performance self-hosted vector search", "rich metadata filtering"]
+        },
+        {
+          "name": "Milvus",
+          "vendor": "Zilliz / open source",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (self-hosted) / paid (Zilliz cloud)",
+          "strengths": ["billion-scale vectors", "distributed architecture", "multiple index types"],
+          "weaknesses": ["complex ops", "overkill for small datasets"],
+          "best_for": ["massive-scale vector search", "enterprise with dedicated MLOps team"]
+        }
+      ]
+    },
+
+    "streaming": {
+      "label": "Streaming / Messaging",
+      "tools": [
+        {
+          "name": "Apache Kafka",
+          "vendor": "Apache / Confluent",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (self-hosted) / paid (Confluent Cloud)",
+          "strengths": ["battle-tested at massive scale", "durable log", "rich ecosystem", "exactly-once semantics"],
+          "weaknesses": ["complex ops", "ZooKeeper/KRaft overhead", "steep learning curve"],
+          "best_for": ["high-throughput event streaming", "audit logs", "data pipeline backbone"],
+          "not_for": ["simple queues", "small-scale messaging", "teams without Kafka expertise"]
+        },
+        {
+          "name": "Redpanda",
+          "vendor": "Redpanda",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (self-hosted) / paid (cloud)",
+          "strengths": ["Kafka-compatible API", "no ZooKeeper", "10x lower latency", "simpler ops"],
+          "weaknesses": ["smaller ecosystem than Kafka", "newer — less battle-tested"],
+          "best_for": ["teams wanting Kafka compatibility with less ops burden"],
+          "vs": {
+            "Kafka": "Kafka-compatible but simpler and faster; Kafka has larger ecosystem and more proven scale"
+          }
+        },
+        {
+          "name": "AWS Kinesis",
+          "vendor": "Amazon",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "pay-per-use",
+          "strengths": ["fully managed", "AWS-native integration", "auto-scaling", "no ops"],
+          "weaknesses": ["AWS lock-in", "limited replay window (default 24h)", "cost at scale"],
+          "best_for": ["AWS-native stacks", "teams without streaming ops experience"]
+        },
+        {
+          "name": "GCP Pub/Sub",
+          "vendor": "Google",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "pay-per-use",
+          "strengths": ["fully managed", "global delivery", "push + pull", "GCP-native integration"],
+          "weaknesses": ["GCP lock-in", "not a true log (no replay like Kafka)"],
+          "best_for": ["GCP-native stacks", "event-driven serverless on GCP"]
+        },
+        {
+          "name": "Apache Pulsar",
+          "vendor": "Apache / StreamNative",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (self-hosted) / paid (StreamNative)",
+          "strengths": ["multi-tenancy native", "tiered storage", "geo-replication", "Kafka-compatible"],
+          "weaknesses": ["more complex than Kafka", "smaller community"],
+          "best_for": ["multi-tenant SaaS", "geo-distributed streaming", "long-term message retention"]
+        }
+      ]
+    },
+
+    "orchestration": {
+      "label": "Container Orchestration",
+      "tools": [
+        {
+          "name": "Kubernetes (K8s)",
+          "vendor": "CNCF / cloud-managed",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (self-hosted) / control plane fees on managed",
+          "strengths": ["industry standard", "massive ecosystem", "any workload", "self-healing"],
+          "weaknesses": ["complex", "steep learning curve", "over-engineered for small teams"],
+          "best_for": ["large-scale production", "polyglot workloads", "teams with K8s expertise"],
+          "not_for": ["small teams", "simple apps", "teams without DevOps capacity"]
+        },
+        {
+          "name": "AWS ECS (Fargate)",
+          "vendor": "Amazon",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "pay-per-use",
+          "strengths": ["no cluster management", "AWS-native", "simpler than K8s", "serverless containers"],
+          "weaknesses": ["AWS lock-in", "less flexible than K8s"],
+          "best_for": ["AWS teams who don't need K8s complexity", "container workloads on AWS"]
+        },
+        {
+          "name": "Cloud Run",
+          "vendor": "Google",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "pay-per-use",
+          "strengths": ["serverless containers", "scale to zero", "GCP-native", "zero ops"],
+          "weaknesses": ["GCP lock-in", "cold start latency", "limited long-running workloads"],
+          "best_for": ["stateless services", "GCP stacks", "teams wanting zero container ops"]
+        },
+        {
+          "name": "Nomad",
+          "vendor": "HashiCorp",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (OSS) / paid (enterprise)",
+          "strengths": ["simpler than K8s", "multi-workload (containers + VMs + bare metal)", "Vault/Consul native"],
+          "weaknesses": ["smaller ecosystem than K8s", "fewer managed offerings"],
+          "best_for": ["HashiCorp stack shops", "mixed workloads", "teams wanting K8s simplicity"]
+        }
+      ]
+    },
+
+    "iac": {
+      "label": "Infrastructure as Code",
+      "tools": [
+        {
+          "name": "Terraform",
+          "vendor": "HashiCorp (IBM)",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (OSS) / paid (Terraform Cloud)",
+          "strengths": ["multi-cloud", "massive provider ecosystem", "industry standard", "declarative"],
+          "weaknesses": ["BSL license change (v1.6+)", "state management complexity", "HCL learning curve"],
+          "best_for": ["multi-cloud infra", "teams with existing Terraform", "standard enterprise IaC"],
+          "note": "License changed to BSL 1.1 in Aug 2023 — check compliance for commercial use"
+        },
+        {
+          "name": "OpenTofu",
+          "vendor": "Linux Foundation",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free",
+          "strengths": ["true open source Terraform fork (MPL-2.0)", "Terraform-compatible", "community-driven"],
+          "weaknesses": ["younger than Terraform", "smaller provider ecosystem"],
+          "best_for": ["teams wanting open source Terraform without BSL concerns"],
+          "vs": {
+            "Terraform": "identical syntax; OpenTofu is the open source fork post-BSL change"
+          }
+        },
+        {
+          "name": "Pulumi",
+          "vendor": "Pulumi",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (OSS) / paid (cloud)",
+          "strengths": ["real programming languages (Python/TypeScript/Go/C#)", "no DSL to learn", "testing with unit tests"],
+          "weaknesses": ["less mature than Terraform ecosystem", "state backend required"],
+          "best_for": ["dev-centric teams", "complex conditional infra logic", "teams who hate HCL"]
+        },
+        {
+          "name": "AWS CDK",
+          "vendor": "Amazon",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free",
+          "strengths": ["real code (TypeScript/Python/Java)", "AWS-native", "L2/L3 constructs reduce boilerplate"],
+          "weaknesses": ["AWS only", "synthesises to CloudFormation — inherits its limits"],
+          "best_for": ["AWS-only stacks", "dev teams who want to write TypeScript/Python for infra"]
+        },
+        {
+          "name": "Ansible",
+          "vendor": "Red Hat",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (OSS) / paid (AAP)",
+          "strengths": ["agentless", "great for config management", "idempotent", "huge module library"],
+          "weaknesses": ["YAML verbosity", "slow on large inventories", "not ideal for cloud provisioning"],
+          "best_for": ["config management", "VM provisioning", "hybrid cloud + on-prem"]
+        }
+      ]
+    },
+
+    "monitoring": {
+      "label": "Monitoring / Observability",
+      "tools": [
+        {
+          "name": "Datadog",
+          "vendor": "Datadog",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "high",
+          "strengths": ["best-in-class UX", "unified metrics+logs+traces", "APM", "AI anomaly detection", "600+ integrations"],
+          "weaknesses": ["expensive", "can balloon cost at scale"],
+          "best_for": ["enterprises wanting turnkey observability", "teams who can't build their own stack"]
+        },
+        {
+          "name": "Grafana + Prometheus",
+          "vendor": "Grafana Labs / CNCF",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (self-hosted) / paid (Grafana Cloud)",
+          "strengths": ["industry standard open source", "highly customisable", "massive community", "Grafana for viz"],
+          "weaknesses": ["ops burden self-hosted", "Prometheus not designed for long-term storage"],
+          "best_for": ["teams with DevOps capacity", "K8s-native stacks", "cost-conscious at scale"]
+        },
+        {
+          "name": "Honeycomb",
+          "vendor": "Honeycomb",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "mid",
+          "strengths": ["best distributed tracing UX", "high-cardinality queries", "production debugging"],
+          "weaknesses": ["tracing-focused — not full observability stack alone"],
+          "best_for": ["debugging complex distributed systems", "high-cardinality event data"]
+        },
+        {
+          "name": "OpenTelemetry",
+          "vendor": "CNCF",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free",
+          "strengths": ["vendor-neutral instrumentation standard", "works with any backend", "future-proof"],
+          "weaknesses": ["instrumentation layer only — needs a backend (Honeycomb, Datadog, Grafana etc.)"],
+          "best_for": ["standardising instrumentation across services — use with any observability backend"],
+          "note": "Not a monitoring tool itself — it's the instrumentation standard. Pair with a backend."
+        },
+        {
+          "name": "AWS CloudWatch",
+          "vendor": "Amazon",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "pay-per-use",
+          "strengths": ["AWS-native — zero setup for AWS services", "unified logs + metrics + alarms"],
+          "weaknesses": ["poor UX for complex queries", "expensive at high log volume", "AWS-only"],
+          "best_for": ["AWS-only stacks", "basic monitoring without ops overhead"]
+        }
+      ]
+    },
+
+    "secrets": {
+      "label": "Secrets Management",
+      "tools": [
+        {
+          "name": "HashiCorp Vault",
+          "vendor": "HashiCorp (IBM)",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (OSS) / paid (HCP Vault)",
+          "strengths": ["dynamic secrets", "fine-grained policies", "many auth backends", "PKI/encryption as service"],
+          "weaknesses": ["complex to operate", "HA setup non-trivial", "BSL license"],
+          "best_for": ["enterprises with complex secrets requirements", "dynamic secrets (DB creds, cloud creds)"]
+        },
+        {
+          "name": "AWS Secrets Manager",
+          "vendor": "Amazon",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "low (per secret/month)",
+          "strengths": ["managed — zero ops", "automatic rotation", "native AWS IAM integration"],
+          "weaknesses": ["AWS lock-in", "cost scales with number of secrets"],
+          "best_for": ["AWS-native stacks", "teams who don't want to operate Vault"]
+        },
+        {
+          "name": "Doppler",
+          "vendor": "Doppler",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "low-mid",
+          "strengths": ["developer-friendly UX", "env sync across all environments", "CLI + SDK", "no infra"],
+          "weaknesses": ["third-party SaaS — data leaves your infra", "less powerful than Vault"],
+          "best_for": ["dev teams wanting simple secrets sync across environments", "startups"]
+        },
+        {
+          "name": "GCP Secret Manager",
+          "vendor": "Google",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "low",
+          "strengths": ["managed", "GCP IAM integration", "versioning", "audit logs"],
+          "weaknesses": ["GCP lock-in"],
+          "best_for": ["GCP-native stacks"]
+        }
+      ]
+    },
+
+    "cicd": {
+      "label": "CI/CD",
+      "tools": [
+        {
+          "name": "GitHub Actions",
+          "vendor": "GitHub (Microsoft)",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "free (public) / pay-per-minute (private)",
+          "strengths": ["native to GitHub", "massive marketplace", "simple YAML", "matrix builds", "self-hosted runners"],
+          "weaknesses": ["GitHub lock-in", "complex pipelines get unwieldy in YAML"],
+          "best_for": ["GitHub repos", "most teams — simplest path to CI/CD"]
+        },
+        {
+          "name": "GitLab CI",
+          "vendor": "GitLab",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (self-hosted) / paid (SaaS)",
+          "strengths": ["full DevSecOps platform", "built-in security scanning", "self-hostable", "strong K8s integration"],
+          "weaknesses": ["heavier than GitHub Actions for simple use cases"],
+          "best_for": ["GitLab repos", "enterprises wanting full self-hosted DevSecOps"]
+        },
+        {
+          "name": "ArgoCD",
+          "vendor": "Intuit / CNCF",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free",
+          "strengths": ["GitOps native", "K8s-only but best-in-class for K8s CD", "visual diff", "rollback"],
+          "weaknesses": ["K8s only", "CD only — needs a CI system alongside it"],
+          "best_for": ["K8s GitOps deployments", "teams wanting Git as source of truth for K8s state"]
+        },
+        {
+          "name": "CircleCI",
+          "vendor": "CircleCI",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "mid",
+          "strengths": ["fast", "orbs ecosystem", "parallelism", "good DX"],
+          "weaknesses": ["cost at scale", "less reason to choose over GitHub Actions for GitHub repos"],
+          "best_for": ["non-GitHub repos", "teams with complex parallel test pipelines"]
+        }
+      ]
+    },
+
+    "search": {
+      "label": "Search Engines",
+      "tools": [
+        {
+          "name": "Elasticsearch",
+          "vendor": "Elastic",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (self-hosted OSS) / paid (Elastic Cloud)",
+          "strengths": ["battle-tested at scale", "rich query DSL", "full-text + analytics", "large ecosystem"],
+          "weaknesses": ["complex ops", "memory-hungry", "SSPL license (not truly open source)"],
+          "best_for": ["large-scale full-text search", "log analytics (ELK stack)"],
+          "note": "License changed to SSPL — check compliance"
+        },
+        {
+          "name": "OpenSearch",
+          "vendor": "Amazon / Linux Foundation",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free",
+          "strengths": ["true open source Elasticsearch fork (Apache 2.0)", "AWS-native", "Elasticsearch-compatible"],
+          "weaknesses": ["behind Elasticsearch on some features"],
+          "best_for": ["teams wanting open source Elasticsearch without SSPL", "AWS environments"]
+        },
+        {
+          "name": "Typesense",
+          "vendor": "Typesense",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (self-hosted) / paid (cloud)",
+          "strengths": ["typo-tolerant out of box", "simple API", "fast", "lightweight"],
+          "weaknesses": ["less powerful than Elasticsearch for complex analytics"],
+          "best_for": ["product search", "autocomplete", "teams wanting instant search without Elasticsearch ops"]
+        },
+        {
+          "name": "Meilisearch",
+          "vendor": "Meilisearch",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (self-hosted) / paid (cloud)",
+          "strengths": ["instant search", "typo-tolerant", "easy setup", "great DX"],
+          "weaknesses": ["not for large-scale analytics", "younger than Elasticsearch"],
+          "best_for": ["developer-friendly instant search", "small-to-medium datasets"]
+        }
+      ]
+    },
+
+    "auth": {
+      "label": "Auth / Identity",
+      "tools": [
+        {
+          "name": "Auth0",
+          "vendor": "Okta",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "mid-high",
+          "strengths": ["fully managed", "best DX", "universal login", "social providers", "enterprise SSO"],
+          "weaknesses": ["expensive at scale", "Okta acquisition introduced pricing concerns"],
+          "best_for": ["teams wanting managed auth without building it", "B2B SaaS with SSO requirements"]
+        },
+        {
+          "name": "Keycloak",
+          "vendor": "Red Hat / open source",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free",
+          "strengths": ["full-featured open source", "OIDC + SAML + social", "self-hostable", "admin UI"],
+          "weaknesses": ["complex to operate", "Java-based — memory-heavy"],
+          "best_for": ["enterprises needing self-hosted identity", "no SaaS dependency", "GDPR/data residency"]
+        },
+        {
+          "name": "Supabase Auth",
+          "vendor": "Supabase",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (self-hosted) / paid (cloud)",
+          "strengths": ["integrated with Supabase Postgres", "simple", "RLS-native", "social providers"],
+          "weaknesses": ["tightly coupled to Supabase ecosystem"],
+          "best_for": ["Supabase stack", "startups wanting auth + DB + storage in one"]
+        },
+        {
+          "name": "Cognito",
+          "vendor": "Amazon",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "low (per MAU)",
+          "strengths": ["AWS-native", "scales automatically", "free tier generous", "social + enterprise SSO"],
+          "weaknesses": ["poor DX", "complex to customise", "confusing UX for developers"],
+          "best_for": ["AWS stacks where simplicity beats DX", "cost-sensitive auth at scale"]
+        }
+      ]
+    },
+
+    "databases": {
+      "label": "Databases (Relational)",
+      "tools": [
+        {
+          "name": "PostgreSQL",
+          "vendor": "open source",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free",
+          "strengths": ["most powerful open source RDBMS", "JSONB", "extensions ecosystem (pgvector, PostGIS)", "ACID"],
+          "weaknesses": ["ops burden self-hosted", "connection pooling needed at scale (use pgBouncer)"],
+          "best_for": ["most production workloads — default choice for relational data"]
+        },
+        {
+          "name": "Supabase",
+          "vendor": "Supabase",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (limited) / paid",
+          "strengths": ["managed Postgres + auth + storage + realtime + edge functions", "open source", "great DX"],
+          "weaknesses": ["newer — less battle-tested at very large scale than RDS"],
+          "best_for": ["startups and teams wanting full backend-as-a-service on Postgres"]
+        },
+        {
+          "name": "PlanetScale",
+          "vendor": "PlanetScale",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "mid",
+          "strengths": ["MySQL-compatible", "schema branching", "non-blocking schema changes", "horizontal scale"],
+          "weaknesses": ["MySQL not Postgres", "no foreign keys (by design)"],
+          "best_for": ["high-scale MySQL workloads", "teams needing schema branching workflow"]
+        },
+        {
+          "name": "AWS RDS / Aurora",
+          "vendor": "Amazon",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "mid-high",
+          "strengths": ["fully managed Postgres/MySQL", "Aurora Serverless v2 scales to zero", "Multi-AZ HA"],
+          "weaknesses": ["cost", "AWS lock-in", "Aurora Postgres lags on latest Postgres versions"],
+          "best_for": ["AWS stacks wanting managed Postgres without ops burden"]
+        }
+      ]
+    },
+
+    "caching": {
+      "label": "Caching",
+      "tools": [
+        {
+          "name": "Redis",
+          "vendor": "Redis Ltd",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free (self-hosted) / paid (Redis Cloud)",
+          "strengths": ["fastest in-memory store", "rich data structures", "pub/sub", "Lua scripting"],
+          "weaknesses": ["RSALv2/SSPLv1 license change (v7.4+)", "single-threaded for commands"],
+          "best_for": ["session store", "rate limiting", "leaderboards", "pub/sub", "general caching"],
+          "note": "License changed in 2024 — Valkey is the open source fork"
+        },
+        {
+          "name": "Valkey",
+          "vendor": "Linux Foundation",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free",
+          "strengths": ["Redis fork under BSD license", "Redis-compatible", "community-driven"],
+          "weaknesses": ["younger ecosystem"],
+          "best_for": ["teams wanting open source Redis without license concerns"],
+          "vs": {
+            "Redis": "identical API; Valkey is the open source fork post-license change"
+          }
+        },
+        {
+          "name": "Memcached",
+          "vendor": "open source",
+          "type": "open_source",
+          "open_source": true,
+          "pricing_tier": "free",
+          "strengths": ["simpler than Redis", "multi-threaded", "pure cache — no persistence"],
+          "weaknesses": ["no persistence", "no rich data structures", "no pub/sub"],
+          "best_for": ["pure high-throughput caching where simplicity beats features"]
+        }
+      ]
+    },
+
+    "cloud": {
+      "label": "Cloud Platforms",
+      "tools": [
+        {
+          "name": "AWS",
+          "vendor": "Amazon",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "pay-per-use",
+          "strengths": ["largest service catalogue", "most mature", "largest talent pool", "global reach"],
+          "weaknesses": ["complexity", "cost management difficult", "console UX aging"],
+          "best_for": ["most production workloads — default choice for cloud"]
+        },
+        {
+          "name": "GCP",
+          "vendor": "Google",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "pay-per-use",
+          "strengths": ["best managed K8s (GKE)", "BigQuery unmatched for analytics", "best AI/ML infra (TPUs, Vertex)", "network performance"],
+          "weaknesses": ["smaller service catalogue than AWS", "Google has killed products before"],
+          "best_for": ["AI/ML workloads", "data analytics", "K8s-first stacks"]
+        },
+        {
+          "name": "Azure",
+          "vendor": "Microsoft",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "pay-per-use",
+          "strengths": ["Microsoft ecosystem (Active Directory, M365, Teams)", "enterprise compliance", "hybrid cloud (Arc)", "OpenAI partnership"],
+          "weaknesses": ["complex pricing", "DX behind AWS/GCP for greenfield"],
+          "best_for": ["Microsoft-heavy enterprises", "regulated industries", "OpenAI API at scale via Azure OpenAI"]
+        },
+        {
+          "name": "OCI (Oracle Cloud)",
+          "vendor": "Oracle",
+          "type": "commercial",
+          "open_source": false,
+          "pricing_tier": "low (aggressive pricing vs AWS/GCP/Azure)",
+          "strengths": ["significantly cheaper than AWS at scale", "generous free tier", "strong Oracle DB integration", "AMD EPYC performance"],
+          "weaknesses": ["smaller ecosystem", "smaller talent pool", "less community content"],
+          "best_for": ["Oracle-heavy enterprises", "cost-sensitive workloads at scale", "Oracle DB migrations"]
+        }
+      ]
+    }
+
+  }
+}
