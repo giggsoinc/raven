@@ -7,7 +7,9 @@ TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 PROJECT_VAL="$PROJECT" MODE_VAL="$MODE" EMAIL_VAL="$EMAIL" TS_VAL="$TS" \
 GITHUB_VAL="$GITHUB_ID" TAG_VAL="$PROJECT_TAG" \
-WORK_TYPE_VAL="${WORK_TYPE:-code}" \
+WORK_TYPE_VAL="${WORK_MODE:-${WORK_TYPE:-code}}" \
+RAVEN_INTENT_VAL="${RAVEN_INTENT:-all}" \
+RAVEN_PLATFORM_VAL="${RAVEN_PLATFORM:-Unknown}" \
 LANGUAGES_VAL="$LANGUAGES" CLOUD_VAL="$CLOUD" APPS_VAL="$APPS" \
 DB_PRIMARY_VAL="$DB_PRIMARY" DB_NOSQL_VAL="$DB_NOSQL" DB_STREAM_VAL="$DB_STREAM" \
 DB_WAREHOUSE_VAL="$DB_WAREHOUSE" DB_CACHE_VAL="$DB_CACHE" DB_VECTOR_VAL="$DB_VECTOR" \
@@ -96,7 +98,7 @@ manifest = {
     "github_id":  github,
     "audit_tag":  audit_id,
     "changed_at": ts,
-    "changes":    f"Init: mode={mode}",
+    "changes":    f"Init: mode={mode} work_type={work_type} platform={os.environ.get('RAVEN_PLATFORM_VAL','Unknown')}",
     "pr":         "pending"
   }]
 }
