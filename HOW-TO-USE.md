@@ -282,49 +282,108 @@ sudo bash /usr/local/raven/install-enterprise.sh
 
 ## Enterprise — Windows
 
-> Windows enterprise script (`install-enterprise.ps1`) is in progress.
-> Current workaround below covers the same outcome manually.
+> **For IT admins deploying to a team of Windows machines.**
+> Run once per machine — interactively, or silently via MDM/GPO/Intune.
+> Developers need zero installation steps after this runs.
 
-### Managed MCP — deploy to all users now
+### What you need first
 
-1. Clone Raven to a shared location (e.g. `C:\Program Files\Raven\`):
+| | How to install |
+|---|---|
+| Python 3.10+ | [python.org](https://python.org) — check **"Add to PATH"** during install |
+| Git | [git-scm.com](https://git-scm.com) |
+| Claude Code (Enterprise) | Deployed via your MDM or [claude.ai/download](https://claude.ai/download) |
+| PowerShell 5.1+ | Built into Windows 10/11 |
+
+### Step 1 — Run the enterprise installer (one command, once per machine)
+
+Open **PowerShell as Administrator** and run:
 
 ```powershell
-git clone https://github.com/giggsoinc/raven.git "C:\Program Files\Raven"
+iwr https://raw.githubusercontent.com/giggsoinc/raven/main/install-enterprise.ps1 -OutFile "$env:TEMP\install-enterprise.ps1"
+powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-enterprise.ps1"
 ```
 
-2. Create `managed-mcp.json` and drop it at the system Claude Code path:
+**What this does:**
+- Installs Raven to `C:\Program Files\Raven\` (system-wide)
+- Creates `managed-mcp.json` at `C:\ProgramData\ClaudeCode\` — every Claude Code session on this machine auto-loads Raven MCP tools
+- Creates `managed-settings.json` (hooks, permissions)
+- Asks 4 questions to create `manifest.org.json` (org-level locked rules)
+- Optionally provisions all existing user profiles with 35 skills + 10 agents
+- Adds `raven-setup.ps1` to system PATH
+
+**The 4 questions it asks:**
+1. Organisation name
+2. IT / architect email (audit trail)
+3. Approval mode — `first_responder` / `majority_vote` / `owner_only`
+4. Token control — `per_developer` / `per_project` / `per_team`
+
+### Step 2 — Deploy silently via MDM / Intune / GPO (20 machines)
+
+For unattended deployment, use the `-Silent` flag:
 
 ```powershell
-$managedDir = "C:\ProgramData\ClaudeCode"
-New-Item -ItemType Directory -Path $managedDir -Force | Out-Null
-
-@{
-  mcpServers = @{
-    raven = @{
-      type    = "stdio"
-      command = "python"
-      args    = @("C:\Program Files\Raven\mcp\server.py")
-    }
-  }
-} | ConvertTo-Json -Depth 5 | Set-Content "$managedDir\managed-mcp.json"
+powershell -ExecutionPolicy Bypass -File "install-enterprise.ps1" `
+  -Silent `
+  -OrgName "Acme Corp" `
+  -OrgEmail "it@acme.com"
 ```
 
-Every Claude Code session on this machine now auto-loads Raven MCP tools.
+Silent mode defaults: `first_responder` approval, `per_developer` tokens, provisions all users.
 
-3. Provision skills for each developer via MDM/GPO login script:
+**Intune — deploy as a PowerShell script:**
+1. Download `install-enterprise.ps1` from [github.com/giggsoinc/raven](https://github.com/giggsoinc/raven)
+2. In Intune: **Devices → Scripts → Add → Windows PowerShell script**
+3. Upload `install-enterprise.ps1`
+4. Set script parameters: `-Silent -OrgName "YourOrg" -OrgEmail "it@yourorg.com"`
+5. Set **Run as account: System**, **Run script in 64-bit PowerShell: Yes**
+6. Assign to your device group → Deploy
+
+**GPO — run as computer startup script:**
+```
+Script: install-enterprise.ps1
+Parameters: -Silent -OrgName "YourOrg" -OrgEmail "it@yourorg.com"
+```
+
+### What gets deployed
+
+| Component | Where | Effect |
+|---|---|---|
+| Raven source | `C:\Program Files\Raven\` | System-wide, all users |
+| `managed-mcp.json` | `C:\ProgramData\ClaudeCode\` | Raven MCP auto-loads for every user |
+| `managed-settings.json` | `C:\ProgramData\ClaudeCode\` | Hooks + permission policy for all users |
+| `manifest.org.json` | `C:\Program Files\Raven\` | Org-level locked rules — devs cannot override |
+| All 35 skills + 10 agents | Each user's `%USERPROFILE%\.claude\` | Provisioned immediately |
+| `raven-setup.ps1` | System PATH | Available in any terminal |
+
+### Step 3 — Developer first day (nothing to install)
+
+Developer opens a new machine. No README to read. They just:
+
+```powershell
+cd MyProject
+raven-setup.ps1    # 2-minute project manifest setup
+claude .           # Raven greets them immediately
+```
+
+### Update all machines
+
+Re-run the installer — it pulls latest and re-provisions all users. Existing manifests are untouched:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "C:\Program Files\Raven\install-enterprise.ps1" `
+  -Silent -OrgName "YourOrg" -OrgEmail "it@yourorg.com"
+```
+
+### For new hires
+
+Add to your onboarding provisioning script:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File "C:\Program Files\Raven\install.ps1"
 ```
 
-### Org manifest
-
-Create `C:\Program Files\Raven\manifest.org.json` with your locked org fields (same JSON structure as the macOS/Linux version above).
-
-### Developer experience
-
-Same as macOS/Linux enterprise — developer opens Claude Code, Raven is already there.
+This wires `%USERPROFILE%\.claude\` for the new user.
 
 ---
 
