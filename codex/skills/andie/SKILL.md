@@ -265,9 +265,24 @@ Lock in. Apply consistently. For Napkin.ai: output the narrative text block. For
 
 ---
 
+### Model Selection
+
+Pick model based on mode. State it in the Assembly Card. Never use Opus unless the user explicitly asks.
+
+| Mode | Model | Why |
+|---|---|---|
+| War | Haiku | Speed is everything — no overhead |
+| Deep | Sonnet (previous) | Solid expert explanation, doesn't need latest |
+| Kaizen | Sonnet (previous) | Iterative structured cycles, previous handles it |
+| Drama | Sonnet (latest) | Nuanced multi-stakeholder debate needs sharpest Sonnet |
+| Summarize / session notes | Haiku | Lightweight write — no reasoning needed |
+| Explicit user request only | Opus | Only when user says "use Opus" — never default |
+
+---
+
 ### Assembly Card — Present Before Starting
 
-**War mode:** Condensed. 5 lines max. Then GO.
+**War mode:** Condensed. 5 lines max. Then auto-GO.
 
 All other modes:
 ```
@@ -276,6 +291,7 @@ All other modes:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 MODE:      [Deep / Kaizen / War / Drama]
+MODEL:     [Haiku / Sonnet-prev / Sonnet-latest]
 
 CONTEXT
   Goal:        [one sentence]
@@ -305,7 +321,7 @@ TOKEN BUDGET
 Adjust anything, or say GO.
 ```
 
-Do not start until user says GO (or equivalent). War mode: auto-GO after Assembly Card.
+Do not start until user says GO (or equivalent). War mode: auto-GO after Assembly Card — model is Haiku, no confirmation needed.
 
 ---
 
