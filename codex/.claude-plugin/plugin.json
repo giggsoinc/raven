@@ -1,0 +1,18 @@
+{
+  "name": "raven-codex",
+  "description": "Raven Discipline Engine for OpenAI Codex. Guards, specialists, dynamic skill generation, and session-persistent learning.",
+  "version": "2.9.1",
+  "author": {
+    "name": "Giggso / AntiGravity Projects",
+    "email": "giggso.ravi@gmail.com",
+    "url": "https://github.com/giggsoinc/raven-codex"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/giggsoinc/raven-codex",
+  "categories": ["security", "enterprise", "governance", "discipline", "specialists"],
+  "tags": ["codex", "cve", "secrets", "audit", "enterprise", "compliance", "specialists", "guards"],
+  "install": {
+    "type": "bash",
+    "command": "bash raven-codex-setup.sh"
+  }
+}
