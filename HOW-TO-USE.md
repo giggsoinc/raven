@@ -32,12 +32,20 @@
 <td><a href="#dev-windows">→ Dev Install — Windows</a></td>
 </tr>
 <tr>
-<td rowspan="4">
+<td rowspan="7">
   <b>IT admin / architect</b><br>
   <sub>Deploying for your whole team, zero dev action needed</sub>
 </td>
-<td>macOS or Linux</td>
-<td><a href="#enterprise-mac-linux">→ Enterprise — macOS & Linux</a></td>
+<td>macOS / Linux — interactive<br><sub>Run manually on each machine</sub></td>
+<td><a href="#enterprise-mac-linux-interactive">→ Enterprise — macOS & Linux (interactive)</a></td>
+</tr>
+<tr>
+<td>macOS / Linux — MDM / Jamf / Ansible<br><sub>Push silently to all machines at once</sub></td>
+<td><a href="#enterprise-mac-linux-mdm">→ Enterprise — macOS & Linux (MDM/silent)</a></td>
+</tr>
+<tr>
+<td>macOS / Linux — new hire<br><sub>Provision a single new user after deploy</sub></td>
+<td><a href="#enterprise-mac-linux-newhire">→ Enterprise — macOS & Linux (new hire)</a></td>
 </tr>
 <tr>
 <td>Windows — interactive<br><sub>Run manually on each machine</sub></td>
@@ -210,9 +218,10 @@ powershell -ExecutionPolicy Bypass -File $env:USERPROFILE\.raven\install.ps1
 ## Enterprise — macOS & Linux
 
 > **For IT admins and architects deploying to a team.**
-> Run this once on each managed machine. Developers need zero installation steps.
+> Two paths: run interactively on each machine, or push silently via MDM/Jamf/Ansible.
+> Developers need zero installation steps after either path completes.
 
-### What this deploys
+### What gets deployed (both paths)
 
 | Component | Where | Effect |
 |---|---|---|
@@ -220,40 +229,88 @@ powershell -ExecutionPolicy Bypass -File $env:USERPROFILE\.raven\install.ps1
 | `managed-mcp.json` | `/Library/Application Support/ClaudeCode/` (mac) or `/etc/claude-code/` (linux) | Every Claude Code session auto-loads Raven MCP tools |
 | `managed-settings.json` | Same managed path | Hooks and permission policy enforced for all users |
 | `manifest.org.json` | `/usr/local/raven/` | Org-level locked rules — devs cannot override |
-| All 35 skills + agents | Each user's `~/.claude/` | Provisioned at install time (optional) |
+| All 35 skills + 10 agents | Each user's `~/.claude/` | Provisioned immediately |
 | `raven-setup` command | `/usr/local/bin/` | Available system-wide |
 
-### Run the enterprise installer
+---
+
+<a id="enterprise-mac-linux-interactive"></a>
+
+### Option A — Interactive install (run once per machine manually)
+
+Use this when you're at the machine or remoting in via SSH. Takes 2 minutes.
 
 ```bash
 sudo bash install-enterprise.sh
 ```
 
-The script asks 4 questions:
+It asks 4 questions, then configures everything:
+
 1. Organisation name
 2. IT / architect email (audit trail)
 3. Approval mode — `first_responder` / `majority_vote` / `owner_only`
 4. Token control — `per_developer` / `per_project` / `per_team`
 
-Then it asks: **"Provision all existing users now?"**
-- Say yes → all current users on the machine get skills in `~/.claude/` immediately
-- Say no → users run `install.sh` themselves on first login (add to onboarding script)
+Then: **"Provision all existing users now?"** — say yes.
 
-### Developer experience after enterprise deploy
+Done. Every developer on this machine is ready.
 
-Developer opens a new machine. No install steps. No README to read. They just:
+---
+
+<a id="enterprise-mac-linux-mdm"></a>
+
+### Option B — Silent deploy via MDM / Jamf / Ansible (all machines at once)
+
+Use this for hands-off deployment across your whole fleet.
+
+**The silent command:**
+```bash
+sudo bash install-enterprise.sh \
+  --silent \
+  --org-name "Acme Corp" \
+  --org-email "it@acme.com"
+```
+
+Defaults when silent: `first_responder` approval · `per_developer` tokens · all users provisioned.
+
+**Via Jamf Pro:**
+1. Upload `install-enterprise.sh` as a Script in Jamf
+2. Create a Policy → Scripts → add the script
+3. Script parameters: `--silent --org-name "YourOrg" --org-email "it@yourorg.com"`
+4. Trigger: Enrollment Complete (or Recurring Check-in)
+5. Scope to your device group → Save
+
+**Via Ansible:**
+```yaml
+- name: Deploy Raven enterprise
+  hosts: dev_machines
+  become: yes
+  tasks:
+    - name: Run Raven enterprise installer
+      script: install-enterprise.sh --silent --org-name "YourOrg" --org-email "it@yourorg.com"
+```
+
+**Via shell script pushed via MDM:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install-enterprise.sh \
+  | sudo bash -s -- --silent --org-name "YourOrg" --org-email "it@yourorg.com"
+```
+
+---
+
+### Developer first day — nothing to install
+
+After either option runs, the developer just does:
 
 ```bash
 cd MyProject
-raven-setup        # 2-minute project manifest setup
+raven-setup        # 2-minute project manifest — one question
 claude .           # Raven greets them immediately
 ```
 
-If IT provisioned `~/.claude/` for them, even `raven-setup` may be skipped if the project already has a manifest checked into git.
-
 ### Org manifest — locked fields
 
-`/usr/local/raven/manifest.org.json` locks fields every project manifest must comply with. Example:
+`/usr/local/raven/manifest.org.json` locks rules every project must comply with:
 
 ```json
 {
@@ -268,20 +325,22 @@ If IT provisioned `~/.claude/` for them, even `raven-setup` may be skipped if th
 
 Developers can't change these. Their project manifest inherits them.
 
-### For new hires
-
-Add to your onboarding provisioning script:
-
-```bash
-sudo bash /usr/local/raven/install.sh
-# installs and wires ~/.claude/ for the new user
-```
-
-### Update all users
+### Update all machines
 
 ```bash
 sudo bash /usr/local/raven/install-enterprise.sh
-# pulls latest, regenerates managed files, re-provisions all users
+# or silently:
+sudo bash /usr/local/raven/install-enterprise.sh \
+  --silent --org-name "YourOrg" --org-email "it@yourorg.com"
+```
+
+<a id="enterprise-mac-linux-newhire"></a>
+
+### New hire joining the team
+
+```bash
+sudo bash /usr/local/raven/install.sh
+# wires ~/.claude/ for the new user
 ```
 
 ---
