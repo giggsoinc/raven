@@ -55,7 +55,7 @@ Progressive disclosure — ~100 tokens at startup, rules load only when triggere
 
 **Core skills:** raven-core · raven-expert · raven-plan · raven-review · raven-security · raven-refactor · raven-test · raven-document · andie
 
-**Specialist skills (19):** aws · gcp · azure · oci · kafka · postgres · redis · k8s · terraform · fastapi · nicegui · vault · security · aiml · dataeng · devops · bigdata · vector-db · dynamic
+**Specialist skills (23):** aws · gcp · azure · oci · kafka · postgres · redis · k8s · terraform · fastapi · nicegui · vault · security · aiml · dataeng · devops · bigdata · vector-db · dynamic · odoo · salesforce · log-management · agent-chaining
 
 ### Commands — `.claude/commands/`
 

@@ -95,7 +95,7 @@ YourProject/
 │   │   ├── raven-test/                     ← Test-first discipline
 │   │   ├── raven-document/                 ← Doc enforcement
 │   │   ├── andie/                         ← Multi-modal AI expert (4 modes)
-│   │   └── [19 specialist skills]/        ← aws gcp azure oci kafka postgres ...
+│   │   └── [23 specialist skills]/        ← aws gcp azure oci kafka postgres odoo salesforce log-management agent-chaining ...
 │   ├── commands/                          ← /raven-scaffold /raven-debug /raven-approve ...
 │   ├── scripts/                           ← cve-check.py secret-scan.py audit-log.py ...
 │   └── mcp/server.py                      ← MCP plugin server (5 tools)
@@ -268,7 +268,7 @@ Then run `/raven-debug` to verify everything loaded:
 ✅ CLAUDE.md
 ✅ manifest.json valid
 ✅ 5 agents loaded
-✅ Skills: raven-core + 8 core skills + 19 specialists
+✅ Skills: raven-core + 8 core skills + 23 specialists
 ✅ pre-commit hook executable
 ✅ Hooks: PreToolUse PostToolUse PreCompact Notification
 ✅ CLEARED

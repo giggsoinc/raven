@@ -1,28 +1,23 @@
 <p align="center">
-  <img src="../assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
+  <img src="./assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
 </p>
 
-# How to Use Raven for Codex — v2.8
+# How to Use Raven — v2.8
 
-> OpenAI Codex implementation of the Raven AI coding discipline engine.
-> Part of the [Raven platform](https://github.com/giggsoinc/raven). MIT License.
+> Claude Code implementation of the Raven AI coding discipline engine.
+> Part of the [Raven platform](https://github.com/giggsoinc/raven-core). MIT License.
 > Built by [Giggso Inc](https://github.com/giggsoinc).
 
 *Guardrails before you ship.*
 
 ---
 
-## What This Does
+## Two Repos — Two Audiences
 
-Raven brings enterprise coding discipline to OpenAI Codex. Two layers of protection:
-
-| Layer | Where | When |
+| Repo | Audience | Job |
 |---|---|---|
-| **AGENTS.md** | In your repo | Before every Codex task — rules Codex reads first |
-| **MCP tools** | In Codex session | During coding — CVE check, secret scan, audit log |
-| **PR gate** | In GitHub CI | On every PR — catches anything that slipped through |
-
-No layer relies on the others. If a developer skips the MCP tools, the PR gate still runs. That's the point.
+| [giggsoinc/raven](https://github.com/giggsoinc/raven) (Core) | Developers | Coding discipline |
+| [giggsoinc/raven-guard](https://github.com/giggsoinc/raven-guard) | DevOps / Architects | Production protection |
 
 ---
 
@@ -30,45 +25,49 @@ No layer relies on the others. If a developer skips the MCP tools, the PR gate s
 
 | Requirement | Check |
 |---|---|
-| OpenAI account (Pro / Enterprise / Business) | [platform.openai.com](https://platform.openai.com) |
-| Codex access | [chatgpt.com/codex](https://chatgpt.com/codex) |
-| Python 3.10+ | `python3 --version` |
+| Claude Code | `claude --version` |
 | Git | `git --version` |
-| OpenAI API key | Optional — enables GPT-4o CVE deep scan |
+| Python 3.10+ | `python3 --version` |
+| OpenAI API key | Optional — enables gpt-5.5 CVE deep scan |
 
 ---
 
 ## Install — One Command
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/codex/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | bash
 ```
 
-This:
-1. Clones `giggsoinc/raven` and copies the `codex/` folder to `~/.raven-codex/`
-2. Installs Python dependencies (`openai`, `requests`, `packaging`)
-3. Registers the MCP server in `~/.codex/config.toml`
-4. Adds `raven-codex-setup` alias to your shell profile
+This clones Raven to `~/.raven/` and makes `raven-setup` available globally.
+
+Then from **any project directory**:
+
+```bash
+cd YourProject && raven-setup
+```
+
+### Manual install (no curl)
+
+```bash
+git clone https://github.com/giggsoinc/raven.git ~/.raven
+cd YourProject
+bash ~/.raven/raven-setup.sh
+```
 
 ---
 
-## Setup — Per Project
-
-Run once in each project you want Raven to protect:
-
-```bash
-cd YourProject && raven-codex-setup
-```
-
-Answers 5 questions:
+## Setup — 7 Questions
 
 | Question | Notes |
 |---|---|
-| Project name | Used in manifest and audit log |
-| Your email | Audit trail — stored locally only |
-| Stack | python / node / go / java / ruby / other |
-| Cloud | aws / gcp / azure / oci / none |
-| OpenAI API key | Blank = PyPI Safety only (still catches most CVEs) |
+| Project name | Letters, numbers, hyphens |
+| Your email | Audit trail |
+| Language(s) | Pick numbers or type freely (`python3.13`) |
+| Cloud | Number or freeform |
+| Database(s) | Multi-select — `1,3` |
+| Shared inbox | Prism7 approval email |
+| Escalation email | P1 incidents |
+| OpenAI API key | Blank = PyPI Safety only (still works) |
 
 ---
 
@@ -76,138 +75,215 @@ Answers 5 questions:
 
 ```
 YourProject/
-├── AGENTS.md                    ← Raven rules — Codex reads this before every task
+├── CLAUDE.md
+├── .claude/
+│   ├── settings.json                      ← Hooks: PreToolUse, PostToolUse, PreCompact
+│   ├── agents/                            ← 5 Core agents
+│   ├── skills/
+│   │   ├── raven-core/                    ← Progressive disclosure (~100 tokens at startup)
+│   │   │   ├── SKILL.md
+│   │   │   └── rules/                    ← Loaded only when triggered
+│   │   │       ├── stack.md
+│   │   │       ├── style.md
+│   │   │       ├── architecture.md
+│   │   │       └── commit.md
+│   │   ├── raven-expert/                   ← L99 deep expertise mode
+│   │   ├── raven-plan/                     ← Architecture-first planning
+│   │   ├── raven-review/                   ← Manifest-aware code review
+│   │   ├── raven-security/                 ← Threat model + CVE analysis
+│   │   ├── raven-refactor/                 ← Style enforcement
+│   │   ├── raven-test/                     ← Test-first discipline
+│   │   ├── raven-document/                 ← Doc enforcement
+│   │   ├── andie/                         ← Multi-modal AI expert (4 modes)
+│   │   └── [23 specialist skills]/        ← aws gcp azure oci kafka postgres odoo salesforce log-management agent-chaining ...
+│   ├── commands/                          ← /raven-scaffold /raven-debug /raven-approve ...
+│   ├── scripts/                           ← cve-check.py secret-scan.py audit-log.py ...
+│   └── mcp/server.py                      ← MCP plugin server (5 tools)
+├── .git/hooks/pre-commit
 └── .raven/
-    ├── manifest.json            ← Project config (commit this)
-    ├── .env.template            ← Copy to .env, fill in keys (never commit .env)
-    └── audit/
-        └── audit.log            ← Encrypted audit trail (never commit)
-```
-
-**Plus in `~/.codex/config.toml`:**
-```toml
-[mcp_servers.raven]
-command = "python3"
-args    = ["/Users/YOU/.raven-codex/mcp/server.py"]
+    ├── manifest.json                      ← Public config (Git tracked)
+    ├── manifest.secrets.json              ← NEVER commit
+    ├── architecture.md                    ← Living diagram template
+    └── ci/                               ← github-actions.yml gitlab-ci.yml on-prem-pipeline.sh
 ```
 
 ---
 
-## AGENTS.md — Codex Reads This First
+## Hooks — Always On
 
-Codex reads `AGENTS.md` before every task. Raven's `AGENTS.md` tells Codex:
-- Never hardcode secrets
-- Run CVE check before adding any library
-- No force push, no DROP TABLE, no open firewall rules
-- Stack and commit format rules
+Raven registers 4 hooks in `.claude/settings.json` automatically:
 
-You can extend it. Add project-specific rules at the bottom. Codex will follow them.
-
----
-
-## MCP Tools — Available in Every Codex Session
-
-Once the MCP server is registered, these tools are available in every Codex task:
-
-| Tool | What It Does | When to Use |
+| Hook | Fires | Action |
 |---|---|---|
-| `raven_status` | Check manifest is loaded, version, mode | Start of any session |
-| `raven_cve_check` | CVE scan a library before adding it | Before any `pip install` or `npm install` |
-| `raven_sync_libs` | Sync requirements.txt → manifest | After adding libraries |
-| `raven_debug` | Full project health check | When something seems wrong |
-| `raven_violation` | Emit a manual violation to audit log | When you spot something Raven missed |
+| `PreToolUse` | Before any Claude tool | `tool-guard.py` — blocks restricted actions |
+| `PostToolUse` | After every tool | `audit-log.py` — encrypted log to S3/GCS/Azure/OCI (async) |
+| `PreCompact` | Before context compacts | `token-guard.py` — session backup + macOS notification |
+| `Notification` | Claude session events | `token-guard.py` (async) |
 
-**Verify MCP is active:**
+---
+
+## Skills — Progressive Disclosure
+
+Only metadata loads at startup (~100 tokens per skill). Rules load only when triggered.
+
 ```
-In Codex: "Run raven_status"
-Expected: ✅ manifest.json loaded · stack declared · version 2.8 · mode active
+Session starts → raven-core SKILL.md scanned (~100 tokens)
+
+Dev adds: import pandas
+      ↓
+Claude loads rules/stack.md
+rules/stack.md reads live manifest: !`cat .raven/manifest.json`
+      ↓
+Checks import → flags if not in approved libraries
+rules/style.md, rules/architecture.md → untouched (zero tokens wasted)
 ```
+
+**Routing table** (raven-core detects intent and routes):
+
+| Prompt contains... | Routes to |
+|---|---|
+| `"expert"` / `"deep dive"` / `"L99"` | `raven-expert` |
+| `"security"` / `"CVE"` / `"threat"` | `raven-security` |
+| `"plan"` / `"architecture"` / `"scaffold"` | `raven-plan` + `/raven-scaffold` |
+| `"review"` / `"PR"` | `raven-review` |
+| `"refactor"` / `"clean"` | `raven-refactor` |
+| `"test"` / `"coverage"` | `raven-test` |
+| `"document"` / `"README"` | `raven-document` |
+| `"drama"` / `"debate"` / `"stress-test"` | `andie` Drama Mode |
+| new `import X` in code | CVE check via `cve-check.py` |
+| `"commit"` / `"push"` | Pre-commit gate — all 5 checks fire |
+
+---
+
+## Slash Commands
+
+| Command | Use When |
+|---|---|
+| `/raven-scaffold` | Starting a new feature — forces plan before code |
+| `/raven-debug` | Something not working — full boot diagnostic |
+| `/raven-approve {lib} {version}` | Architect approves a library request |
+| `/raven-incident {p1\|p2\|p3} {description}` | Manual incident creation |
+| `/raven-sync` | Sync requirements.txt → manifest libraries |
+| `/raven-search {query}` | Find a skill for a capability |
+| `/raven-mem` | Save session state before context reset |
+
+---
+
+## Pre-commit Hook — 5 Checks
+
+Every `git commit` runs all 5. Any failure = hard block.
+
+| Check | What It Does |
+|---|---|
+| 1. Framework detection | Skips if `.raven-framework` present (Raven's own repos) |
+| 2. Manifest valid | JSON valid, all required fields present |
+| 3. Secrets not staged | No API keys, passwords, or tokens in staged files |
+| 4. CVE check | Scans all imports — three-tier approval system |
+| 5. Style check | Line count, print statements, type hints, docstrings |
 
 ---
 
 ## CVE Check — Three Tiers
 
-Before adding any library, ask Codex:
-```
-Run raven_cve_check on requests
-```
+| Tier | Condition | Action | Friction |
+|---|---|---|---|
+| 1 | Org whitelist (fastapi, httpx, boto3...) | Auto-approve | Zero |
+| 2 | Category whitelist (HTTP clients, test libs) | Auto-approve | Zero |
+| 3 Clean | Unknown, no CVE | Approval flow | Low |
+| 3 Moderate | CVE CVSS 4–7 | Approval flow + warn | Medium |
+| 3 Critical | CVE CVSS >7 | Hard block — no override | Full |
 
-| Tier | Result | Action |
-|---|---|---|
-| 1 — Org whitelist | Auto-approved | Zero friction |
-| 2 — Category whitelist | Auto-approved | Zero friction |
-| 3 — Clean | No CVE found | Approval flow |
-| 3 — Medium | CVE CVSS 4–7 | Warn + log + suggest safe version |
-| 3 — Critical | CVE CVSS >7 | Hard block — do not install |
-
-Engines: PyPI Safety (fast, always) + GPT-4o deep scan (requires API key).
-Node.js projects: runs `npm audit` automatically when `package.json` is detected.
+Engines: PyPI Safety DB (fast, always) + gpt-5.5 (deep, requires OpenAI key).
 
 ---
 
-## PR Gate — Automatic on Every PR
-
-Add to your repo once. Never think about it again.
-
-Create `.github/workflows/raven.yml`:
-
-```yaml
-name: Raven Discipline Check
-on: [pull_request]
-
-jobs:
-  raven:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: giggsoinc/raven-action@main
-        with:
-          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
-          manifest-path: .raven/manifest.json
-```
-
-Every PR gets a visible status check:
-```
-✅ raven/discipline-check — passed
-🔴 raven/discipline-check — blocked (CVE: requests 2.6.0 CVSS 9.8)
-⚠️ raven/discipline-check — did not run (manifest missing)
-```
-
-This runs on **every PR regardless of who wrote the code** — Codex, Claude Code, humans, anyone.
-
----
-
-## Daily Developer Flow
-
-```
-Codex task starts
-      ↓
-Codex reads AGENTS.md — rules loaded
-      ↓
-Dev adds a library
-      ↓
-Codex runs raven_cve_check → ✅ clean or 🔴 blocked
-      ↓
-Code written → Codex commits
-      ↓
-PR opened → raven-action fires:
-  ✅ Secrets clean  ✅ CVE clean  ✅ Manifest valid
-      ↓
-PR merges — audit log written
-```
-
----
-
-## Add Production Guard (optional)
-
-For hard blocks on destructive operations (DROP TABLE, force push, open firewall):
+## MCP Plugin
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/guard/codex/install.sh | bash
-cd YourProject && raven-guard-codex-setup
+claude mcp add raven -- python3 ~/.raven/mcp/server.py
 ```
 
-Requires Raven Codex installed first.
+MCP tools: `raven_status` · `raven_cve_check` · `raven_sync_libs` · `raven_debug` · `raven_violation`
+
+---
+
+## Enterprise Deploy (Zero-Click)
+
+IT drops `managed-mcp.json` at the system path — every developer gets Raven auto-loaded:
+
+| Platform | Path |
+|---|---|
+| macOS | `/Library/Application Support/ClaudeCode/managed-mcp.json` |
+| Windows | `C:\ProgramData\ClaudeCode\managed-mcp.json` |
+| Linux | `/etc/claude-code/managed-mcp.json` |
+
+The `managed-mcp.json` in this repo is ready to deploy.
+
+---
+
+## Install Guard (architects / DevOps only)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven-guard/main/install.sh | bash
+cd YourProject && raven-guard-setup
+```
+
+Requires Raven Core installed first.
+
+---
+
+## Developer Flow
+
+```
+Write code → agents advise, skills guide (no blocks during coding)
+Add library → Tier 1/2: instant | Tier 3: email Prism7 + auto PR
+git commit → pre-commit fires:
+  ✅ Manifest  ✅ Secrets  ✅ CVE  ✅ Style  ✅ Guard → CLEARED or BLOCKED
+git push → CI/CD thin check → merged
+```
+
+---
+
+## CI/CD Setup
+
+Copy from `.raven/ci/`:
+
+| Platform | File | Destination |
+|---|---|---|
+| GitHub | `github-actions.yml` | `.github/workflows/raven.yml` |
+| GitLab | `gitlab-ci.yml` | `.gitlab-ci.yml` |
+| On-prem | `on-prem-pipeline.sh` | Add to Jenkins/Gitea pipeline |
+
+---
+
+## Open Claude Code
+
+```bash
+claude .
+```
+
+Then run `/raven-debug` to verify everything loaded:
+
+```
+✅ CLAUDE.md
+✅ manifest.json valid
+✅ 5 agents loaded
+✅ Skills: raven-core + 8 core skills + 23 specialists
+✅ pre-commit hook executable
+✅ Hooks: PreToolUse PostToolUse PreCompact Notification
+✅ CLEARED
+```
+
+---
+
+## First Commit
+
+```bash
+git add .raven/manifest.json .raven/.gitignore \
+        .raven/architecture.md CLAUDE.md .claude/
+git commit -m "chore: init raven v2.8 [RAVEN:INIT]"
+git push
+```
 
 ---
 
@@ -215,12 +291,15 @@ Requires Raven Codex installed first.
 
 | File | Commit? | Who Edits |
 |---|---|---|
-| `AGENTS.md` | ✅ | Architects |
+| `CLAUDE.md` | ✅ | Architects |
 | `.raven/manifest.json` | ✅ | Architects |
-| `.raven/.env.template` | ✅ | Architects |
-| `.raven/.env` | ❌ Never | Each developer locally |
-| `.raven/audit/audit.log` | ❌ Never | Written by Raven |
-| `.github/workflows/raven.yml` | ✅ | DevOps / architects |
+| `.raven/architecture.md` | ✅ | Dev lead |
+| `.raven/manifest.secrets.json` | ❌ Never | Architects only |
+| `.claude/agents/*.md` | ✅ | Architects |
+| `.claude/skills/` | ✅ | Architects |
+| `.claude/commands/` | ✅ | Architects |
+| `.claude/settings.json` | ✅ | Architects |
+| `.git/hooks/pre-commit` | ❌ Local only | raven-setup installs |
 
 ---
 
@@ -228,40 +307,51 @@ Requires Raven Codex installed first.
 
 | Problem | Fix |
 |---|---|
-| `raven_status` returns error | Check `~/.codex/config.toml` has `[mcp_servers.raven]` entry |
-| MCP not showing in Codex | Re-run `raven-codex-setup` — it writes `config.toml` automatically |
-| CVE check not firing | Verify `OPENAI_API_KEY` is set in `.raven/.env` |
-| PR gate not showing | Check GitHub Actions is enabled on the repo |
-| Manifest missing | Re-run `raven-codex-setup` in your project directory |
-| Audit log empty | Check write permissions on `.raven/audit/` |
+| Agents not loading | Check `.claude/agents/` — valid YAML frontmatter required |
+| raven-core not found | Check `.claude/skills/raven-core/SKILL.md` exists |
+| Manifest not loading | Run `/raven-debug` |
+| Pre-commit not firing | `chmod +x .git/hooks/pre-commit` |
+| CVE check skipped | Add `openai_api_key` to `.raven/manifest.secrets.json` |
+| Hooks not running | Check `.claude/settings.json` has all 4 hooks registered |
+
+---
+
+## Works Alongside
+
+```
+Superpowers → dev methodology (TDD, planning, review)
+GSD         → context management (long sessions)
+Raven       → governance + security layer
+
+All three stack. No conflicts.
+```
 
 ---
 
 ## Updating Raven
 
 ```bash
-cd ~/.raven-codex && git pull
+cd ~/.raven && git pull
 ```
 
-Or reinstall cleanly:
-```bash
-curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/codex/install.sh | bash
-```
+Re-run `raven-setup` in any project to get new hooks, skills, and scripts.
 
 ---
 
-## Platform Comparison
+## Security Audit — Before Installing Any Public Skill
 
-| | Claude Code | OpenAI Codex |
+Skills execute inside your dev environment — they can read files, run bash, make network calls. Treat them like untrusted code.
+
+| Step | Check | Red flag |
 |---|---|---|
-| Rules file | `CLAUDE.md` | `AGENTS.md` |
-| Enforcement point | Pre-commit hook | PR gate + AGENTS.md |
-| MCP config | `claude mcp add` | `~/.codex/config.toml` |
-| CVE scan | On import detected | On library add + on PR |
-| Secret scan | On file save | On PR open |
-| Setup command | `raven-setup` | `raven-codex-setup` |
-| Install dir | `~/.raven/` | `~/.raven-codex/` |
-| Engine | [raven/raven-core](https://github.com/giggsoinc/raven/tree/main/raven-core) | [raven/raven-core](https://github.com/giggsoinc/raven/tree/main/raven-core) |
+| 1 | Read every line of `SKILL.md` | Instructions to read `.env`, secrets, or SSH keys |
+| 2 | Check `allowed-tools` in frontmatter | `Write`, `Edit`, `Bash` without justification |
+| 3 | Check bundled scripts | Any `curl` or `wget` to unknown URL |
+| 4 | Check for hidden instructions | Whitespace, encoded text, obfuscated content |
+| 5 | Verify source repo | Recent commits? Active maintainer? Known author? |
+| 6 | Add to `manifest.approved_skills` | Never leave skill list open |
+
+Raven protection: `skill-guard` agent monitors and blocks restricted file access. `manifest.approved_skills` is the only whitelist.
 
 ---
 
