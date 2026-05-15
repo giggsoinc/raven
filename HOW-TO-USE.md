@@ -32,7 +32,7 @@
 <td><a href="#dev-windows">→ Dev Install — Windows</a></td>
 </tr>
 <tr>
-<td rowspan="2">
+<td rowspan="4">
   <b>IT admin / architect</b><br>
   <sub>Deploying for your whole team, zero dev action needed</sub>
 </td>
@@ -40,8 +40,16 @@
 <td><a href="#enterprise-mac-linux">→ Enterprise — macOS & Linux</a></td>
 </tr>
 <tr>
-<td>Windows</td>
-<td><a href="#enterprise-windows">→ Enterprise — Windows</a></td>
+<td>Windows — interactive<br><sub>Run manually on each machine</sub></td>
+<td><a href="#enterprise-windows-interactive">→ Enterprise — Windows (interactive)</a></td>
+</tr>
+<tr>
+<td>Windows — MDM / Intune / GPO<br><sub>Push silently to all machines at once</sub></td>
+<td><a href="#enterprise-windows-mdm">→ Enterprise — Windows (MDM/silent)</a></td>
+</tr>
+<tr>
+<td>Windows — new hire onboarding<br><sub>Provision a single new user after deploy</sub></td>
+<td><a href="#enterprise-windows-newhire">→ Enterprise — Windows (new hire)</a></td>
 </tr>
 <tr>
 <td>
@@ -283,45 +291,65 @@ sudo bash /usr/local/raven/install-enterprise.sh
 ## Enterprise — Windows
 
 > **For IT admins deploying to a team of Windows machines.**
-> Run once per machine — interactively, or silently via MDM/GPO/Intune.
-> Developers need zero installation steps after this runs.
+> Two paths: run interactively on each machine, or push silently via MDM/Intune/GPO.
+> Developers need zero installation steps after either path completes.
 
-### What you need first
+### What you need on each machine first
 
 | | How to install |
 |---|---|
 | Python 3.10+ | [python.org](https://python.org) — check **"Add to PATH"** during install |
 | Git | [git-scm.com](https://git-scm.com) |
 | Claude Code (Enterprise) | Deployed via your MDM or [claude.ai/download](https://claude.ai/download) |
-| PowerShell 5.1+ | Built into Windows 10/11 |
+| PowerShell 5.1+ | Built into Windows 10/11 — no install needed |
 
-### Step 1 — Run the enterprise installer (one command, once per machine)
+### What gets deployed (both paths)
 
-Open **PowerShell as Administrator** and run:
+| Component | Where | Effect |
+|---|---|---|
+| Raven source | `C:\Program Files\Raven\` | System-wide, all users |
+| `managed-mcp.json` | `C:\ProgramData\ClaudeCode\` | Raven MCP auto-loads for every Claude Code session |
+| `managed-settings.json` | `C:\ProgramData\ClaudeCode\` | Hooks + permission policy enforced for all users |
+| `manifest.org.json` | `C:\Program Files\Raven\` | Org-level locked rules — devs cannot override |
+| All 35 skills + 10 agents | Each user's `%USERPROFILE%\.claude\` | Provisioned immediately |
+| `raven-setup.ps1` | System PATH | Available in any terminal |
+
+---
+
+<a id="enterprise-windows-interactive"></a>
+
+### Option A — Interactive install (run once per machine manually)
+
+Use this when you're sitting at the machine or remoting in. Takes 2 minutes.
+
+**Open PowerShell as Administrator** and run:
 
 ```powershell
-iwr https://raw.githubusercontent.com/giggsoinc/raven/main/install-enterprise.ps1 -OutFile "$env:TEMP\install-enterprise.ps1"
+iwr https://raw.githubusercontent.com/giggsoinc/raven/main/install-enterprise.ps1 `
+  -OutFile "$env:TEMP\install-enterprise.ps1"
 powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-enterprise.ps1"
 ```
 
-**What this does:**
-- Installs Raven to `C:\Program Files\Raven\` (system-wide)
-- Creates `managed-mcp.json` at `C:\ProgramData\ClaudeCode\` — every Claude Code session on this machine auto-loads Raven MCP tools
-- Creates `managed-settings.json` (hooks, permissions)
-- Asks 4 questions to create `manifest.org.json` (org-level locked rules)
-- Optionally provisions all existing user profiles with 35 skills + 10 agents
-- Adds `raven-setup.ps1` to system PATH
+It asks 4 questions, then configures everything:
 
-**The 4 questions it asks:**
 1. Organisation name
 2. IT / architect email (audit trail)
 3. Approval mode — `first_responder` / `majority_vote` / `owner_only`
 4. Token control — `per_developer` / `per_project` / `per_team`
 
-### Step 2 — Deploy silently via MDM / Intune / GPO (20 machines)
+Then: **"Provision skills to all existing users now?"** — say yes.
 
-For unattended deployment, use the `-Silent` flag:
+Done. Every developer on this machine is ready.
 
+---
+
+<a id="enterprise-windows-mdm"></a>
+
+### Option B — Silent deploy via MDM / Intune / GPO (all 20 machines at once)
+
+Use this for hands-off deployment across your whole fleet. No one needs to be at the machine.
+
+**The silent command:**
 ```powershell
 powershell -ExecutionPolicy Bypass -File "install-enterprise.ps1" `
   -Silent `
@@ -329,61 +357,70 @@ powershell -ExecutionPolicy Bypass -File "install-enterprise.ps1" `
   -OrgEmail "it@acme.com"
 ```
 
-Silent mode defaults: `first_responder` approval, `per_developer` tokens, provisions all users.
+Defaults when silent: `first_responder` approval · `per_developer` tokens · all users provisioned.
 
-**Intune — deploy as a PowerShell script:**
+**Via Microsoft Intune:**
 1. Download `install-enterprise.ps1` from [github.com/giggsoinc/raven](https://github.com/giggsoinc/raven)
-2. In Intune: **Devices → Scripts → Add → Windows PowerShell script**
+2. Intune portal → **Devices → Scripts → Add → Windows PowerShell script**
 3. Upload `install-enterprise.ps1`
-4. Set script parameters: `-Silent -OrgName "YourOrg" -OrgEmail "it@yourorg.com"`
-5. Set **Run as account: System**, **Run script in 64-bit PowerShell: Yes**
-6. Assign to your device group → Deploy
+4. Script settings:
+   - **Script arguments:** `-Silent -OrgName "YourOrg" -OrgEmail "it@yourorg.com"`
+   - **Run this script using the logged on credentials:** No
+   - **Run script in 64-bit PowerShell:** Yes
+5. Assign to your device group → **Deploy**
 
-**GPO — run as computer startup script:**
+**Via Group Policy (GPO):**
 ```
-Script: install-enterprise.ps1
+Computer Configuration → Windows Settings → Scripts → Startup
+Script:     \\share\raven\install-enterprise.ps1
 Parameters: -Silent -OrgName "YourOrg" -OrgEmail "it@yourorg.com"
 ```
 
-### What gets deployed
+**Via SCCM / Configuration Manager:**
+```
+Application → Script Installer
+Install command: powershell -ExecutionPolicy Bypass -File install-enterprise.ps1 -Silent -OrgName "YourOrg" -OrgEmail "it@yourorg.com"
+Run as: System
+```
 
-| Component | Where | Effect |
-|---|---|---|
-| Raven source | `C:\Program Files\Raven\` | System-wide, all users |
-| `managed-mcp.json` | `C:\ProgramData\ClaudeCode\` | Raven MCP auto-loads for every user |
-| `managed-settings.json` | `C:\ProgramData\ClaudeCode\` | Hooks + permission policy for all users |
-| `manifest.org.json` | `C:\Program Files\Raven\` | Org-level locked rules — devs cannot override |
-| All 35 skills + 10 agents | Each user's `%USERPROFILE%\.claude\` | Provisioned immediately |
-| `raven-setup.ps1` | System PATH | Available in any terminal |
+---
 
-### Step 3 — Developer first day (nothing to install)
+### Developer first day — nothing to install
 
-Developer opens a new machine. No README to read. They just:
+After either option runs, the developer just does:
 
 ```powershell
 cd MyProject
-raven-setup.ps1    # 2-minute project manifest setup
+raven-setup.ps1    # 2-minute project manifest — one question
 claude .           # Raven greets them immediately
 ```
 
-### Update all machines
+### Update all 20 machines
 
-Re-run the installer — it pulls latest and re-provisions all users. Existing manifests are untouched:
+Re-run silently — pulls latest Raven, re-provisions all users. Existing project manifests are untouched:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File "C:\Program Files\Raven\install-enterprise.ps1" `
+powershell -ExecutionPolicy Bypass `
+  -File "C:\Program Files\Raven\install-enterprise.ps1" `
   -Silent -OrgName "YourOrg" -OrgEmail "it@yourorg.com"
 ```
 
-### For new hires
+Push via Intune/GPO exactly as above — just re-deploy the same script.
 
-Add to your onboarding provisioning script:
+---
+
+<a id="enterprise-windows-newhire"></a>
+
+### New hire joining the team
+
+The machine already has Raven installed system-wide. Just provision the new user's profile:
 
 ```powershell
+# Run as admin, or add to your onboarding provisioning script
 powershell -ExecutionPolicy Bypass -File "C:\Program Files\Raven\install.ps1"
 ```
 
-This wires `%USERPROFILE%\.claude\` for the new user.
+This wires `%USERPROFILE%\.claude\` with all 35 skills, 10 agents, and the global CLAUDE.md for the new user. They're ready to open Claude Code immediately.
 
 ---
 
