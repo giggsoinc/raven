@@ -7,6 +7,7 @@ TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 PROJECT_VAL="$PROJECT" MODE_VAL="$MODE" EMAIL_VAL="$EMAIL" TS_VAL="$TS" \
 GITHUB_VAL="$GITHUB_ID" TAG_VAL="$PROJECT_TAG" \
+WORK_TYPE_VAL="${WORK_TYPE:-code}" \
 LANGUAGES_VAL="$LANGUAGES" CLOUD_VAL="$CLOUD" APPS_VAL="$APPS" \
 DB_PRIMARY_VAL="$DB_PRIMARY" DB_NOSQL_VAL="$DB_NOSQL" DB_STREAM_VAL="$DB_STREAM" \
 DB_WAREHOUSE_VAL="$DB_WAREHOUSE" DB_CACHE_VAL="$DB_CACHE" DB_VECTOR_VAL="$DB_VECTOR" \
@@ -21,14 +22,15 @@ def jl(val):
     except:
         return [val] if val and val not in ("[]","none","None") else []
 
-proj   = os.environ["PROJECT_VAL"]
-mode   = os.environ["MODE_VAL"]
-email  = os.environ["EMAIL_VAL"]
-ts     = os.environ["TS_VAL"]
-github = os.environ.get("GITHUB_VAL","")
-tag    = os.environ.get("TAG_VAL","")
-outdir = os.environ["OUT_VAL"]
-audit_id = github or tag or proj
+proj      = os.environ["PROJECT_VAL"]
+mode      = os.environ["MODE_VAL"]
+email     = os.environ["EMAIL_VAL"]
+ts        = os.environ["TS_VAL"]
+github    = os.environ.get("GITHUB_VAL","")
+tag       = os.environ.get("TAG_VAL","")
+outdir    = os.environ["OUT_VAL"]
+work_type = os.environ.get("WORK_TYPE_VAL","code")
+audit_id  = github or tag or proj
 
 manifest = {
   "project":   proj,
@@ -37,6 +39,7 @@ manifest = {
   "github_id": github,
   "audit_tag": audit_id,
   "stack": {
+    "work_type": work_type,
     "language":  jl(os.environ["LANGUAGES_VAL"]),
     "db": {
       "primary":   jl(os.environ["DB_PRIMARY_VAL"]),

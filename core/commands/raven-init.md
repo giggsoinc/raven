@@ -52,18 +52,63 @@ If invalid → re-ask with example.
 
 ---
 
-**Question 2 — Primary language(s):**
+**Question 2 — Work type:**
+```
+What kind of work is this project?
+
+( ) code    — writing application code (Python, TypeScript, Go, etc.)
+( ) infra   — infrastructure only (Terraform, K8s YAML, CloudFormation, Helm)
+( ) review  — reviewing code, docs, or architecture (no new files generated)
+( ) mixed   — both code and infrastructure in the same project
+```
+Single select. This determines which validators apply.
+- code  → full language + library validation
+- infra → no language block on .yaml/.yml/.tf/.hcl/.json files
+- review → stack validation skipped entirely (read-only work)
+- mixed → code rules for .py/.ts/.go, infra rules for .yaml/.tf/.hcl
+
+---
+
+**Question 3 — Primary language(s):**
+
+If work_type is `review`:
+```
+Skipping language selection — review-only projects don't require a declared stack.
+```
+Set `stack.language: ["review-only"]` automatically.
+
+If work_type is `infra`:
+```
+Select your infrastructure file types:
+[ ] yaml        (Kubernetes, Docker Compose, Ansible, GitHub Actions)
+[ ] hcl         (Terraform, Packer)
+[ ] json        (CloudFormation, schema files)
+[ ] dockerfile  (Container definitions)
+[ ] bicep       (Azure ARM templates)
+[ ] shell       (Bash scripts, run scripts)
+```
+Multi-select. At least one required.
+
+If work_type is `code` or `mixed`:
 ```
 Select your primary language(s):
+[ ] python3.13
 [ ] python3.12
 [ ] python3.11
 [ ] typescript
 [ ] javascript
 [ ] go
+[ ] rust
+[ ] java
+[ ] kotlin
+[ ] swift
+[ ] csharp
 [ ] sql + plsql
 [ ] shell
+[ ] yaml        (if mixed with infra files)
+[ ] hcl         (if mixed with Terraform)
 ```
-Multi-select. At least one required.
+Multi-select. At least one required for code files.
 If org manifest has locked languages → show pre-selected, explain they cannot be changed.
 
 ---
@@ -92,6 +137,19 @@ Which cloud are you deploying to?
 ( ) multi
 ```
 Single select.
+
+---
+
+**Question 4b — Frontend** (only if work_type is `code` or `mixed`):
+```
+Select frontend framework (or none):
+( ) vuejs
+( ) reactjs
+( ) nextjs
+( ) nuxtjs
+( ) none
+```
+Single select. Skip entirely for work_type `infra` or `review`.
 
 ---
 

@@ -22,6 +22,22 @@ read -p "  → " M </dev/tty
 case "$M" in 1) export MODE="solo" ;; 2) export MODE="team" ;; *) export MODE="enterprise" ;; esac
 echo -e "  ${G}✅ $MODE${N}\n" >/dev/tty
 
+# -- Work type --
+echo -e "  ${B}What kind of work is this project?${N}" >/dev/tty
+echo -e "  1) code    — writing application code (Python, TypeScript, Go, etc.)" >/dev/tty
+echo -e "  2) infra   — infrastructure only (Terraform, K8s YAML, CloudFormation)" >/dev/tty
+echo -e "  3) review  — reviewing code, docs, or architecture (no new files)" >/dev/tty
+echo -e "  4) mixed   — both code and infra in same project" >/dev/tty
+read -p "  → " WT </dev/tty
+case "$WT" in
+  1) export WORK_TYPE="code" ;;
+  2) export WORK_TYPE="infra" ;;
+  3) export WORK_TYPE="review" ;;
+  4) export WORK_TYPE="mixed" ;;
+  *) export WORK_TYPE="code" ;;
+esac
+echo -e "  ${G}✅ $WORK_TYPE${N}\n" >/dev/tty
+
 # -- Helper: ask single value --
 _ask() {
     echo -e "  ${B}$1${N}" >/dev/tty
@@ -90,11 +106,22 @@ else
 fi
 
 # -- Languages --
-export LANGUAGES=$(_pick "Languages:" \
-    "python3.13" "python3.12" "python3.11" \
-    "typescript" "javascript" \
-    "swift" "kotlin" "go" "rust" "java" "c#" "other")
-echo -e "  ${G}✅ $LANGUAGES${N}\n" >/dev/tty
+# Adjust prompt and options based on work_type
+if [ "$WORK_TYPE" = "review" ]; then
+    export LANGUAGES='["review-only"]'
+    echo -e "  ${G}✅ review-only (skipping language selection for review work)${N}\n" >/dev/tty
+elif [ "$WORK_TYPE" = "infra" ]; then
+    export LANGUAGES=$(_pick "Infra file types used:" \
+        "yaml" "hcl" "json" "dockerfile" "bicep" "shell" "other")
+    echo -e "  ${G}✅ $LANGUAGES${N}\n" >/dev/tty
+else
+    export LANGUAGES=$(_pick "Languages:" \
+        "python3.13" "python3.12" "python3.11" \
+        "typescript" "javascript" \
+        "swift" "kotlin" "go" "rust" "java" "csharp" \
+        "yaml" "hcl" "shell" "sql" "other")
+    echo -e "  ${G}✅ $LANGUAGES${N}\n" >/dev/tty
+fi
 
 # ── CLOUD FIRST ──────────────────────────────────────────────────────────────
 export CLOUD=$(_pick "Cloud provider(s):" \

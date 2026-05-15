@@ -2,7 +2,7 @@
   <img src="./assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
 </p>
 
-# How to Use Raven — v2.8
+# How to Use Raven — v2.9
 
 > Claude Code implementation of the Raven AI coding discipline engine.
 > Part of the [Raven platform](https://github.com/giggsoinc/raven-core). MIT License.
@@ -23,16 +23,16 @@
 
 ## Prerequisites
 
-| Requirement | Check |
-|---|---|
-| Claude Code | `claude --version` |
-| Git | `git --version` |
-| Python 3.10+ | `python3 --version` |
-| OpenAI API key | Optional — enables gpt-5.5 CVE deep scan |
+| Requirement | macOS / Linux | Windows |
+|---|---|---|
+| Claude Code | `claude --version` | `claude --version` (PowerShell) |
+| Git | `git --version` | `git --version` |
+| Python 3.10+ | `python3 --version` | `python --version` |
+| OpenAI API key | Optional — enables CVE deep scan | Optional |
 
 ---
 
-## Install — One Command
+## Install — macOS / Linux
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | bash
@@ -56,18 +56,52 @@ bash ~/.raven/raven-setup.sh
 
 ---
 
-## Setup — 7 Questions
+## Install — Windows (Native PowerShell)
+
+No WSL required. Python and Git must be installed natively.
+
+```powershell
+# Clone Raven
+git clone https://github.com/giggsoinc/raven.git $env:USERPROFILE\.raven
+
+# Go to your project
+cd YourProject
+
+# Run setup
+powershell -ExecutionPolicy Bypass -File $env:USERPROFILE\.raven\raven-setup.ps1
+```
+
+> **Windows notes:**
+> - Python must be in PATH (install from [python.org](https://python.org) — check "Add to PATH")
+> - Git must be in PATH (install from [git-scm.com](https://git-scm.com))
+> - Claude Code for Windows: install via `winget install Anthropic.Claude` or from [claude.ai/download](https://claude.ai/download)
+> - Managed settings path for enterprise deploy: `C:\ProgramData\ClaudeCode\managed-mcp.json`
+
+---
+
+## Setup — Questions Asked
 
 | Question | Notes |
 |---|---|
+| Project directory | Enter path or press Enter for current dir |
+| Mode | solo / team / enterprise |
+| Work type | **code / infra / review / mixed** — determines which validators apply |
 | Project name | Letters, numbers, hyphens |
 | Your email | Audit trail |
-| Language(s) | Pick numbers or type freely (`python3.13`) |
+| Language(s) | Adapts to work type — infra shows yaml/hcl, code shows Python/TS/Go |
 | Cloud | Number or freeform |
 | Database(s) | Multi-select — `1,3` |
-| Shared inbox | Prism7 approval email |
-| Escalation email | P1 incidents |
+| Shared inbox | Approval email (team/enterprise only) |
 | OpenAI API key | Blank = PyPI Safety only (still works) |
+
+### Work type — what it controls
+
+| work_type | Language validation | Library check | Infra file check |
+|---|---|---|---|
+| `code` | Full — hard block on unknown languages | Full | Skipped |
+| `infra` | Skipped for `.yaml/.yml/.tf/.hcl/.json` | Skipped | Applied |
+| `review` | Skipped entirely | Skipped | Skipped |
+| `mixed` | Applied to `.py/.ts/.go` — skipped for infra files | Applied to code | Applied |
 
 ---
 
@@ -310,9 +344,13 @@ git push
 | Agents not loading | Check `.claude/agents/` — valid YAML frontmatter required |
 | raven-core not found | Check `.claude/skills/raven-core/SKILL.md` exists |
 | Manifest not loading | Run `/raven-debug` |
-| Pre-commit not firing | `chmod +x .git/hooks/pre-commit` |
+| Pre-commit not firing | `chmod +x .git/hooks/pre-commit` (macOS/Linux) |
 | CVE check skipped | Add `openai_api_key` to `.raven/manifest.secrets.json` |
 | Hooks not running | Check `.claude/settings.json` has all 4 hooks registered |
+| Stack validator blocks YAML/Terraform | Set `work_type: infra` or `mixed` in manifest |
+| Windows: `python3` not found | Windows uses `python` — both are supported in raven-setup.ps1 |
+| Windows: `bash` not found | Use `raven-setup.ps1` instead of `raven-setup.sh` |
+| Windows: execution policy error | Run: `powershell -ExecutionPolicy Bypass -File raven-setup.ps1` |
 
 ---
 
@@ -355,4 +393,4 @@ Raven protection: `skill-guard` agent monitors and blocks restricted file access
 
 ---
 
-*Raven v2.8 — MIT — [github.com/giggsoinc/raven](https://github.com/giggsoinc/raven)*
+*Raven v2.9 — MIT — [github.com/giggsoinc/raven](https://github.com/giggsoinc/raven)*

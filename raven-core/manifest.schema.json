@@ -38,30 +38,52 @@
     "stack": {
       "type": "object",
       "description": "Declared tech stack \u2014 locked at project start",
-      "required": [
-        "language"
-      ],
       "additionalProperties": false,
       "properties": {
+        "work_type": {
+          "type": "string",
+          "description": "Primary nature of work \u2014 determines which validators apply",
+          "enum": [
+            "code",
+            "infra",
+            "review",
+            "mixed"
+          ],
+          "default": "code",
+          "examples": [
+            "code",
+            "infra",
+            "mixed"
+          ]
+        },
         "language": {
           "type": "array",
-          "description": "Primary programming languages",
-          "minItems": 1,
+          "description": "Primary programming and configuration languages. Required for work_type=code. Optional for infra/review.",
           "items": {
             "type": "string",
             "enum": [
               "python3.10",
               "python3.11",
               "python3.12",
+              "python3.13",
               "typescript",
               "javascript",
               "go",
               "rust",
               "java",
               "kotlin",
+              "swift",
+              "csharp",
               "sql",
               "plsql",
-              "shell"
+              "shell",
+              "yaml",
+              "hcl",
+              "json",
+              "markdown",
+              "bicep",
+              "dockerfile",
+              "review-only"
             ]
           },
           "examples": [
@@ -71,6 +93,13 @@
             [
               "python3.12",
               "typescript"
+            ],
+            [
+              "yaml",
+              "hcl"
+            ],
+            [
+              "review-only"
             ]
           ]
         },
