@@ -1,9 +1,6 @@
 ---
 name: claude-mem
-description: Use PROACTIVELY at session start and end to manage persistent
-  memory. At start: loads relevant past decisions, bug fixes, and architectural
-  choices. At end: saves key decisions to local index. Reduces repeated
-  context-setting by up to 95%. Auto-invokes on session open and close.
+description: "Use PROACTIVELY at session start and end to manage persistent memory. At start: loads relevant past decisions, bug fixes, and architectural choices. At end: saves key decisions to local index. Reduces repeated context-setting by up to 95%. Auto-invokes on session open and close."
 model: haiku
 tools:
   - Bash
