@@ -177,7 +177,12 @@ Report result:
 
 ⚠️  Found [skill-name] — partial match. Include? (yes / no / tell me more)
 
-❌ No specialist skill found. Proceeding with built-in expert knowledge.
+❌ No curated skill found for [domain].
+   → Triggering dynamic-specialist — constructing [domain] expert on the fly.
+   → Confidence will be assessed: HIGH / MEDIUM / VERIFY
+   → VERIFY path fires a live search agent before answering.
+   → Expert profile cached to .raven/.cache/dynamic-skills/ after first use.
+   → After 3 uses: promoted to standing specialist.
 ```
 
 **War mode:** Quick lookup only. If nothing found in 3 seconds, skip and proceed. Don't slow down a crisis.
