@@ -1,11 +1,54 @@
-# CLAUDE.md — Raven Discipline Engine v2.9
+# CLAUDE.md — Raven Discipline Engine v3.0
 
 ---
 
 ## SESSION OPEN — Fire This Immediately, Before The User Types Anything
 
-At the start of every session, output this block before waiting for any user input.
-Do not wait. Do not ask. Show it first.
+At the start of every session, run these steps in order before waiting for any user input.
+Do not wait. Do not ask. Fire immediately.
+
+### Step 1 — Version Check (runs before anything is shown to user)
+
+```
+python3 .claude/scripts/version-check.py
+```
+
+Parse the JSON output and apply these rules:
+
+| Result | Distance | Action |
+|---|---|---|
+| `"status": "ok"` | 0 | Silent — continue to Step 2 |
+| `"status": "stale"` | 1–2 | Show version warning banner (see below) then continue |
+| `"status": "auto-sync"` | 3+ | Show auto-sync banner, run `/raven-sync` automatically, then continue |
+| `"status": "unknown"` | — | Show unknown-version warning, continue |
+
+**Version warning banner (1–2 releases behind):**
+```
+─────────────────────────────────────────────────
+  ⚠️  Raven update available
+  Installed: {installed}  →  Latest: {latest}
+  {distance} release(s) behind.
+
+  Say "update raven" or run /raven-sync to update.
+  Updates take under 30 seconds.
+─────────────────────────────────────────────────
+```
+
+**Auto-sync banner (3+ releases behind):**
+```
+─────────────────────────────────────────────────
+  🔄 Raven auto-updating — {distance} releases behind
+  Installed: {installed}  →  Latest: {latest}
+
+  Syncing now... (this happens automatically when
+  you're 3 or more releases behind)
+─────────────────────────────────────────────────
+```
+Then immediately run `/raven-sync` and show result before continuing.
+
+**After any sync completes:** update `.raven/manifest.json` → `raven_version` to the latest version and note it in the session log.
+
+### Step 2 — Manifest Check
 
 ```
 Check .raven/manifest.json
@@ -78,13 +121,14 @@ Those messages mean nothing to a developer who just opened Claude Code for the f
 
 After showing the session opener, run these silently:
 
-1. Load manifest if present — trust it, do not re-validate on every session
-2. Load `.raven/manifest.secrets.json` silently
+1. Check `.raven/.auto-sync-needed` — if present, auto-sync was triggered by version-check. Run `/raven-sync`, delete the flag file after success.
+2. Load manifest if present — trust it, do not re-validate on every session
+3. Load `.raven/manifest.secrets.json` silently
    - If missing → note internally, do NOT block the session, do NOT show an error
    - Some features (email approval, audit log to S3) will be unavailable — that is OK
-3. Load observation log → `docs/observations/security_log.md`
+4. Load observation log → `docs/observations/security_log.md`
    - If 5+ open entries → append to session opener: "📋 {N} open observations — /raven-harden when ready"
-4. Load Andie as the session orchestration layer
+5. Load Andie as the session orchestration layer
 
 ---
 
