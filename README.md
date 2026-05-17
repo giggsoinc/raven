@@ -2,10 +2,10 @@
   <img src="./assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
 </p>
 
-# Raven
+# Raven v3.0
 
-> AI coding discipline for Claude Code, GitHub Copilot, and OpenAI Codex.
-> 35 skills · 10 guard agents · CVE scanning · secret detection · audit logs.
+> AI coding discipline for **Claude Code · GitHub Copilot · OpenAI Codex**.
+> **35 skills · 10 guard agents** · CVE scanning · secret detection · audit logs.
 > MIT License · Built by [Giggso](https://giggso.com)
 
 *Guardrails before you ship.*
@@ -45,17 +45,27 @@ Pick your situation. Each links to the full guide.
 </tr>
 <tr>
 <td>Windows</td>
-<td><code>install-enterprise.ps1</code> (coming soon)</td>
+<td><code>install-enterprise.ps1 -Silent</code></td>
 <td><a href="HOW-TO-USE.md#enterprise-windows">→ Full guide</a></td>
 </tr>
 <tr>
-<td><b>Codex / Copilot</b><br><sub>plugin, no terminal needed</sub></td>
+<td><b>Claude Code + Codex + Copilot</b><br><sub>plugin, no terminal needed</sub></td>
 <td>Any</td>
-<td>Install plugin from <code>giggsoinc/raven-codex</code></td>
+<td>Upload <code>raven-plugin-v3.0.0.zip</code> via Extensions</td>
 <td><a href="HOW-TO-USE.md#codex-copilot">→ Full guide</a></td>
 </tr>
 </tbody>
 </table>
+
+---
+
+## What's New in v3.0
+
+- **Andie v5.2** — HITL gates at every decision. Every recommendation is a `PROPOSAL` (accept / modify / reject) before anything proceeds.
+- **Specialist Triads** — every domain loads 3 experts automatically: 🏢 Functional · ⚙️ Technical · 📊 Data. Oracle ERP, Salesforce, AWS GenAI, Agentic AI, SAP, Data Engineering, Security, Kubernetes, Odoo, and more.
+- **Domain-adaptive questions** — Andie detects your domain, generates the right question set, shows it to you before asking, asks one at a time.
+- **Mode previews** — Step 0 shows what each mode produces for *your specific problem*.
+- **Continuous OODA** — fires after every round in all modes. Pivots are gated by HITL.
 
 ---
 
@@ -86,7 +96,7 @@ Enforces consistent quality, stack discipline, and security across your team —
 
 **35 Skills** — load at startup (~100 tokens each), rules fire only when triggered
 
-> Andie (orchestration) · raven-core · raven-expert · raven-plan · raven-review ·
+> Andie v5.2 (orchestration) · raven-core · raven-expert · raven-plan · raven-review ·
 > raven-security · raven-refactor · raven-test · raven-document ·
 > aws · gcp · azure · oci · kafka · postgres · redis · k8s · terraform ·
 > fastapi · nicegui · vault · security · aiml · dataeng · devops · bigdata ·
@@ -108,9 +118,10 @@ Enforces consistent quality, stack discipline, and security across your team —
 
 | Repo | For | Does |
 |---|---|---|
-| [giggsoinc/raven](https://github.com/giggsoinc/raven) | Developers | This repo — Claude Code |
+| [giggsoinc/raven](https://github.com/giggsoinc/raven) | Claude Code · Codex · Copilot | This repo — full install + plugin ZIP |
 | [giggsoinc/raven-codex](https://github.com/giggsoinc/raven-codex) | Codex / Copilot users | Plugin version |
 | [giggsoinc/raven-guard](https://github.com/giggsoinc/raven-guard) | DevOps / architects | Production protection |
+| [giggsoinc/andie](https://github.com/giggsoinc/andie) | All platforms | Andie v5.2 orchestration layer standalone |
 
 ---
 
