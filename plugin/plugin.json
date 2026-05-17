@@ -1,7 +1,7 @@
 {
   "name": "raven",
-  "description": "Raven Discipline Engine — AI-native engineering discipline for Claude Code. 35 skills, 10 guard agents, CVE scanning, secret detection, audit logs. Guardrails before you ship.",
-  "version": "2.9.1",
+  "description": "Raven v3.0 Discipline Engine — AI-native engineering discipline for Claude Code. Andie v5.2 orchestration with specialist triads, HITL gates, domain-adaptive questions, continuous OODA. 35 skills, 10 guard agents, CVE scanning, secret detection, audit logs.",
+  "version": "3.0.0",
   "author": {
     "name": "Giggso / AntiGravity Projects",
     "email": "giggso.ravi@gmail.com",
@@ -10,7 +10,7 @@
   "license": "MIT",
   "homepage": "https://github.com/giggsoinc/raven",
   "categories": ["security", "enterprise", "governance", "discipline", "specialists"],
-  "tags": ["cve", "secrets", "git-hooks", "audit", "enterprise", "compliance", "specialists", "guards"],
+  "tags": ["cve", "secrets", "git-hooks", "audit", "enterprise", "compliance", "specialists", "guards", "hitl", "triads", "ooda"],
   "install": {
     "type": "bash",
     "command": "bash raven-setup.sh"

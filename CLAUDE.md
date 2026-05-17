@@ -192,4 +192,4 @@ Intentional deletions: `git commit -m "feat: remove X [GUARD:ALLOW-DELETE]"`
 
 ---
 
-*Raven v2.9 — MIT — github.com/giggsoinc/raven*
+*Raven v3.0 — MIT — github.com/giggsoinc/raven*
