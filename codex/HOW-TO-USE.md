@@ -2,22 +2,13 @@
   <img src="./assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
 </p>
 
-# How to Use Raven — v2.8
+# How to Use Raven-Codex — v3.0
 
-> Claude Code implementation of the Raven AI coding discipline engine.
-> Part of the [Raven platform](https://github.com/giggsoinc/raven-core). MIT License.
-> Built by [Giggso Inc](https://github.com/giggsoinc).
+> Raven discipline engine for OpenAI Codex · GitHub Copilot · Claude Code
+> Part of the [Raven platform](https://github.com/giggsoinc/raven). MIT License.
+> Built by [Giggso](https://giggso.com)
 
-*Guardrails before you ship.*
-
----
-
-## Two Repos — Two Audiences
-
-| Repo | Audience | Job |
-|---|---|---|
-| [giggsoinc/raven](https://github.com/giggsoinc/raven) (Core) | Developers | Coding discipline |
-| [giggsoinc/raven-guard](https://github.com/giggsoinc/raven-guard) | DevOps / Architects | Production protection |
+*HITL first. Specialist triads always. OODA continuous. Guardrails before you ship.*
 
 ---
 
@@ -25,334 +16,260 @@
 
 | Requirement | Check |
 |---|---|
-| Claude Code | `claude --version` |
 | Git | `git --version` |
 | Python 3.10+ | `python3 --version` |
-| OpenAI API key | Optional — enables gpt-5.5 CVE deep scan |
+| Claude Code, Codex, or Copilot | Active session |
+| OpenAI API key | Optional — enables GPT CVE deep scan |
 
 ---
 
 ## Install — One Command
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/codex/install.sh | bash
 ```
 
-This clones Raven to `~/.raven/` and makes `raven-setup` available globally.
-
-Then from **any project directory**:
-
+Then in your project:
 ```bash
-cd YourProject && raven-setup
+raven-codex-setup
 ```
 
-### Manual install (no curl)
+This creates `.raven/manifest.json`, wires the PR gate, installs guard agents, and deploys `version-check.py`.
 
-```bash
-git clone https://github.com/giggsoinc/raven.git ~/.raven
-cd YourProject
-bash ~/.raven/raven-setup.sh
+---
+
+## What Happens at Session Start
+
+Every session runs this sequence automatically, before waiting for your input:
+
+### 1. Version Check
+```
+python3 .claude/scripts/version-check.py
+```
+- **Up to date** → silent
+- **1–2 releases behind** → update banner shown
+- **3+ releases behind** → auto-sync fires immediately, no action needed
+
+### 2. Manifest Check
+Reads `.raven/manifest.json`. If missing → guided setup (2 minutes, no hard stop).
+
+### 3. Andie v5.2 Loads
+Domain detection → specialist triad → domain-adaptive questions → mode preview → Assembly Card → GO.
+
+---
+
+## How Andie Works
+
+Andie is the orchestration layer. Every task goes through Andie before any code is written.
+
+### Step 0 — Mode Selection with Previews
+Andie detects the right mode and shows what it would produce *for your specific task* — not generic descriptions. Four modes:
+
+- **Deep** — domain expert explains with Feynman clarity. Default.
+- **Kaizen** — root cause → fix hypothesis → verify → retrospective. For recurring failures.
+- **War** — rapid triage, incident log, action owners. For production down or crisis.
+- **Drama** — expert panel debates options to a conclusion. On-demand, for major architectural decisions.
+
+### Domain Detection + Specialist Triad
+Andie detects your domain and loads three specialists:
+
+- 🏢 **Functional** — business process, domain rules, compliance
+- ⚙️ **Technical** — implementation, APIs, architecture, code
+- 📊 **Data** — flows, schema, pipelines, integration, reporting
+
+**Example — Oracle ERP Fusion Order-to-Cash:**
+```
+DOMAIN DETECTED: Oracle ERP Fusion — Order to Cash
+
+SPECIALIST TRIAD LOADING:
+🏢 Functional  → Fusion O2C Functional Consultant
+                 (process, compliance, exception handling)
+⚙️  Technical   → Fusion Tech Specialist
+                 (FBDI, BIP, REST, OIC integrations)
+📊 Data        → Fusion Data Engineer
+                 (OTBI, FRS, ADW staging, lineage)
+
+Adjust triad, rename, or GO?
+```
+
+**Example — AWS GenAI:**
+```
+DOMAIN DETECTED: AWS GenAI / ML
+
+SPECIALIST TRIAD LOADING:
+🏢 Functional  → ML Use Case Strategist
+                 (product, ROI, adoption, risk)
+⚙️  Technical   → AWS GenAI Specialist
+                 (Bedrock, SageMaker, Agents for Bedrock)
+📊 Data        → AWS Data Engineer
+                 (Glue, Athena, Lake Formation, S3)
+
+Adjust triad, rename, or GO?
+```
+
+### Domain-Adaptive Questions
+Context questions generated from your domain — shown to you before being asked, adjustable, one at a time.
+
+**AWS ML project gets:**
+1. What's the use case — RAG, fine-tuning, agents, or inference at scale?
+2. Which AWS services are already in play?
+3. What are the latency and throughput requirements?
+4. What's the security and compliance posture?
+5. What model(s) are you targeting?
+
+Not: "What is your goal?" — that tells Andie nothing useful.
+
+### HITL Gates
+Every recommendation is a PROPOSAL. Nothing proceeds without your explicit response:
+
+```
+PROPOSAL — [Tech / Framework / Team / Approach]
+Recommending:  [what]
+Why:           [2 sentences]
+Assumes:       [what this takes as given]
+Risk if wrong: [what breaks]
+→ Accept · Modify · Reject · Ask me more
+```
+
+HITL fires at: mode selection · domain/triad confirmation · question set · framework pick · tech stack · team assembly · every OODA pivot · every action after T+0 in War.
+
+### OODA — After Every Round
+```
+[OODA — Round N]
+Observe:  [what surfaced this round]
+Orient:   [what it means for the problem]
+Decide:   [stay course / PROPOSAL to pivot]
+Act:      [next round focus]
 ```
 
 ---
 
-## Setup — 7 Questions
+## Guard Agents
 
-| Question | Notes |
-|---|---|
-| Project name | Letters, numbers, hyphens |
-| Your email | Audit trail |
-| Language(s) | Pick numbers or type freely (`python3.13`) |
-| Cloud | Number or freeform |
-| Database(s) | Multi-select — `1,3` |
-| Shared inbox | Prism7 approval email |
-| Escalation email | P1 incidents |
-| OpenAI API key | Blank = PyPI Safety only (still works) |
+Guard agents run in the background — no manual activation needed.
 
----
-
-## What Gets Created
-
-```
-YourProject/
-├── CLAUDE.md
-├── .claude/
-│   ├── settings.json                      ← Hooks: PreToolUse, PostToolUse, PreCompact
-│   ├── agents/                            ← 5 Core agents
-│   ├── skills/
-│   │   ├── raven-core/                    ← Progressive disclosure (~100 tokens at startup)
-│   │   │   ├── SKILL.md
-│   │   │   └── rules/                    ← Loaded only when triggered
-│   │   │       ├── stack.md
-│   │   │       ├── style.md
-│   │   │       ├── architecture.md
-│   │   │       └── commit.md
-│   │   ├── raven-expert/                   ← L99 deep expertise mode
-│   │   ├── raven-plan/                     ← Architecture-first planning
-│   │   ├── raven-review/                   ← Manifest-aware code review
-│   │   ├── raven-security/                 ← Threat model + CVE analysis
-│   │   ├── raven-refactor/                 ← Style enforcement
-│   │   ├── raven-test/                     ← Test-first discipline
-│   │   ├── raven-document/                 ← Doc enforcement
-│   │   ├── andie/                         ← Multi-modal AI expert (4 modes)
-│   │   └── [23 specialist skills]/        ← aws gcp azure oci kafka postgres odoo salesforce log-management agent-chaining ...
-│   ├── commands/                          ← /raven-scaffold /raven-debug /raven-approve ...
-│   ├── scripts/                           ← cve-check.py secret-scan.py audit-log.py ...
-│   └── mcp/server.py                      ← MCP plugin server (5 tools)
-├── .git/hooks/pre-commit
-└── .raven/
-    ├── manifest.json                      ← Public config (Git tracked)
-    ├── manifest.secrets.json              ← NEVER commit
-    ├── architecture.md                    ← Living diagram template
-    └── ci/                               ← github-actions.yml gitlab-ci.yml on-prem-pipeline.sh
-```
-
----
-
-## Hooks — Always On
-
-Raven registers 4 hooks in `.claude/settings.json` automatically:
-
-| Hook | Fires | Action |
+| Agent | When it fires | What it does |
 |---|---|---|
-| `PreToolUse` | Before any Claude tool | `tool-guard.py` — blocks restricted actions |
-| `PostToolUse` | After every tool | `audit-log.py` — encrypted log to S3/GCS/Azure/OCI (async) |
-| `PreCompact` | Before context compacts | `token-guard.py` — session backup + macOS notification |
-| `Notification` | Claude session events | `token-guard.py` (async) |
+| manifest-checker | Task start | Verify manifest valid |
+| stack-validator | Library detected | Warn / block unapproved stack |
+| style-enforcer | File saved | Advise during task, block at PR |
+| architecture-guard | New significant component | Require architecture note |
+| db-guard | SQL in non-SQL file | Flag and warn |
+| skill-guard | Skill restricted action | Hard block |
+| claude-mem | Session start/end | Load/write `.raven/memory/` |
+| guard-git-watch | Sensitive file read | Hard block + alert |
+| odoo-guard | Odoo .py/.xml | ORM discipline enforcement |
+| salesforce-guard | SF .cls/.trigger/.js | Bulk pattern enforcement |
 
 ---
 
-## Skills — Progressive Disclosure
+## PR Gate Setup
 
-Only metadata loads at startup (~100 tokens per skill). Rules load only when triggered.
+Wire the PR gate in your CI:
 
-```
-Session starts → raven-core SKILL.md scanned (~100 tokens)
-
-Dev adds: import pandas
-      ↓
-Claude loads rules/stack.md
-rules/stack.md reads live manifest: !`cat .raven/manifest.json`
-      ↓
-Checks import → flags if not in approved libraries
-rules/style.md, rules/architecture.md → untouched (zero tokens wasted)
+**GitHub Actions:**
+```yaml
+- name: Raven PR Gate
+  run: python3 .claude/scripts/pr-gate.py
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-**Routing table** (raven-core detects intent and routes):
+**GitLab CI:**
+```yaml
+raven-gate:
+  script:
+    - python3 .claude/scripts/pr-gate.py
+```
 
-| Prompt contains... | Routes to |
-|---|---|
-| `"expert"` / `"deep dive"` / `"L99"` | `raven-expert` |
-| `"security"` / `"CVE"` / `"threat"` | `raven-security` |
-| `"plan"` / `"architecture"` / `"scaffold"` | `raven-plan` + `/raven-scaffold` |
-| `"review"` / `"PR"` | `raven-review` |
-| `"refactor"` / `"clean"` | `raven-refactor` |
-| `"test"` / `"coverage"` | `raven-test` |
-| `"document"` / `"README"` | `raven-document` |
-| `"drama"` / `"debate"` / `"stress-test"` | `andie` Drama Mode |
-| new `import X` in code | CVE check via `cve-check.py` |
-| `"commit"` / `"push"` | Pre-commit gate — all 5 checks fire |
+The gate checks: secrets · CVE · force push · mass deletion · schema drops · port exposure.
+
+---
+
+## CVE Check
+
+Before adding any library:
+```
+Run raven_cve_check on <library-name>
+```
+
+- ✅ Clean → proceed
+- ⚠️ Medium → warn + log + use safer version
+- 🔴 Critical (CVSS >7) → hard block
+- ❓ Unknown → approval flow required
+
+---
+
+## Session Memory
+
+After every session, Andie writes a structured note to `.raven/memory/sessions/YYYY-MM-DD-{topic}.md`:
+
+- Goal, domain, triad, framework used
+- HITL log — every PROPOSAL and your response
+- Decisions table, open questions, carry-forwards
+- Obsidian-compatible frontmatter + DataView
+
+At next session start: prior context surfaced. Open items only, no noise.
+
+---
+
+## Version Management
+
+Raven self-checks at every session:
+
+```bash
+# Manual check
+python3 .claude/scripts/version-check.py
+
+# Manual sync
+/raven-sync
+```
+
+- 0 behind → silent
+- 1–2 behind → banner + on-demand sync offer
+- 3+ behind → auto-sync, banner shown, done
 
 ---
 
 ## Slash Commands
 
-| Command | Use When |
+| Command | What it does |
 |---|---|
-| `/raven-scaffold` | Starting a new feature — forces plan before code |
-| `/raven-debug` | Something not working — full boot diagnostic |
-| `/raven-approve {lib} {version}` | Architect approves a library request |
-| `/raven-incident {p1\|p2\|p3} {description}` | Manual incident creation |
-| `/raven-sync` | Sync requirements.txt → manifest libraries |
-| `/raven-search {query}` | Find a skill for a capability |
-| `/raven-mem` | Save session state before context reset |
+| `/raven-debug` | Full diagnostic — manifest, guards, skills, version |
+| `/raven-review` | Review staged changes before commit |
+| `/raven-approve` | Approve a pending library or action |
+| `/raven-harden` | Review and address open security observations |
+| `/raven-incident` | Switch Andie to War mode — incident triage |
+| `/raven-scaffold` | Scaffold a new project with Raven manifest |
+| `/raven-search` | Search skills for a domain or topic |
+| `/raven-sync` | Sync Raven to latest version |
+| `/raven-init` | Initialize Raven for a new project |
 
 ---
 
-## Pre-commit Hook — 5 Checks
+## MCP Tools
 
-Every `git commit` runs all 5. Any failure = hard block.
-
-| Check | What It Does |
+| Tool | What it does |
 |---|---|
-| 1. Framework detection | Skips if `.raven-framework` present (Raven's own repos) |
-| 2. Manifest valid | JSON valid, all required fields present |
-| 3. Secrets not staged | No API keys, passwords, or tokens in staged files |
-| 4. CVE check | Scans all imports — three-tier approval system |
-| 5. Style check | Line count, print statements, type hints, docstrings |
+| `raven_status` | Show version, manifest, guards |
+| `raven_cve_check` | CVE check a library |
+| `raven_sync_libs` | Sync all project libraries against CVE database |
+| `raven_debug` | Full diagnostic dump |
+| `raven_violation` | Log a manual violation |
 
 ---
 
-## CVE Check — Three Tiers
+## Companion Repos
 
-| Tier | Condition | Action | Friction |
-|---|---|---|---|
-| 1 | Org whitelist (fastapi, httpx, boto3...) | Auto-approve | Zero |
-| 2 | Category whitelist (HTTP clients, test libs) | Auto-approve | Zero |
-| 3 Clean | Unknown, no CVE | Approval flow | Low |
-| 3 Moderate | CVE CVSS 4–7 | Approval flow + warn | Medium |
-| 3 Critical | CVE CVSS >7 | Hard block — no override | Full |
-
-Engines: PyPI Safety DB (fast, always) + gpt-5.5 (deep, requires OpenAI key).
-
----
-
-## MCP Plugin
-
-```bash
-claude mcp add raven -- python3 ~/.raven/mcp/server.py
-```
-
-MCP tools: `raven_status` · `raven_cve_check` · `raven_sync_libs` · `raven_debug` · `raven_violation`
-
----
-
-## Enterprise Deploy (Zero-Click)
-
-IT drops `managed-mcp.json` at the system path — every developer gets Raven auto-loaded:
-
-| Platform | Path |
+| Repo | For |
 |---|---|
-| macOS | `/Library/Application Support/ClaudeCode/managed-mcp.json` |
-| Windows | `C:\ProgramData\ClaudeCode\managed-mcp.json` |
-| Linux | `/etc/claude-code/managed-mcp.json` |
-
-The `managed-mcp.json` in this repo is ready to deploy.
-
----
-
-## Install Guard (architects / DevOps only)
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven-guard/main/install.sh | bash
-cd YourProject && raven-guard-setup
-```
-
-Requires Raven Core installed first.
+| [giggsoinc/raven](https://github.com/giggsoinc/raven) | Claude Code full install + plugin ZIP |
+| [giggsoinc/raven-codex](https://github.com/giggsoinc/raven-codex) | This repo — Codex / Copilot |
+| [giggsoinc/raven-guard](https://github.com/giggsoinc/raven-guard) | Production protection layer |
+| [giggsoinc/andie](https://github.com/giggsoinc/andie) | Andie v5.2 standalone for all platforms |
 
 ---
 
-## Developer Flow
+## License
 
-```
-Write code → agents advise, skills guide (no blocks during coding)
-Add library → Tier 1/2: instant | Tier 3: email Prism7 + auto PR
-git commit → pre-commit fires:
-  ✅ Manifest  ✅ Secrets  ✅ CVE  ✅ Style  ✅ Guard → CLEARED or BLOCKED
-git push → CI/CD thin check → merged
-```
-
----
-
-## CI/CD Setup
-
-Copy from `.raven/ci/`:
-
-| Platform | File | Destination |
-|---|---|---|
-| GitHub | `github-actions.yml` | `.github/workflows/raven.yml` |
-| GitLab | `gitlab-ci.yml` | `.gitlab-ci.yml` |
-| On-prem | `on-prem-pipeline.sh` | Add to Jenkins/Gitea pipeline |
-
----
-
-## Open Claude Code
-
-```bash
-claude .
-```
-
-Then run `/raven-debug` to verify everything loaded:
-
-```
-✅ CLAUDE.md
-✅ manifest.json valid
-✅ 5 agents loaded
-✅ Skills: raven-core + 8 core skills + 23 specialists
-✅ pre-commit hook executable
-✅ Hooks: PreToolUse PostToolUse PreCompact Notification
-✅ CLEARED
-```
-
----
-
-## First Commit
-
-```bash
-git add .raven/manifest.json .raven/.gitignore \
-        .raven/architecture.md CLAUDE.md .claude/
-git commit -m "chore: init raven v2.8 [RAVEN:INIT]"
-git push
-```
-
----
-
-## File Reference
-
-| File | Commit? | Who Edits |
-|---|---|---|
-| `CLAUDE.md` | ✅ | Architects |
-| `.raven/manifest.json` | ✅ | Architects |
-| `.raven/architecture.md` | ✅ | Dev lead |
-| `.raven/manifest.secrets.json` | ❌ Never | Architects only |
-| `.claude/agents/*.md` | ✅ | Architects |
-| `.claude/skills/` | ✅ | Architects |
-| `.claude/commands/` | ✅ | Architects |
-| `.claude/settings.json` | ✅ | Architects |
-| `.git/hooks/pre-commit` | ❌ Local only | raven-setup installs |
-
----
-
-## Troubleshooting
-
-| Problem | Fix |
-|---|---|
-| Agents not loading | Check `.claude/agents/` — valid YAML frontmatter required |
-| raven-core not found | Check `.claude/skills/raven-core/SKILL.md` exists |
-| Manifest not loading | Run `/raven-debug` |
-| Pre-commit not firing | `chmod +x .git/hooks/pre-commit` |
-| CVE check skipped | Add `openai_api_key` to `.raven/manifest.secrets.json` |
-| Hooks not running | Check `.claude/settings.json` has all 4 hooks registered |
-
----
-
-## Works Alongside
-
-```
-Superpowers → dev methodology (TDD, planning, review)
-GSD         → context management (long sessions)
-Raven       → governance + security layer
-
-All three stack. No conflicts.
-```
-
----
-
-## Updating Raven
-
-```bash
-cd ~/.raven && git pull
-```
-
-Re-run `raven-setup` in any project to get new hooks, skills, and scripts.
-
----
-
-## Security Audit — Before Installing Any Public Skill
-
-Skills execute inside your dev environment — they can read files, run bash, make network calls. Treat them like untrusted code.
-
-| Step | Check | Red flag |
-|---|---|---|
-| 1 | Read every line of `SKILL.md` | Instructions to read `.env`, secrets, or SSH keys |
-| 2 | Check `allowed-tools` in frontmatter | `Write`, `Edit`, `Bash` without justification |
-| 3 | Check bundled scripts | Any `curl` or `wget` to unknown URL |
-| 4 | Check for hidden instructions | Whitespace, encoded text, obfuscated content |
-| 5 | Verify source repo | Recent commits? Active maintainer? Known author? |
-| 6 | Add to `manifest.approved_skills` | Never leave skill list open |
-
-Raven protection: `skill-guard` agent monitors and blocks restricted file access. `manifest.approved_skills` is the only whitelist.
-
----
-
-*Raven v2.8 — MIT — [github.com/giggsoinc/raven](https://github.com/giggsoinc/raven)*
+MIT — [Giggso](https://giggso.com)
