@@ -1,6 +1,6 @@
 # Raven — GitHub Copilot Instructions
 
-This project operates under **Raven v2.8** discipline. Follow these rules on every action.
+This project operates under **Raven v3.0** discipline. Follow these rules on every action.
 
 ---
 
@@ -79,7 +79,7 @@ Examples:
 ```
 feat(auth): add JWT refresh token endpoint
 fix(db): resolve connection pool exhaustion
-chore: init raven v2.8 [RAVEN:INIT]
+chore: init raven v3.0 [RAVEN:INIT]
 feat: remove legacy module [GUARD:ALLOW-DELETE]
 ```
 

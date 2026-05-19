@@ -25,7 +25,7 @@ BIN_DIR="$HOME/.local/bin"
 
 echo ""
 echo -e "${W}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
-echo -e "${W}  Raven — Global Install v2.9${N}"
+echo -e "${W}  Raven — Global Install v3.0${N}"
 echo -e "${W}  Guardrails before you ship.${N}"
 echo -e "${W}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
 echo ""

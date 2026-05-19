@@ -28,7 +28,7 @@ $REPO       = "https://github.com/giggsoinc/raven.git"
 
 Write-Host ""
 Write-Bold "================================================"
-Write-Bold "  Raven -- Global Install v2.9 (Windows)"
+Write-Bold "  Raven -- Global Install v3.0 (Windows)"
 Write-Bold "  Guardrails before you ship."
 Write-Bold "================================================"
 Write-Host ""

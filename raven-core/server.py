@@ -114,7 +114,7 @@ def handle(method: str, params: dict) -> dict:
         return {
             "protocolVersion": "2024-11-05",
             "capabilities":    {"tools": {}},
-            "serverInfo":      {"name": "raven", "version": "2.8.0"}
+            "serverInfo":      {"name": "raven", "version": "3.0.0"}
         }
 
     if method == "tools/list":
@@ -157,7 +157,8 @@ def handle(method: str, params: dict) -> dict:
                 icon = "✅" if (cwd/f).exists() else "❌"
                 checks.append(f"{icon} {label}")
             checks.append(f"{'✅' if scripts else '❌'} raven scripts ({scripts or 'not found'})")
-            checks.append(f"{'✅' if (cwd/'CLAUDE.md').exists() else '⚠️ '} CLAUDE.md (Claude Code only)")
+            claude_md_exists = (cwd/'CLAUDE.md').exists()
+            checks.append(f"{'✅' if claude_md_exists else 'ℹ️ '} CLAUDE.md {'(present)' if claude_md_exists else '(not present — optional, Claude Code only)'}")
             return {"content": [{"type":"text","text": "\n".join(checks)}]}
 
         if name == "raven_violation":

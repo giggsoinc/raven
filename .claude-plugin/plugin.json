@@ -1,7 +1,7 @@
 {
   "name": "raven",
   "description": "Raven Discipline Engine — AI-native engineering discipline for Claude Code. Guards, specialists, dynamic skill generation, and session-persistent learning.",
-  "version": "2.9.0",
+  "version": "3.0.0",
   "author": {
     "name": "Giggso / AntiGravity Projects",
     "email": "giggso.ravi@gmail.com",

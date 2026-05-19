@@ -168,13 +168,13 @@ python3 ~/AntiGravity_Projects/raven-core/registry/raven-register.py --list
 
 ```bash
 # 1. Update version
-echo "2.9.0" > ~/AntiGravity_Projects/raven-core/VERSION
+echo "3.0.0" > ~/AntiGravity_Projects/raven-core/VERSION
 
 # 2. Bundle engine scripts to platform repos
 bash ~/AntiGravity_Projects/raven-core/bundle.sh
 
 # 3. Commit raven-core + RAVEN monorepo
-git -C ~/AntiGravity_Projects/raven-core add -A && git -C ~/AntiGravity_Projects/raven-core commit -m "release: v2.9.0"
+git -C ~/AntiGravity_Projects/raven-core add -A && git -C ~/AntiGravity_Projects/raven-core commit -m "release: v3.0.0"
 git -C ~/AntiGravity_Projects/raven-core push
 
 # 4. Sync all registered projects
