@@ -87,6 +87,26 @@ Wait for result:
 - 🔴 Critical CVE (CVSS >7) → hard block, do not install
 - ❓ Unknown library → approval flow, do not install until approved
 
+### CVE Scan Tiers — Which One Is Running?
+
+Raven announces the scan tier before every check. Watch for this line:
+```
+Scan tier: GPT deep scan + PyPI          ← full scan, key available
+Scan tier: PyPI basic scan only (GPT disabled — OPENAI_API_KEY not in shell env)  ← degraded
+```
+
+**If you see "PyPI basic scan only":**
+- Raven correctly refused to read `.env` (security rule — never read credential files)
+- The OpenAI key must be exported into the shell environment, not stored in `.env`
+- Fix: add this to `~/.zshrc` or `~/.bashrc`:
+  ```bash
+  export OPENAI_API_KEY=sk-...
+  ```
+  Then: `source ~/.zshrc` (or restart terminal)
+- Raven will then use GPT deep scan automatically — no other config needed
+
+**Raven will NEVER read `.env`, SSH keys, or credential files for the API key.** This is correct behavior, not a bug. The key must live in the shell environment.
+
 ---
 
 ## Secret Detection
