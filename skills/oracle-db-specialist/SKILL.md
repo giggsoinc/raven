@@ -1,78 +1,46 @@
 ---
-name: db
-description: Oracle Database guidance for SQL, PL/SQL, SQLcl, ORDS, administration, app development, performance, security, migrations, and agent-safe database workflows. Use when the user asks to write, edit, rewrite, review, format, debug, tune, or explain SQL; create or refactor PL/SQL; use SQLcl, Liquibase, ORDS, JDBC, node-oracledb, Python, Java, .NET, or database frameworks; troubleshoot queries, sessions, locks, waits, indexes, optimizer plans, AWR, ASH, migrations, schemas, users, roles, privileges, backup, recovery, Data Guard, RAC, multitenant, containers, monitoring, auditing, encryption, VPD, or safe agent database operations.
+name: oracle-db-specialist
+description: Oracle Database guidance for SQL, PL/SQL, SQLcl, ORDS, administration, performance, security, migrations, and agent-safe database workflows. Trigger on: SQL, PL/SQL, SQLcl, ORDS, JDBC, node-oracledb, AWR, ASH, explain plan, Data Guard, RAC, Multitenant, Exadata, schema migrations, VPD, auditing, encryption, vector search, SELECT AI.
 ---
 
-# Oracle Database Skills
+# Oracle Database Specialist
 
-This domain contains Oracle Database skills for administration, SQL and PL/SQL development, performance tuning, security, ORDS, SQLcl, migrations, frameworks, OCR container guidance, and agent-safe database workflows.
+## Fetch Protocol
 
-## How to Use This Domain
-
-1. Start with the routing table below.
-2. Read only the specific file or category you need.
-
-## Directory Structure
-
-```text
-db/
-├── admin/
-├── agent/
-├── appdev/
-├── architecture/
-├── containers/
-├── design/
-├── devops/
-├── features/
-├── frameworks/
-├── migrations/
-├── monitoring/
-├── ords/
-├── performance/
-├── plsql/
-├── security/
-├── sql-dev/
-└── sqlcl/
-```
+All reference guides live at `https://raw.githubusercontent.com/giggsoinc/skills/main/db/`.
+Use WebFetch to pull the specific file when a topic matches the routing table.
+On network failure: answer from built-in Oracle DB knowledge and note the limitation.
 
 ## Category Routing
 
-| Topic | Directory |
+| Topic | Fetch URL |
 |-------|-----------|
-| Backup, recovery, RMAN, Data Guard, redo/undo logs, users | `db/admin/` |
-| Safe DML, destructive operation guards, idempotency, schema discovery, ORA- error handling | `db/agent/` |
-| JDBC, pooling, JSON, XML, spatial, Oracle Text, transactions, MLE, language drivers | `db/appdev/` |
-| RAC, Multitenant, Exadata, In-Memory, OCI database services, Data Guard architecture | `db/architecture/` |
-| OCR database-category container images and pull guidance | `db/containers/` |
-| ERD, data modeling, partitioning, tablespaces | `db/design/` |
-| Schema migrations, online operations, edition-based redefinition, testing, version control | `db/devops/` |
-| AQ, DBMS_SCHEDULER, materialized views, DBLinks, APEX, vector search, SELECT AI | `db/features/` |
-| SQLAlchemy, Django, Pandas, Spring JPA, MyBatis, TypeORM, Sequelize, Dapper, GORM | `db/frameworks/` |
-| Migrations from PostgreSQL, MySQL, SQL Server, MongoDB, Snowflake, and more | `db/migrations/` |
-| Alert log, ADR, health monitor, space management, top SQL | `db/monitoring/` |
-| ORDS architecture, installation, REST design, authentication, monitoring | `db/ords/` |
-| AWR, ASH, explain plan, indexes, optimizer stats, wait events, memory | `db/performance/` |
-| Package design, error handling, performance, collections, cursors, debugging | `db/plsql/` |
-| Privileges, VPD, masking, auditing, encryption, network security | `db/security/` |
-| SQL tuning, SQL patterns, dynamic SQL, injection avoidance | `db/sql-dev/` |
-| SQLcl basics, scripting, Liquibase, formatting, DDL generation, data loading, MCP server, scheduler daemon, AWR, background jobs | `db/sqlcl/` |
+| Backup, recovery, RMAN, Data Guard, redo/undo logs, users | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/admin/README.md` |
+| Safe DML, destructive guards, idempotency, schema discovery, ORA- errors | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/agent/README.md` |
+| JDBC, pooling, JSON, XML, spatial, Oracle Text, MLE, language drivers | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/appdev/README.md` |
+| RAC, Multitenant, Exadata, In-Memory, OCI DB services, Data Guard architecture | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/architecture/README.md` |
+| OCR database container images and pull guidance | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/containers/container-selection-matrix.md` |
+| ERD, data modeling, partitioning, tablespaces | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/design/README.md` |
+| Schema migrations, online ops, edition-based redefinition, version control | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/devops/schema-migrations.md` |
+| AQ, DBMS_SCHEDULER, materialized views, DBLinks, vector search, SELECT AI | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/features/README.md` |
+| SQLAlchemy, Django, Pandas, Spring JPA, MyBatis, TypeORM, Sequelize, GORM | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/frameworks/README.md` |
+| Migrations from PostgreSQL, MySQL, SQL Server, MongoDB, Snowflake | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/migrations/migration-assessment.md` |
+| Alert log, ADR, health monitor, space management, top SQL | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/monitoring/README.md` |
+| ORDS architecture, installation, REST design, auth, monitoring | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/ords/README.md` |
+| AWR, ASH, explain plan, indexes, optimizer stats, wait events, memory | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/performance/explain-plan.md` |
+| Package design, error handling, collections, cursors, debugging | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/plsql/plsql-package-design.md` |
+| Privileges, VPD, masking, auditing, encryption, network security | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/security/README.md` |
+| SQL tuning, patterns, dynamic SQL, injection avoidance | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/sql-dev/README.md` |
+| SQLcl scripting, Liquibase, DDL gen, MCP server, AWR, background jobs | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/sqlcl/sqlcl-mcp-server.md` |
 
-## Key Starting Points
+## Common Flows
 
-- `db/sqlcl/sqlcl-mcp-server.md`
-- `db/migrations/migration-assessment.md`
-- `db/performance/explain-plan.md`
-- `db/plsql/plsql-package-design.md`
-- `db/devops/schema-migrations.md`
-- `db/agent/schema-discovery.md`
-- `db/containers/container-selection-matrix.md`
+| Task | Fetch sequence |
+|------|----------------|
+| Diagnose slow query | `performance/explain-plan.md` → `performance/wait-events.md` → `performance/optimizer-stats.md` |
+| Plan a migration | `migrations/migration-assessment.md` → source-specific `migrations/migrate-*.md` |
+| Build RAG on Oracle | `features/ai-profiles.md` → `features/vector-search.md` → `features/dbms-vector.md` |
+| Agent-safe schema change | `agent/schema-discovery.md` → `agent/destructive-op-guards.md` → `devops/schema-migrations.md` |
+| Set up SQLcl MCP | `sqlcl/sqlcl-basics.md` → `security/privilege-management.md` → `sqlcl/sqlcl-mcp-server.md` |
 
-## Common Multi-Step Flows
-
-| Task | Recommended Sequence |
-|------|----------------------|
-| Diagnose a slow query | `explain-plan` → `wait-events` → `optimizer-stats` → `awr-reports` |
-| Plan a migration | `migration-assessment` → `oracle-migration-tools` → source-specific `migrate-*.md` → `migration-cutover-strategy` |
-| Build RAG on Oracle Database | `ai-profiles` → `vector-search` → `dbms-vector` |
-| Perform agent-safe schema change | `schema-discovery` → `destructive-op-guards` → `idempotency-patterns` → `schema-migrations` |
-| Set up AI-driven database access via MCP | `sqlcl-basics` (save connections) → `security/privilege-management` (least-privilege user) → `sqlcl-mcp-server` (configure + start) |
+Full source: https://github.com/giggsoinc/skills/tree/main/db
