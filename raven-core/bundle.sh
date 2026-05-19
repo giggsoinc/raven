@@ -19,6 +19,7 @@ ENGINE_SCRIPTS=("cve-check.py" "secret-scan.py" "audit-log.py" "emit-violation.p
 MCP_SCRIPT="server.py"
 ANDIE_SRC="${HOME}/.claude/skills/andie/SKILL.md"
 TOOLS_SRC="${HOME}/.claude/skills/tools-landscape"
+ORACLE_SKILLS_REPO="https://github.com/giggsoinc/skills"  # source of oracle-* skills
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -160,6 +161,55 @@ if [[ "$DRY_RUN" == "false" ]]; then
 fi
 echo "  ✅ agents/   ($(ls "$RAVEN_DIR/agents/" 2>/dev/null | wc -l | tr -d ' ') files)"
 echo "  ✅ commands → skills/ ($(ls "$RAVEN_DIR/commands/" 2>/dev/null | wc -l | tr -d ' ') migrated)"
+
+# ── Oracle skills sync (giggsoinc/skills → skills/oracle-*-specialist) ───────
+echo "▶ Oracle skills sync (giggsoinc/skills)"
+ORACLE_SKILL_MAP=(
+  "apex:oracle-apex-specialist"
+  "db:oracle-db-specialist"
+  "graal:oracle-graal-specialist"
+  "fusion:oracle-fusion-specialist"
+  "oci:oracle-oci-specialist"
+  "apex/apexlang:oracle-apexlang-specialist"
+)
+ORACLE_TMP="$(mktemp -d)"
+if command -v gh &>/dev/null && gh auth status &>/dev/null 2>&1; then
+  gh repo clone giggsoinc/skills "$ORACLE_TMP/skills" -- --depth=1 -q 2>/dev/null && ORACLE_CLONED=true || ORACLE_CLONED=false
+else
+  ORACLE_CLONED=false
+fi
+
+if [[ "$ORACLE_CLONED" == "true" ]]; then
+  for entry in "${ORACLE_SKILL_MAP[@]}"; do
+    src_path="${entry%%:*}"
+    skill_name="${entry##*:}"
+    SRC="$ORACLE_TMP/skills/$src_path"
+    if [[ -d "$SRC" ]]; then
+      if [[ "$DRY_RUN" == "false" ]]; then
+        mkdir -p "$RAVEN_DIR/skills/$skill_name"
+        mkdir -p "$RAVEN_DIR/plugin/skills/$skill_name"
+        # Copy all .md files, preserving subdirectory structure
+        find "$SRC" -name "*.md" | while read f; do
+          rel="${f#$SRC/}"
+          dest_dir="$RAVEN_DIR/skills/$skill_name/$(dirname "$rel")"
+          mkdir -p "$dest_dir"
+          cp "$f" "$dest_dir/"
+          dest_dir2="$RAVEN_DIR/plugin/skills/$skill_name/$(dirname "$rel")"
+          mkdir -p "$dest_dir2"
+          cp "$f" "$dest_dir2/"
+        done
+      fi
+      count=$(find "$RAVEN_DIR/skills/$skill_name" -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+      echo "  ✅ $skill_name ($count .md files)"
+    else
+      echo "  ⚠️  $src_path not found in giggsoinc/skills — skipping"
+    fi
+  done
+else
+  echo "  ⚠️  giggsoinc/skills clone failed — Oracle skills not synced (run manually)"
+  echo "     Manual sync: cd /tmp && gh repo clone giggsoinc/skills && bash raven-core/bundle.sh"
+fi
+rm -rf "$ORACLE_TMP"
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
