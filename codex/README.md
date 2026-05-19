@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>AI-native engineering discipline for OpenAI Codex · GitHub Copilot · Claude Code</strong><br/>
-  49 domain skills · 10 always-on guard agents · CVE scanning · secret detection · audit logs<br/>
+  55 domain skills · 10 always-on guard agents · CVE scanning · secret detection · audit logs<br/>
   Andie v5.2 — specialist triads · HITL gates · continuous OODA · domain-adaptive questions
 </p>
 
@@ -75,7 +75,7 @@ Schema drop detected       → hard block + escalate
 Port 0.0.0.0 opened        → hard block + escalate
 ```
 
-### 📦 49 Domain Skills
+### 📦 55 Domain Skills
 
 Skills load at session start and activate when your work matches their domain.
 
@@ -94,6 +94,8 @@ Skills load at session start and activate when your work matches their domain.
 **AI & ML:** `aiml` · `dynamic` (on-demand expert for any unknown domain)
 
 **Enterprise:** `odoo` · `salesforce`
+
+**Oracle:** `oracle-db` · `oracle-apex` · `oracle-apexlang` · `oracle-graal` · `oracle-fusion` · `oracle-oci` — thin dynamic-fetch routers; content pulled from [giggsoinc/skills](https://github.com/giggsoinc/skills) at runtime
 
 **Tooling:** `security` · `log-management` · `agent-chaining` · `tools-landscape` · `task-observer`
 
@@ -129,6 +131,11 @@ For every domain, Andie loads three specialists — Functional + Technical + Dat
 | Domain | 🏢 Functional | ⚙️ Technical | 📊 Data |
 |---|---|---|---|
 | Oracle ERP Fusion | Functional Consultant (O2C/P2P/R2R) | Fusion Dev (FBDI, BIP, REST, OIC) | Data Specialist (OTBI, FRS, ADW) |
+| Oracle DB | DBA / Schema Architect | PL/SQL Developer | Performance & Analytics Engineer |
+| Oracle APEX | App Architect | APEX Developer (pages, plug-ins, REST) | Data Modeler |
+| Oracle APEXLang | Language Strategist | APEXLang Engineer | Data Flow Specialist |
+| Oracle GraalVM | Polyglot Architect | GraalVM Engineer (native-image, Truffle) | Performance Analyst |
+| Oracle OCI | Cloud Architect | OCI Engineer (compute, networking, storage) | Data & AI Services Specialist |
 | Salesforce | Domain Expert / BA | Dev (LWC, APEX, Flow) | Agentforce + Data Cloud Architect |
 | AWS GenAI / ML | Use Case Strategist | GenAI Engineer (Bedrock, SageMaker) | Data Engineer (Glue, Athena) |
 | Agentic AI / GraphRAG | AI Product Strategist | AI Engineer (LangGraph, A2A, MoE) | AI Data Engineer (vector, graph) |
