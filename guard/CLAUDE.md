@@ -1,6 +1,6 @@
 # CLAUDE.md — Raven Guard
 
-This project operates under **Raven Guard v2.8** protection.
+This project operates under **Raven Guard v3.0** protection.
 Read this before any action.
 
 ---
@@ -61,4 +61,4 @@ SLA breach → next level up
 
 ---
 
-*Raven Guard v2.8 — github.com/giggsoinc/raven-guard*
+*Raven Guard v3.0 — github.com/giggsoinc/raven-guard*

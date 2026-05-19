@@ -15,7 +15,7 @@ function Write-Err    { param($msg) Write-Host "  X $msg" -ForegroundColor Red }
 
 Write-Host ""
 Write-Bold "================================================"
-Write-Bold "  Raven -- Setup v2.9 (Windows)"
+Write-Bold "  Raven -- Setup v3.0 (Windows)"
 Write-Bold "================================================"
 Write-Host ""
 
@@ -352,7 +352,7 @@ manifest = {
     'cloud':     jl(os.environ['CLOUD_VAL']),
     'libraries': []
   },
-  'standards':     'raven-v2.9',
+  'standards':     'raven-v3.0',
   'approval_mode': 'auto' if mode == 'solo' else 'first_responder',
   'guard': {
     'enabled':  True,
@@ -450,7 +450,7 @@ Write-Host "    2. Place it at: $ravenDir\manifest.secrets.json"
 Write-Host "    3. Open Claude Code: claude $PROJECT_DIR"
 Write-Host "    4. Commit:"
 Write-Host "         git add .raven/manifest.json .raven/.gitignore CLAUDE.md"
-Write-Host "         git commit -m `"chore: init raven v2.9 [RAVEN:INIT]`""
+Write-Host "         git commit -m `"chore: init raven v3.0 [RAVEN:INIT]`""
 Write-Host ""
 Write-Warn "NEVER commit manifest.secrets.json"
 Write-Host ""

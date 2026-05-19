@@ -79,7 +79,7 @@ raven-setup
 ```json
 {
   "org": "YourOrg",
-  "standards": "raven-v2.8",
+  "standards": "raven-v3.0",
   "audit": {
     "provider":   "aws",
     "s3_bucket":  "your-org-audit-bucket",

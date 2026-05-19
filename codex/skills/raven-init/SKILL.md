@@ -255,4 +255,4 @@ This means every project initialization is fully auditable in Git.
 
 ---
 
-*Raven v2.8 — github.com/giggsoinc/raven*
+*Raven v3.0 — github.com/giggsoinc/raven*

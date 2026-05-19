@@ -101,7 +101,7 @@ Projects with no remote → committed locally, no push.
 
 ```bash
 # 1. Bump version
-echo "2.9.0" > ~/AntiGravity_Projects/raven-core/VERSION
+echo "3.0.0" > ~/AntiGravity_Projects/raven-core/VERSION
 
 # 2. Bundle to platform repos
 bash ~/AntiGravity_Projects/raven-core/bundle.sh
