@@ -2,7 +2,7 @@
   <img src="./assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
 </p>
 
-# How to Use Raven — v2.9
+# How to Use Raven — v3.0
 
 > Claude Code · GitHub Copilot · OpenAI Codex · MIT License · [Giggso](https://giggso.com)
 
@@ -316,7 +316,7 @@ claude .           # Raven greets them immediately
 {
   "_layer": "org",
   "_locked": ["standards", "approval_mode", "guard.enabled", "tokens.control"],
-  "standards": "raven-v2.9",
+  "standards": "raven-v3.0",
   "approval_mode": "majority_vote",
   "guard": { "enabled": true },
   "tokens": { "control": "per_developer" }
@@ -642,4 +642,4 @@ YourProject/
 
 ---
 
-*Raven v2.9 — MIT — [github.com/giggsoinc/raven](https://github.com/giggsoinc/raven)*
+*Raven v3.0 — MIT — [github.com/giggsoinc/raven](https://github.com/giggsoinc/raven)*

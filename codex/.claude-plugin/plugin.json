@@ -1,7 +1,7 @@
 {
   "name": "raven-codex",
   "description": "Raven Discipline Engine for OpenAI Codex. Guards, specialists, dynamic skill generation, and session-persistent learning.",
-  "version": "2.9.1",
+  "version": "3.0.0",
   "author": {
     "name": "Giggso / AntiGravity Projects",
     "email": "giggso.ravi@gmail.com",

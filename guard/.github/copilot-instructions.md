@@ -1,6 +1,6 @@
 # Raven Guard — GitHub Copilot Instructions
 
-This project operates under **Raven Guard v2.8** production protection. Follow these rules without exception.
+This project operates under **Raven Guard v3.0** production protection. Follow these rules without exception.
 
 ---
 

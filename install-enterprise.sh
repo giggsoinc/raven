@@ -40,7 +40,7 @@ fi
 
 echo ""
 echo -e "${W}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
-echo -e "${W}  Raven — Enterprise Install v2.9${N}"
+echo -e "${W}  Raven — Enterprise Install v3.0${N}"
 echo -e "${W}  IT / Admin deployment${N}"
 echo -e "${W}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
 echo ""
@@ -187,7 +187,7 @@ org_manifest = {
   ],
   "project":       org_name,
   "version":       "1.0",
-  "standards":     "raven-v2.9",
+  "standards":     "raven-v3.0",
   "approval_mode": approval_mode,
   "guard": {
     "enabled": True,

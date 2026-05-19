@@ -71,7 +71,7 @@ $REPO          = "https://github.com/giggsoinc/raven.git"
 # ─── BANNER ──────────────────────────────────────────────────────────────────
 Write-Host ""
 Write-Bold "================================================"
-Write-Bold "  Raven -- Enterprise Install v2.9 (Windows)"
+Write-Bold "  Raven -- Enterprise Install v3.0 (Windows)"
 Write-Bold "  IT / Admin deployment"
 Write-Bold "================================================"
 Write-Host ""
@@ -277,7 +277,7 @@ org_manifest = {
   ],
   'project':       org_name,
   'version':       '1.0',
-  'standards':     'raven-v2.9',
+  'standards':     'raven-v3.0',
   'approval_mode': approval_mode,
   'guard': {
     'enabled': True,
