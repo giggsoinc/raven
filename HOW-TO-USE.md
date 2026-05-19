@@ -92,7 +92,7 @@ curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | b
 
 **What this does:**
 - Downloads Raven to `~/.raven/`
-- Copies all 35 skills + 10 agents into `~/.claude/` — available in every Claude Code session from now on
+- Copies all 41 skills + 10 agents into `~/.claude/` — available in every Claude Code session from now on
 - Registers the MCP server globally
 - Makes `raven-setup` available as a command anywhere
 
@@ -179,7 +179,7 @@ iwr https://raw.githubusercontent.com/giggsoinc/raven/main/install.ps1 | iex
 
 **What this does:**
 - Downloads Raven to `$env:USERPROFILE\.raven\`
-- Copies all 35 skills + 10 agents into `$env:USERPROFILE\.claude\`
+- Copies all 41 skills + 10 agents into `$env:USERPROFILE\.claude\`
 - Registers the MCP server globally
 - Makes `raven-setup.ps1` available
 
@@ -229,7 +229,7 @@ powershell -ExecutionPolicy Bypass -File $env:USERPROFILE\.raven\install.ps1
 | `managed-mcp.json` | `/Library/Application Support/ClaudeCode/` (mac) or `/etc/claude-code/` (linux) | Every Claude Code session auto-loads Raven MCP tools |
 | `managed-settings.json` | Same managed path | Hooks and permission policy enforced for all users |
 | `manifest.org.json` | `/usr/local/raven/` | Org-level locked rules — devs cannot override |
-| All 35 skills + 10 agents | Each user's `~/.claude/` | Provisioned immediately |
+| All 41 skills + 10 agents | Each user's `~/.claude/` | Provisioned immediately |
 | `raven-setup` command | `/usr/local/bin/` | Available system-wide |
 
 ---
@@ -370,7 +370,7 @@ sudo bash /usr/local/raven/install.sh
 | `managed-mcp.json` | `C:\ProgramData\ClaudeCode\` | Raven MCP auto-loads for every Claude Code session |
 | `managed-settings.json` | `C:\ProgramData\ClaudeCode\` | Hooks + permission policy enforced for all users |
 | `manifest.org.json` | `C:\Program Files\Raven\` | Org-level locked rules — devs cannot override |
-| All 35 skills + 10 agents | Each user's `%USERPROFILE%\.claude\` | Provisioned immediately |
+| All 41 skills + 10 agents | Each user's `%USERPROFILE%\.claude\` | Provisioned immediately |
 | `raven-setup.ps1` | System PATH | Available in any terminal |
 
 ---
@@ -479,7 +479,7 @@ The machine already has Raven installed system-wide. Just provision the new user
 powershell -ExecutionPolicy Bypass -File "C:\Program Files\Raven\install.ps1"
 ```
 
-This wires `%USERPROFILE%\.claude\` with all 35 skills, 10 agents, and the global CLAUDE.md for the new user. They're ready to open Claude Code immediately.
+This wires `%USERPROFILE%\.claude\` with all 41 skills, 10 agents, and the global CLAUDE.md for the new user. They're ready to open Claude Code immediately.
 
 ---
 
@@ -494,13 +494,13 @@ This wires `%USERPROFILE%\.claude\` with all 35 skills, 10 agents, and the globa
 
 1. Go to [giggsoinc/raven-codex](https://github.com/giggsoinc/raven-codex)
 2. Install the plugin in your Codex or Copilot interface
-3. That's it — all 49 skills load automatically
+3. That's it — all 55 skills load automatically
 
 ### What's different from Claude Code
 
 | Feature | Claude Code | Codex / Copilot |
 |---|---|---|
-| All 35 skills | ✅ | ✅ (49 in plugin) |
+| All 41 skills | ✅ | ✅ (55 in plugin) |
 | Andie orchestration | ✅ | ✅ — mandatory first step |
 | Pre-commit hook | ✅ | ❌ — no hook system |
 | Secret detection at save | ✅ | Conversational only |
@@ -538,7 +538,7 @@ When you open Claude Code in a project for the first time after installing:
   Raven ✅  |  MyProject  |  infra
 ─────────────────────────────────────────────────
   I'm Andie — your AI discipline layer.
-  Guards active. 35 skills loaded.
+  Guards active. 41 skills loaded.
 
   What are you working on today?
 
@@ -580,6 +580,7 @@ Raven asks the **minimum questions needed** based on what it detected in your di
 | `data` | sql / python / yaml | Yes | Cloud |
 | `salesforce` | Auto-set (apex + xml) | Skipped | Cloud |
 | `odoo` | Auto-set (python + xml) | Yes | Cloud |
+| `oracle` | Auto-set per skill (sql / apex / java) | Yes | Cloud (OCI) |
 | `docs` | Auto-set (markdown) | Skipped | Skipped |
 | `review` | Skipped entirely | Skipped | Skipped |
 | `mixed` | Full list | Yes | Cloud |
@@ -602,7 +603,7 @@ YourProject/
 ├── .claude/
 │   ├── settings.json                  ← Hooks: PreToolUse, PostEdit, PreCommit
 │   ├── agents/                        ← 10 guard agents
-│   ├── skills/                        ← 35 skills
+│   ├── skills/                        ← 41 skills
 │   ├── commands/                      ← Slash commands
 │   └── scripts/                       ← cve-check.py secret-scan.py audit-log.py
 └── .git/hooks/pre-commit              ← 5-check gate before every commit
