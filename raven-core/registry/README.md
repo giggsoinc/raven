@@ -138,7 +138,7 @@ After all projects are updated:
 ```bash
 # 1. Install Raven in the project
 cd ~/AntiGravity_Projects/new-project
-bash ~/AntiGravity_Projects/SHAY-ROLLS/CLAUDE/RAVEN/raven-setup.sh
+bash ~/path/to/raven/raven-setup.sh
 
 # 2. Register it (raven-setup.sh does this automatically if wired up)
 python3 ~/AntiGravity_Projects/raven-core/registry/raven-register.py

@@ -106,7 +106,7 @@ echo "3.0.0" > ~/AntiGravity_Projects/raven-core/VERSION
 # 2. Bundle to platform repos
 bash ~/AntiGravity_Projects/raven-core/bundle.sh
 
-# 3. Commit and push raven-core + SHAY-ROLLS
+# 3. Commit and push raven-core
 # (then run:)
 /raven-registry-sync --all
 ```

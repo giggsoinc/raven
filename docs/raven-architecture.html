@@ -247,12 +247,12 @@ flowchart TB
         <li>git commit</li>
         <li class="warn">pre-commit hook runs CVE + security checks</li>
         <li class="warn">post-commit hook fires bundle.sh</li>
-        <li class="done">Scripts copied to SHAY-ROLLS</li>
+        <li class="done">Scripts copied to RAVEN</li>
         <li class="done">Scripts copied to raven-action</li>
         <li class="done">Andie skill synced</li>
         <li class="done">tools-landscape synced</li>
         <li class="done">Version stamp written everywhere</li>
-        <li>You push raven-core + SHAY-ROLLS</li>
+        <li>You push raven-core + RAVEN</li>
       </ul>
     </div>
 
@@ -305,7 +305,7 @@ sequenceDiagram
     participant PRE as 🔒 pre-commit hook
     participant POST as ⚡ post-commit hook
     participant BND as 🔧 bundle.sh
-    participant SR  as 🦅 SHAY-ROLLS/RAVEN
+    participant SR  as 🦅 RAVEN
     participant RA  as ⚡ raven-action
 
     Dev->>RC: git commit
@@ -321,7 +321,7 @@ sequenceDiagram
     BND->>RA: write .raven/raven_version
     BND-->>Dev: ✅ Done — commit each platform repo
     Dev->>RC: git push raven-core
-    Dev->>SR: git push SHAY-ROLLS
+    Dev->>SR: git push RAVEN
     Dev->>RA: git push raven-action
     </div>
   </div>

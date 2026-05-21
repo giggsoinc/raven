@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # =============================================================================
-# Shay-Rolls — Pre-commit Hook v2.0
+# Raven — Pre-commit Hook v3.0
 # Three-tier library approval + CVE check (PyPI Safety + GPT-5.4-Cyber)
 # =============================================================================
 
-export SHAY_ROLLS_COMMIT=1
+export RAVEN_COMMIT=1
 
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
@@ -18,19 +18,19 @@ NC='\033[0m'
 VIOLATIONS=0
 WARNINGS=0
 PROJECT_ROOT=$(git rev-parse --show-toplevel)
-MANIFEST="$PROJECT_ROOT/.shay-rolls/manifest.json"
+MANIFEST="$PROJECT_ROOT/.raven/manifest.json"
 SCRIPT_DIR="$PROJECT_ROOT/.claude/scripts"
 
 echo ""
 echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BOLD}  Shay-Rolls Pre-commit v2.1${NC}"
+echo -e "${BOLD}  Raven Pre-commit v3.0${NC}"
 echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
 # =============================================================================
-# FRAMEWORK REPO DETECTION — skip all checks if this is a Shay-Rolls framework repo
+# FRAMEWORK REPO DETECTION — skip all checks if this is a Raven framework repo
 # =============================================================================
-if [ -f ".raven-framework" ] || [ -f ".shay-rolls-framework" ]; then
+if [ -f ".raven-framework" ]; then
     echo -e "${GREEN}✅ Framework repo detected — skipping manifest check${NC}"
     exit 0
 fi
@@ -42,7 +42,7 @@ fi
 echo -e "${BLUE}[0/5] Publisher check...${NC}"
 
 FRAMEWORK_BLOCKED=0
-for DIR in shay-rolls-claude shay-rolls-claude-guard .shay-rolls-claude .shay-rolls-claude-guard; do
+for DIR in raven raven-guard .raven-framework .raven-guard; do
     # Check if staged
     if git diff --cached --name-only | grep -q "^$DIR/"; then
         echo ""
@@ -50,10 +50,10 @@ for DIR in shay-rolls-claude shay-rolls-claude-guard .shay-rolls-claude .shay-ro
         echo -e "${RED}║  PUBLISHER PROHIBITION — COMMIT BLOCKED                      ║${NC}"
         echo -e "${RED}╠══════════════════════════════════════════════════════════════╣${NC}"
         echo -e "${RED}║                                                               ║${NC}"
-        echo -e "${RED}║  The Shay-Rolls framework directory has been detected in      ║${NC}"
+        echo -e "${RED}║  The Raven framework directory has been detected in           ║${NC}"
         echo -e "${RED}║  your staged files:  $DIR/$(printf '%*s' $((33-${#DIR})) '')║${NC}"
         echo -e "${RED}║                                                               ║${NC}"
-        echo -e "${RED}║  The publisher (Giggso) prohibits committing the Shay-Rolls  ║${NC}"
+        echo -e "${RED}║  The publisher (Giggso) prohibits committing the Raven        ║${NC}"
         echo -e "${RED}║  framework into project repositories. It must live outside   ║${NC}"
         echo -e "${RED}║  your project and never be tracked by your project's git.    ║${NC}"
         echo -e "${RED}║                                                               ║${NC}"
@@ -61,7 +61,7 @@ for DIR in shay-rolls-claude shay-rolls-claude-guard .shay-rolls-claude .shay-ro
         echo -e "${RED}║  git rm -r --cached $DIR/$(printf '%*s' $((38-${#DIR})) '')║${NC}"
         echo -e "${RED}║  echo \"$DIR/\" >> .gitignore$(printf '%*s' $((36-${#DIR})) '')║${NC}"
         echo -e "${RED}║                                                               ║${NC}"
-        echo -e "${RED}║  github.com/giggso/shay-rolls-claude                         ║${NC}"
+        echo -e "${RED}║  github.com/giggsoinc/raven                                  ║${NC}"
         echo -e "${RED}╚══════════════════════════════════════════════════════════════╝${NC}"
         echo ""
         FRAMEWORK_BLOCKED=1
@@ -105,7 +105,7 @@ STAGED_ALL=$(git diff --cached --name-only --diff-filter=ACM)
 
 if echo "$STAGED_ALL" | grep -q "manifest.secrets.json"; then
     echo -e "  ${RED}❌ HARD BLOCK: manifest.secrets.json staged.${NC}"
-    echo -e "     Run: git reset HEAD .shay-rolls/manifest.secrets.json"
+    echo -e "     Run: git reset HEAD .raven/manifest.secrets.json"
     ((VIOLATIONS++))
 fi
 

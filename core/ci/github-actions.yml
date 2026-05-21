@@ -1,7 +1,7 @@
-# Shay-Rolls — GitHub Actions
+# Raven — GitHub Actions
 # Server-side enforcement for GitHub-hosted repos
 # This fires on every push/PR — cannot be bypassed with --no-verify
-name: Shay-Rolls
+name: Raven
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
     branches: ["**"]
 
 jobs:
-  shay-rolls:
+  raven:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,14 +23,14 @@ jobs:
 
       - name: Manifest exists + valid JSON
         run: |
-          test -f .shay-rolls/manifest.json || \
+          test -f .raven/manifest.json || \
             (echo "❌ manifest.json missing" && exit 1)
-          python3 -c "import json; json.load(open('.shay-rolls/manifest.json'))" || \
+          python3 -c "import json; json.load(open('.raven/manifest.json'))" || \
             (echo "❌ manifest.json invalid JSON" && exit 1)
 
       - name: Secrets file not committed
         run: |
-          test ! -f .shay-rolls/manifest.secrets.json || \
+          test ! -f .raven/manifest.secrets.json || \
             (echo "❌ manifest.secrets.json committed — remove immediately" && exit 1)
 
       - name: Secret pattern scan
