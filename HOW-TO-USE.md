@@ -487,7 +487,7 @@ This wires `%USERPROFILE%\.claude\` with all 41 skills, 10 agents, and the globa
 
 ## Hook Architecture — What Fires Automatically
 
-Raven wires 8 hooks into Claude Code's lifecycle via `.claude/settings.json`. These fire without any user action.
+Raven wires 9 hooks into Claude Code's lifecycle via `.claude/settings.json`. These fire without any user action.
 
 | Event | Hook | Blocks? | What it does |
 |---|---|---|---|
@@ -499,9 +499,10 @@ Raven wires 8 hooks into Claude Code's lifecycle via `.claude/settings.json`. Th
 | `PostToolUse` any | `audit-log.py` | No (async) | Encrypted audit entry for every tool use |
 | `PreCompact` | `token-guard.py` | No | Token budget warnings at 25/50/75/90% |
 | `Stop` | `session-gate.py` | No (async) | Git status + open observations summary at session end |
+| `Stop` | `obsidian-log.py` | No (async) | Three-layer session log → Obsidian vault (AI summary + files touched + git state) |
 
 **INTEGRITY hooks** (schema-guard, tool-guard, pre-commit) block before execution.
-**CONTEXT hooks** (session-start, secret-scan warn, cve-prompt, session-gate) inform asynchronously — no adoption friction.
+**CONTEXT hooks** (session-start, secret-scan warn, cve-prompt, session-gate, obsidian-log) inform asynchronously — no adoption friction.
 
 The pre-commit hook (separate from Claude Code hooks) adds: manifest check · secret hard block · CVE gate · style check · deletion guard.
 
