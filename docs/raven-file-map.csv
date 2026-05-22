@@ -38,11 +38,11 @@ Core,core/scripts/,emit-violation.py,Called by pre-commit + Guard on violations.
 Core,core/scripts/,audit-keygen.py,Run once on init. Generates Fernet encryption key for audit logs. Add output to manifest.secrets.json.,Architects,Run once only,Never after initial run
 Core,core/scripts/,skill-search.py,Search + audit + install skills from anthropics/skills and GitHub. Security audit before install. Approval required.,Architects,Python editor,If search sources change
 Core,core/scripts/,setup-claudemem.sh,Installs Claude Mem. Updates CLAUDE.md with memory instructions. Run once per developer machine.,Developers,Run once only,If Claude Mem version changes
-Core,core/commands/,shay-scaffold.md,Forces plan before code. Reads manifest + architecture.md. Generates dependency map + file structure.,All devs,Markdown editor,If planning process changes
-Core,core/commands/,shay-approve.md,Architect approves a library. Updates manifest + changelog. Use after Prism7 approval email received.,Architects,Markdown editor,Rarely
-Core,core/commands/,shay-debug.md,Full boot diagnostic. Checks all 8 layers. Reports CLEARED or errors with fix instructions.,All users,Markdown editor,Rarely
-Core,core/commands/,shay-incident.md,Manual P1/P2/P3 incident creation. Notifies Prism7. Creates audit entry.,DevOps/CISO,Markdown editor,Rarely
-Core,core/commands/,shay-search.md,Search skills from Claude interface. Calls skill-search.py. Shows results + audit + approval flow.,Architects,Markdown editor,Rarely
+Core,core/commands/,raven-scaffold.md,Forces plan before code. Reads manifest + architecture.md. Generates dependency map + file structure.,All devs,Markdown editor,If planning process changes
+Core,core/commands/,raven-approve.md,Architect approves a library. Updates manifest + changelog. Use after Prism7 approval email received.,Architects,Markdown editor,Rarely
+Core,core/commands/,raven-debug.md,Full boot diagnostic. Checks all 8 layers. Reports CLEARED or errors with fix instructions.,All users,Markdown editor,Rarely
+Core,core/commands/,raven-incident.md,Manual P1/P2/P3 incident creation. Notifies Prism7. Creates audit entry.,DevOps/CISO,Markdown editor,Rarely
+Core,core/commands/,raven-search.md,Search skills from Claude interface. Calls skill-search.py. Shows results + audit + approval flow.,Architects,Markdown editor,Rarely
 Core,core/ci/,github-actions.yml,"GitHub Actions workflow. Runs on every push + PR. Manifest check, secret scan, CVE scan. Copy to .github/workflows/.",DevOps,YAML editor,If CI checks change
 Core,core/ci/,gitlab-ci.yml,GitLab CI config. Equivalent to GitHub Actions. Copy to repo root as .gitlab-ci.yml.,DevOps,YAML editor,If CI checks change
 Core,core/ci/,on-prem-pipeline.sh,On-prem runner script. Jenkins/Gitea compatible. Runs manifest + secret checks.,DevOps,Bash editor,If on-prem CI changes

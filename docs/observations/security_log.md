@@ -106,7 +106,7 @@ Reviewed during `/raven-harden` to promote permanent rules into CLAUDE.md and cu
 
 ### [2026-05-14] — raven-setup.sh / Broken path
 
-**Issue:** `RAVEN_REGISTER` path used `dirname "$SR_REPO_DIR"` which walked up one directory too many — pointed to `SHAY-ROLLS/CLAUDE/` instead of staying in the RAVEN repo.
+**Issue:** `RAVEN_REGISTER` path used `dirname "$SR_REPO_DIR"` which walked up one directory too many — pointed to the parent directory instead of staying in the RAVEN repo.
 **Fix:** Changed to `"$SR_REPO_DIR/raven-core/registry/raven-register.py"`.
 **Principle:** Path construction from dynamic variables must be tested by echoing the resolved path before use. `dirname` on a directory path removes the last component — use with care when the variable is already a directory.
 **Status:** closed

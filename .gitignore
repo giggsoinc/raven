@@ -6,3 +6,6 @@ guard/.git
 raven-plugin.zip
 .claude/.raven/
 codex/.raven/
+
+# Do-not-share working documents
+*.dns
