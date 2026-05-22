@@ -10,7 +10,7 @@ Usage:
   python3 raven-sync.py                  # interactive — shows report, asks before updating
   python3 raven-sync.py --dry-run        # report only, no changes
   python3 raven-sync.py --all            # update all stale projects without prompting
-  python3 raven-sync.py --project lockey # update one specific project
+  python3 raven-sync.py --project my-project # update one specific project
   python3 raven-sync.py --check          # check versions, exit 1 if any stale
 """
 

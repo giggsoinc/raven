@@ -96,7 +96,7 @@
       "changed_by": "lead-architect@giggso.com",
       "changed_at": "2026-05-08T10:00:00Z",
       "changes": "Initial project manifest for PatronAI — python3.12 + polars + s3 + postgresql + opensearch on AWS",
-      "pr": "github.com/giggso/patronai/pull/1",
+      "pr": "github.com/giggso/project-beta/pull/1",
       "approved_by": "ravi@giggso.com"
     }
   ]
