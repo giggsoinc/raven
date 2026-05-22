@@ -9,3 +9,6 @@ codex/.raven/
 
 # Do-not-share working documents
 *.dns
+
+# Do-not-share working documents
+*.dns

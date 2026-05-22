@@ -33,10 +33,10 @@ Syncs all registered Raven projects to the current engine version.
 
 1. **Locate raven-core**
    ```bash
-   RAVEN_CORE=~/AntiGravity_Projects/raven-core
+   RAVEN_CORE=~/projects/raven-core
    SYNC_SCRIPT="$RAVEN_CORE/registry/raven-sync.py"
    ```
-   If not found → STOP with: "raven-core not found at expected path. Check ~/AntiGravity_Projects/raven-core"
+   If not found → STOP with: "raven-core not found at expected path. Check ~/projects/raven-core"
 
 2. **Run the sync script** with the flags passed by the user:
    ```bash
@@ -50,10 +50,10 @@ Syncs all registered Raven projects to the current engine version.
    ────────────────────────────────────────────────────────────
    
      ✅ Up to date (1)
-        lockey                    v2.8.0
+        my-project                    v2.8.0
    
      ⚠️  Stale — needs update (2)
-        fin-processor             v2.7.0 → v2.8.0
+        my-service             v2.7.0 → v2.8.0
         Dev-Claude-Arch           unknown → v2.8.0
    
      ❌ Path not found (0)
@@ -101,10 +101,10 @@ Projects with no remote → committed locally, no push.
 
 ```bash
 # 1. Bump version
-echo "3.0.0" > ~/AntiGravity_Projects/raven-core/VERSION
+echo "3.0.0" > ~/projects/raven-core/VERSION
 
 # 2. Bundle to platform repos
-bash ~/AntiGravity_Projects/raven-core/bundle.sh
+bash ~/projects/raven-core/bundle.sh
 
 # 3. Commit and push raven-core
 # (then run:)

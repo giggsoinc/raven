@@ -20,7 +20,7 @@ raven-sync.py               ← syncs all stale projects to current version
 | App Store concept | Raven equivalent |
 |---|---|
 | App Store server | `raven-core` (source of truth) |
-| Apps on your phone | `lockey`, `fin-processor`, etc. (installed copies) |
+| Apps on your phone | `my-project`, `my-service`, etc. (installed copies) |
 | App version number | `raven-core/VERSION` |
 | Installed version | `.raven/raven_version` in each project |
 | "Check for updates" | `raven-sync.py --dry-run` |
@@ -60,18 +60,18 @@ GitHub backup at `giggsoinc/raven-registry` (private) means the registry survive
 
 ```bash
 # From the project directory
-cd ~/AntiGravity_Projects/lockey
-python3 ~/AntiGravity_Projects/raven-core/registry/raven-register.py
+cd ~/projects/my-project
+python3 ~/projects/raven-core/registry/raven-register.py
 
 # Or specify path explicitly
-python3 ~/AntiGravity_Projects/raven-core/registry/raven-register.py \
-  --path ~/AntiGravity_Projects/lockey
+python3 ~/projects/raven-core/registry/raven-register.py \
+  --path ~/projects/my-project
 ```
 
 ### List all registered projects
 
 ```bash
-python3 ~/AntiGravity_Projects/raven-core/registry/raven-register.py --list
+python3 ~/projects/raven-core/registry/raven-register.py --list
 ```
 
 Output:
@@ -80,39 +80,39 @@ Raven Registry — 3 project(s)  [current: v2.8.0]
 
 Name                 Installed    Status               Remote
 ────────────────────────────────────────────────────────────────────────────────
-lockey               2.7.0        ⚠️  stale (2.7.0→2.8.0)  https://github.com/...
-fin-processor        2.6.0        ⚠️  stale (2.6.0→2.8.0)  local only
+my-project               2.7.0        ⚠️  stale (2.7.0→2.8.0)  https://github.com/...
+my-service        2.6.0        ⚠️  stale (2.6.0→2.8.0)  local only
 Dev-Claude-Arch      2.8.0        ✅ current               local only
 ```
 
 ### Check what needs updating (no changes)
 
 ```bash
-python3 ~/AntiGravity_Projects/raven-core/registry/raven-sync.py --dry-run
+python3 ~/projects/raven-core/registry/raven-sync.py --dry-run
 ```
 
 ### Update all stale projects
 
 ```bash
-python3 ~/AntiGravity_Projects/raven-core/registry/raven-sync.py --all
+python3 ~/projects/raven-core/registry/raven-sync.py --all
 ```
 
 ### Update one specific project
 
 ```bash
-python3 ~/AntiGravity_Projects/raven-core/registry/raven-sync.py --project lockey
+python3 ~/projects/raven-core/registry/raven-sync.py --project my-project
 ```
 
 ### Interactive update (asks project by project)
 
 ```bash
-python3 ~/AntiGravity_Projects/raven-core/registry/raven-sync.py
+python3 ~/projects/raven-core/registry/raven-sync.py
 ```
 
 ### Remove a project from registry
 
 ```bash
-python3 ~/AntiGravity_Projects/raven-core/registry/raven-register.py --remove lockey
+python3 ~/projects/raven-core/registry/raven-register.py --remove my-project
 ```
 
 ---
@@ -137,14 +137,14 @@ After all projects are updated:
 
 ```bash
 # 1. Install Raven in the project
-cd ~/AntiGravity_Projects/new-project
+cd ~/projects/new-project
 bash ~/path/to/raven/raven-setup.sh
 
 # 2. Register it (raven-setup.sh does this automatically if wired up)
-python3 ~/AntiGravity_Projects/raven-core/registry/raven-register.py
+python3 ~/projects/raven-core/registry/raven-register.py
 
 # 3. Verify it appears in registry
-python3 ~/AntiGravity_Projects/raven-core/registry/raven-register.py --list
+python3 ~/projects/raven-core/registry/raven-register.py --list
 ```
 
 ---
@@ -159,7 +159,7 @@ git clone https://github.com/giggsoinc/raven-registry.git ~/.raven/remote
 cp ~/.raven/remote/registry.json ~/.raven/registry.json
 
 # Verify
-python3 ~/AntiGravity_Projects/raven-core/registry/raven-register.py --list
+python3 ~/projects/raven-core/registry/raven-register.py --list
 ```
 
 ---
@@ -168,17 +168,17 @@ python3 ~/AntiGravity_Projects/raven-core/registry/raven-register.py --list
 
 ```bash
 # 1. Update version
-echo "3.0.0" > ~/AntiGravity_Projects/raven-core/VERSION
+echo "3.0.0" > ~/projects/raven-core/VERSION
 
 # 2. Bundle engine scripts to platform repos
-bash ~/AntiGravity_Projects/raven-core/bundle.sh
+bash ~/projects/raven-core/bundle.sh
 
 # 3. Commit raven-core + RAVEN monorepo
-git -C ~/AntiGravity_Projects/raven-core add -A && git -C ~/AntiGravity_Projects/raven-core commit -m "release: v3.0.0"
-git -C ~/AntiGravity_Projects/raven-core push
+git -C ~/projects/raven-core add -A && git -C ~/projects/raven-core commit -m "release: v3.0.0"
+git -C ~/projects/raven-core push
 
 # 4. Sync all registered projects
-python3 ~/AntiGravity_Projects/raven-core/registry/raven-sync.py --all
+python3 ~/projects/raven-core/registry/raven-sync.py --all
 ```
 
 One command (step 4) updates every registered project, commits each one, pushes to GitHub, and updates the registry.

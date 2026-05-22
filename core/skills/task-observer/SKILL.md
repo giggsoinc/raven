@@ -73,7 +73,7 @@ Log silently whenever any of these occur:
 ```markdown
 ### [YYYY-MM-DD] — [System/Platform]
 **Pattern:** specific behaviour observed in this stack
-**Context:** where it applies (lockey / fin-processor / specific module)
+**Context:** where it applies (my-project / my-service / specific module)
 **Source:** user correction | session finding | search result
 ```
 
@@ -96,7 +96,7 @@ Log silently whenever any of these occur:
 **Goes to internal_raven_ops.md if:**
 - References Oracle 23ai/26ai specific behaviour in this stack
 - References Giggso's specific Azure Logic App setup
-- References lockey/fin-processor specific patterns
+- References my-project/my-service specific patterns
 - Would reveal architecture if published
 
 **Goes to general_security_patterns.md if:**

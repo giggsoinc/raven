@@ -168,12 +168,12 @@ Every project writes to the same S3 bucket, isolated by project name:
 ```
 s3://your-org-audit/
   raven/
-    lockey/rv_at_giggso/rvgiggso/2026-05-10.log.gz.enc
-    patronai/rv_at_giggso/rvgiggso/2026-05-10.log.gz.enc
-    antiGravity/rv_at_giggso/rvgiggso/2026-05-10.log.gz.enc
+    my-project/rv_at_dev/rvdev/2026-05-10.log.gz.enc
+    project-beta/rv_at_dev/rvdev/2026-05-10.log.gz.enc
+    my-org/rv_at_dev/rvdev/2026-05-10.log.gz.enc
 ```
 
-PatronAI reads from this bucket for observability across all projects.
+Your team reads from this bucket for observability across all projects.
 
 ---
 

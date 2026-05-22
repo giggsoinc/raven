@@ -31,10 +31,10 @@ Registers a project in the Raven registry (`~/.raven/registry.json`), enabling
 
 1. **Locate raven-core**
    ```bash
-   RAVEN_CORE=~/AntiGravity_Projects/raven-core
+   RAVEN_CORE=~/projects/raven-core
    REGISTER_SCRIPT="$RAVEN_CORE/registry/raven-register.py"
    ```
-   If not found → STOP with: "raven-core not found. Check ~/AntiGravity_Projects/raven-core"
+   If not found → STOP with: "raven-core not found. Check ~/projects/raven-core"
 
 2. **Determine target path**
    - If `--path` was provided → use that path
@@ -47,9 +47,9 @@ Registers a project in the Raven registry (`~/.raven/registry.json`), enabling
 
 4. **Show result** — expected output:
    ```
-   ✅ Registered: fin-processor
-      path:      /Users/you/projects/fin-processor
-      remote:    https://github.com/yourorg/fin-processor.git
+   ✅ Registered: my-service
+      path:      /Users/you/projects/my-service
+      remote:    https://github.com/yourorg/my-service.git
       version:   unknown (no .raven/raven_version found — run /raven-registry-sync)
       scripts:   ✅
       mcp:       ✅
@@ -73,8 +73,8 @@ Raven Registry — 3 project(s)  [current: v2.8.0]
 
 Name                 Installed    Status                    Remote
 ────────────────────────────────────────────────────────────────────────────
-lockey               2.8.0        ✅ current                https://github.com/...
-fin-processor        unknown      ⚠️  stale (unknown→2.8.0)  local only
+my-project               2.8.0        ✅ current                https://github.com/...
+my-service        unknown      ⚠️  stale (unknown→2.8.0)  local only
 Dev-Claude-Arch      2.7.0        ⚠️  stale (2.7.0→2.8.0)   local only
 ```
 
@@ -90,8 +90,8 @@ python3 "$REGISTER_SCRIPT" --remove NAME
 
 Confirm with user before removing:
 ```
-Remove 'fin-processor' from registry?
-Path: /Users/you/projects/fin-processor
+Remove 'my-service' from registry?
+Path: /Users/you/projects/my-service
 This does NOT delete the project or its Raven files — only the registry entry.
 
 Confirm? [y/N]:
