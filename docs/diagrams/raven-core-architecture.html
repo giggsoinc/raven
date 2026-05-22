@@ -100,9 +100,9 @@
 <div class="eline" style="margin-top:8px">
   <div class="ebox ebox-dev">Session ends</div>
   <div class="earrow">→</div>
-  <div class="ebox ebox-hook">Stop<br/><span style="font-size:7px">session-gate + audit</span></div>
+  <div class="ebox ebox-hook">Stop<br/><span style="font-size:7px">session-gate + obsidian-log + audit</span></div>
   <div class="earrow">→</div>
-  <div class="ebox ebox-pass">git status + Obsidian log</div>
+  <div class="ebox ebox-pass">git status · AI summary · files touched → Obsidian</div>
 </div>
 
 <!-- DEV TOOLS -->
@@ -179,7 +179,8 @@
     <div class="card"><div class="card-title">cve-check.py</div><div class="card-sub">Three-tier library check<br/>Tier 1: org whitelist → auto-approve<br/>Tier 2: category → auto-approve<br/>Tier 3: PyPI Safety + GPT deep scan</div></div>
     <div class="card"><div class="card-title">audit-log.py</div><div class="card-sub">Encrypted audit trail<br/>Every PostToolUse + Stop event<br/>→ S3 / GCS / Azure Blob / OCI / local</div></div>
     <div class="card"><div class="card-title">db-guard.py</div><div class="card-sub">PostToolUse Write/Edit<br/>Inline SQL · raw queries in non-SQL files<br/>Missing ERDs · broken migration numbering</div></div>
-    <div class="card"><div class="card-title">session-gate.py</div><div class="card-sub">Stop hook · global (~/.claude/scripts/)<br/>Git status · recent commits<br/>Open .raven/memory/ observations</div><div class="tag t-auto">new · context</div></div>
+    <div class="card"><div class="card-title">session-gate.py</div><div class="card-sub">Stop hook · global (~/.claude/scripts/)<br/>Git status · recent commits<br/>Open .raven/memory/ observations</div><div class="tag t-auto">context</div></div>
+    <div class="card"><div class="card-title">obsidian-log.py</div><div class="card-sub">Stop hook · three-layer session memory<br/>A: AI summary via claude -p<br/>B: files touched from transcript JSONL<br/>C: git log + uncommitted changes<br/>→ ~/RavenVault/sessions/</div><div class="tag t-auto">new · context</div></div>
     <div class="card"><div class="card-title">emit-violation.py</div><div class="card-sub">Violation signal → Raven Hub<br/>P1/P2/P3 incident escalation</div></div>
   </div>
 </div>
