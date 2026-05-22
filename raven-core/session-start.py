@@ -399,12 +399,16 @@ def format_context(project: dict, providers: list[dict], routing: dict, model_en
         lines.append("   To add: set ANTHROPIC_API_KEY, GROQ_API_KEY, or start Ollama.")
 
     # Brownfield advisory + domain skill trigger
+    cwd = Path(".")
+    has_manifest  = (cwd / ".raven" / "manifest.json").exists()
+    has_claude_md = (cwd / ".claude" / "CLAUDE.md").exists() or (cwd / "CLAUDE.md").exists()
+
     if project["type"] == "brownfield":
         lines.append("")
-        lines.append("📋 Existing project — Raven guards active for all changes.")
+        lines.append("📋 Existing project — Raven IS installed and active.")
         if project["langs"]:
             lines.append(f"   Stack: {', '.join(project['langs'])}")
-        # Domain-specific skill trigger (injected so model MUST act on it)
+        # Domain-specific skill trigger
         skill, domain_label = domain_skill
         if skill:
             lines.append("")
@@ -414,10 +418,40 @@ def format_context(project: dict, providers: list[dict], routing: dict, model_en
         else:
             lines.append("")
             lines.append("   MANDATORY: Before coding or file reads, invoke the matching Raven domain skill.")
-            lines.append("   Run /raven-harden to identify which skill applies if unsure.")
+
+        # ── BOOT PROTOCOL (inline — does not require CLAUDE.md to exist) ──────
+        lines.append("")
+        lines.append("━━━ RAVEN BOOT PROTOCOL ━━━")
+        lines.append("On the FIRST user message of this session, BEFORE responding:")
+        if not has_manifest:
+            lines.append("  1. .raven/manifest.json is MISSING — run /raven-init immediately.")
+            lines.append("     Do NOT give generic Raven install instructions — Raven IS installed.")
+            lines.append("     /raven-init will ask a few questions and create the manifest.")
+        else:
+            lines.append("  1. manifest.json ✅ — load it, trust declared stack.")
+
+        if not has_claude_md:
+            lines.append("  2. No project CLAUDE.md — Raven is running from plugin context only.")
+            lines.append("     Ask the user: 'Run /raven-init to write project-level instructions? (y/n)'")
+        else:
+            lines.append("  2. CLAUDE.md ✅")
+
+        lines.append("  3. Output the session banner:")
+        lines.append('     "Raven ✅  | {project} | {stack} — guards active. What are we building?"')
+        lines.append("  4. Then respond to their actual request.")
+        lines.append("")
+        lines.append("DO NOT: give install instructions. DO NOT: say 'install raven-codex'.")
+        lines.append("Raven IS installed — the plugin loaded these instructions. Just boot it.")
+        lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
     else:
         lines.append("")
         lines.append("🚀 New project — Raven will scaffold with your stack conventions.")
+        lines.append("")
+        lines.append("━━━ RAVEN BOOT PROTOCOL ━━━")
+        lines.append("On the FIRST user message: run /raven-init to set up this project,")
+        lines.append("then output the Raven session banner before responding.")
+        lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
     return "\n".join(lines)
 

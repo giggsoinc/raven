@@ -11,6 +11,117 @@ Never prompts interactively. Never reads .env or credential files.
 import json, os, subprocess, sys, urllib.request, urllib.error
 from pathlib import Path
 
+# ── Domain → Skill Map ────────────────────────────────────────────────────────
+# Maps detected project domain to the Raven specialist skill to invoke.
+# Order matters — first match wins.
+
+DOMAIN_SKILL_MAP = [
+    # Salesforce — unambiguous marker files
+    {
+        "name":    "Salesforce",
+        "skill":   "raven:salesforce-specialist",
+        "markers": ["sfdx-project.json", ".forceignore"],
+        "dirs":    ["force-app"],
+        "globs":   [],
+    },
+    # Odoo — __manifest__.py is the canonical Odoo module marker
+    {
+        "name":    "Odoo",
+        "skill":   "raven:odoo-specialist",
+        "markers": ["odoo.conf", ".odoo_upgrade.json"],
+        "dirs":    [],
+        "globs":   ["**/__manifest__.py"],  # checked with limit
+    },
+    # Terraform
+    {
+        "name":    "Terraform",
+        "skill":   "raven:terraform-specialist",
+        "markers": [],
+        "dirs":    [],
+        "globs":   ["*.tf", "**/*.tf"],
+    },
+    # Kubernetes / Helm
+    {
+        "name":    "Kubernetes",
+        "skill":   "raven:k8s-specialist",
+        "markers": [],
+        "dirs":    ["k8s", "kubernetes", "helm", "charts"],
+        "globs":   [],
+    },
+    # Kafka — check requirements or docker-compose
+    {
+        "name":    "Kafka",
+        "skill":   "raven:kafka-specialist",
+        "markers": [],
+        "dirs":    [],
+        "globs":   [],
+        "keyword_files": ["requirements.txt", "docker-compose.yml", "pyproject.toml"],
+        "keyword":       "kafka",
+    },
+    # Oracle — APEX / DB
+    {
+        "name":    "Oracle",
+        "skill":   "raven:oracle-db-specialist",
+        "markers": [],
+        "dirs":    [],
+        "globs":   ["**/*.pkb", "**/*.pks", "**/*.sql"],
+        "keyword_files": ["requirements.txt"],
+        "keyword":       "cx_Oracle",
+    },
+    # AWS / Cloud
+    {
+        "name":    "AWS",
+        "skill":   "raven:aws-specialist",
+        "markers": ["cdk.json", "serverless.yml", "serverless.yaml", "sam.yaml", "template.yaml"],
+        "dirs":    [],
+        "globs":   [],
+    },
+    # FastAPI / Python web
+    {
+        "name":    "FastAPI",
+        "skill":   "raven:fastapi-specialist",
+        "markers": [],
+        "dirs":    [],
+        "globs":   [],
+        "keyword_files": ["requirements.txt", "pyproject.toml"],
+        "keyword":       "fastapi",
+    },
+]
+
+
+def detect_domain(cwd: Path) -> tuple[str | None, str | None]:
+    """Detect the project's primary domain. Returns (skill, label) or (None, None)."""
+    for entry in DOMAIN_SKILL_MAP:
+        # Check marker files
+        for marker in entry.get("markers", []):
+            if (cwd / marker).exists():
+                return entry["skill"], entry["name"]
+        # Check marker directories
+        for d in entry.get("dirs", []):
+            if (cwd / d).is_dir():
+                return entry["skill"], entry["name"]
+        # Check glob patterns (with a hard limit to stay fast)
+        for pattern in entry.get("globs", []):
+            try:
+                found = next(iter(cwd.glob(pattern)), None)
+                if found:
+                    return entry["skill"], entry["name"]
+            except Exception:
+                pass
+        # Check keyword in specific files
+        keyword = entry.get("keyword", "")
+        if keyword:
+            for kf in entry.get("keyword_files", []):
+                kf_path = cwd / kf
+                if kf_path.exists():
+                    try:
+                        if keyword.lower() in kf_path.read_text(errors="ignore").lower():
+                            return entry["skill"], entry["name"]
+                    except Exception:
+                        pass
+    return None, None
+
+
 # ── Brownfield / Greenfield Detection ─────────────────────────────────────────
 
 def detect_project_type() -> dict:
@@ -249,7 +360,7 @@ def write_model_env(providers: list[dict], routing: dict):
 
 # ── Format output ──────────────────────────────────────────────────────────────
 
-def format_context(project: dict, providers: list[dict], routing: dict, model_env_written: bool) -> str:
+def format_context(project: dict, providers: list[dict], routing: dict, model_env_written: bool, domain_skill: tuple = (None, None)) -> str:
     lines = []
 
     # Project classification
@@ -287,15 +398,60 @@ def format_context(project: dict, providers: list[dict], routing: dict, model_en
         lines.append("   Claude (current session) is your active model.")
         lines.append("   To add: set ANTHROPIC_API_KEY, GROQ_API_KEY, or start Ollama.")
 
-    # Brownfield advisory
+    # Brownfield advisory + domain skill trigger
+    cwd = Path(".")
+    has_manifest  = (cwd / ".raven" / "manifest.json").exists()
+    has_claude_md = (cwd / ".claude" / "CLAUDE.md").exists() or (cwd / "CLAUDE.md").exists()
+
     if project["type"] == "brownfield":
         lines.append("")
-        lines.append("📋 Existing project — Raven guards active for all changes.")
+        lines.append("📋 Existing project — Raven IS installed and active.")
         if project["langs"]:
             lines.append(f"   Stack: {', '.join(project['langs'])}")
+        # Domain-specific skill trigger
+        skill, domain_label = domain_skill
+        if skill:
+            lines.append("")
+            lines.append(f"⚡ DOMAIN DETECTED: {domain_label}")
+            lines.append(f"   MANDATORY: invoke `{skill}` BEFORE any file read, bash command, or code response.")
+            lines.append(f"   Do not answer code questions directly — invoke the skill first.")
+        else:
+            lines.append("")
+            lines.append("   MANDATORY: Before coding or file reads, invoke the matching Raven domain skill.")
+
+        # ── BOOT PROTOCOL (inline — does not require CLAUDE.md to exist) ──────
+        lines.append("")
+        lines.append("━━━ RAVEN BOOT PROTOCOL ━━━")
+        lines.append("On the FIRST user message of this session, BEFORE responding:")
+        if not has_manifest:
+            lines.append("  1. .raven/manifest.json is MISSING — run /raven-init immediately.")
+            lines.append("     Do NOT give generic Raven install instructions — Raven IS installed.")
+            lines.append("     /raven-init will ask a few questions and create the manifest.")
+        else:
+            lines.append("  1. manifest.json ✅ — load it, trust declared stack.")
+
+        if not has_claude_md:
+            lines.append("  2. No project CLAUDE.md — Raven is running from plugin context only.")
+            lines.append("     Ask the user: 'Run /raven-init to write project-level instructions? (y/n)'")
+        else:
+            lines.append("  2. CLAUDE.md ✅")
+
+        lines.append("  3. Output the session banner:")
+        lines.append('     "Raven ✅  | {project} | {stack} — guards active. What are we building?"')
+        lines.append("  4. Then respond to their actual request.")
+        lines.append("")
+        lines.append("DO NOT: give install instructions. DO NOT: say 'install raven-codex'.")
+        lines.append("Raven IS installed — the plugin loaded these instructions. Just boot it.")
+        lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
     else:
         lines.append("")
         lines.append("🚀 New project — Raven will scaffold with your stack conventions.")
+        lines.append("")
+        lines.append("━━━ RAVEN BOOT PROTOCOL ━━━")
+        lines.append("On the FIRST user message: run /raven-init to set up this project,")
+        lines.append("then output the Raven session banner before responding.")
+        lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
     return "\n".join(lines)
 
@@ -312,15 +468,18 @@ def main():
     # 1. Detect project type
     project = detect_project_type()
 
-    # 2. Discover models
+    # 2. Detect domain → skill mapping
+    domain_skill = detect_domain(Path("."))
+
+    # 3. Discover models
     local_providers = discover_local()
     cloud_providers = discover_cloud()
     all_providers   = local_providers + cloud_providers
 
-    # 3. Build routing table
+    # 4. Build routing table
     routing = build_routing(all_providers)
 
-    # 4. Write .model.env if missing or if local providers newly found
+    # 5. Write .model.env if missing or if local providers newly found
     model_env = Path(".model.env")
     model_env_written = False
     if not model_env.exists() and all_providers:
@@ -330,11 +489,29 @@ def main():
         except Exception:
             pass  # Non-critical — session continues regardless
 
-    # 5. Format context string
-    context = format_context(project, all_providers, routing, model_env_written)
+    # 6. Format context string
+    context = format_context(project, all_providers, routing, model_env_written, domain_skill)
 
-    # 6. Output JSON for SessionStart hook
+    # 6. Build compact system notification (always shown in Claude Code UI)
+    badge_short = "BROWNFIELD" if project["type"] == "brownfield" else "GREENFIELD"
+    skill, domain_label = domain_skill
+    skill_line = f" · {domain_label} → {skill}" if skill else ""
+    lang_short = ", ".join(project["langs"][:2]) if project["langs"] else ""
+    stack_line = f" · {lang_short}" if lang_short else ""
+
+    providers_short = ""
+    local_p = [p for p in all_providers if p["source"] == "local"]
+    cloud_p = [p for p in all_providers if p["source"] == "env"]
+    if local_p:
+        providers_short += " · " + ", ".join(f"{p['provider']}" for p in local_p)
+    if cloud_p:
+        providers_short += " · " + ", ".join(p["provider"] for p in cloud_p)
+
+    system_message = f"Raven ✅  {badge_short}{stack_line}{skill_line}{providers_short}"
+
+    # 7. Output JSON for SessionStart hook
     output = {
+        "systemMessage": system_message,
         "hookSpecificOutput": {
             "hookEventName":   "SessionStart",
             "additionalContext": context,
