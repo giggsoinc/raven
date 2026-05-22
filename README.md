@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>AI-native engineering discipline for Claude Code · GitHub Copilot · OpenAI Codex</strong><br/>
-  41 domain skills · 10 always-on guard agents · CVE scanning · secret detection · audit logs<br/>
+  46 domain skills · 10 always-on guard agents · 7 always-on hooks · CVE scanning · secret detection · audit logs<br/>
   Works for individual developers, entire engineering teams, and enterprise IT rollouts
 </p>
 
@@ -75,12 +75,19 @@ Schema drop detected       → hard block + escalate
 Port 0.0.0.0 opened        → hard block + escalate
 ```
 
-### 📦 35 Domain Skills
+### 📦 46 Domain Skills
 
-Skills load at session start (~100 tokens each) and activate only when your work matches their domain. They bring deep, current knowledge about their stack — so your AI assistant gives you expert-level guidance, not generic advice.
+Skills activate only when your work matches their domain — ~100 tokens each, never loaded all at once.
 
 **Orchestration**
 > `andie` — multi-modal architect (Deep · Kaizen · War · Drama)
+> `andie-jr` — fast-burn debug assistant for brownfield + bug fixes (2 rounds, 150 words max, Obsidian-aware)
+
+**Database Thin Router** *(auto-detects DB type, loads one specialist)*
+> `db-router` — Postgres/pgvector · MySQL/MariaDB · MongoDB · Qdrant · Databricks · Snowflake
+
+**Frontend & Design Thin Router** *(auto-detects framework, design tool default: claude-design/stitch)*
+> `ui-router` — React/Next.js · Vue/Nuxt · Angular · Vanilla JS · UI/UX Design
 
 **Cloud Platforms**
 > `aws` · `gcp` · `azure` · `oci`
@@ -108,6 +115,24 @@ Skills load at session start (~100 tokens each) and activate only when your work
 
 **Tooling**
 > `security` · `log-management` · `agent-chaining` · `tools-landscape` · `task-observer`
+
+### 🪝 7 Always-On Hooks — Fire Without Being Asked
+
+Unlike skills (which activate on domain match), hooks fire automatically at specific lifecycle events. You cannot forget to run them.
+
+| Event | Hook | Type | What it does |
+|---|---|---|---|
+| `PreToolUse` any tool | `tool-guard.py` | **BLOCK** | Blocks restricted actions (rm -rf, sudo, etc.) |
+| `PreToolUse` Bash | `schema-guard.py` | **BLOCK** | Stops DROP TABLE / TRUNCATE / DELETE without WHERE before execution |
+| `UserPromptSubmit` | `cve-prompt-guard.py` | Warn | Detects install intent (`pip install`, `npm install`, etc.) — injects CVE reminder before Claude responds |
+| `PostToolUse` Write/Edit | `secret-scan.py` | Async warn | Scans every written file for secrets immediately — not just at commit |
+| `PostToolUse` any tool | `audit-log.py` | Async | Encrypted audit entry for every tool use |
+| `PreCompact` | `token-guard.py` | Warn | Token budget warnings at 25/50/75/90% |
+| `Stop` | `session-gate.py` | Async | Git status + recent commits + open observations at session end |
+| `SessionStart` | manifest inject | Context | Loads project config; flags if Raven not yet initialised |
+
+**INTEGRITY hooks** (BLOCK type) fire before execution and stop dangerous actions.
+**CONTEXT hooks** (Warn/Async) inform without blocking — so they never kill adoption.
 
 ### 🔄 Version Check — Every Session
 

@@ -485,6 +485,28 @@ This wires `%USERPROFILE%\.claude\` with all 41 skills, 10 agents, and the globa
 
 <a id="codex-copilot"></a>
 
+## Hook Architecture — What Fires Automatically
+
+Raven wires 7 hooks into Claude Code's lifecycle via `.claude/settings.json`. These fire without any user action.
+
+| Event | Hook | Blocks? | What it does |
+|---|---|---|---|
+| `SessionStart` | manifest inject | No | Loads project config; warns if Raven not initialised |
+| `UserPromptSubmit` | `cve-prompt-guard.py` | No | Detects install intent → injects CVE reminder before Claude responds |
+| `PreToolUse` any | `tool-guard.py` | **Yes** | Blocks restricted actions (rm -rf, sudo, etc.) |
+| `PreToolUse` Bash | `schema-guard.py` | **Yes** | Stops DROP TABLE / TRUNCATE / DELETE without WHERE before it runs |
+| `PostToolUse` Write/Edit | `secret-scan.py` | No (async warn) | Scans every written file for secrets immediately |
+| `PostToolUse` any | `audit-log.py` | No (async) | Encrypted audit entry for every tool use |
+| `PreCompact` | `token-guard.py` | No | Token budget warnings at 25/50/75/90% |
+| `Stop` | `session-gate.py` | No (async) | Git status + open observations summary at session end |
+
+**INTEGRITY hooks** (schema-guard, tool-guard, pre-commit) block before execution.
+**CONTEXT hooks** (secret-scan warn, cve-prompt, session-gate) inform asynchronously — no adoption friction.
+
+The pre-commit hook (separate from Claude Code hooks) adds: manifest check · secret hard block · CVE gate · style check · deletion guard.
+
+---
+
 ## Codex & Copilot Plugin
 
 > No terminal. No install script. Plugin install only.
@@ -500,7 +522,7 @@ This wires `%USERPROFILE%\.claude\` with all 41 skills, 10 agents, and the globa
 
 | Feature | Claude Code | Codex / Copilot |
 |---|---|---|
-| All 41 skills | ✅ | ✅ (55 in plugin) |
+| All 46 skills | ✅ | ✅ (55 in plugin) |
 | Andie orchestration | ✅ | ✅ — mandatory first step |
 | Pre-commit hook | ✅ | ❌ — no hook system |
 | Secret detection at save | ✅ | Conversational only |
@@ -538,7 +560,7 @@ When you open Claude Code in a project for the first time after installing:
   Raven ✅  |  MyProject  |  infra
 ─────────────────────────────────────────────────
   I'm Andie — your AI discipline layer.
-  Guards active. 41 skills loaded.
+  Guards active. 46 skills loaded.
 
   What are you working on today?
 

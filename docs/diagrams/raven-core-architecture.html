@@ -48,35 +48,61 @@
 <body>
 
 <h1>Raven Claude Core</h1>
-<div class="sub">Architecture Diagram · v2.6 · github.com/giggso/raven-claude</div>
+<div class="sub">Architecture Diagram · v3.0 · github.com/giggsoinc/raven</div>
 
 <!-- ENFORCEMENT FLOW -->
-<h2>Enforcement Flow</h2>
+<h2>Enforcement Flow — Hook Lifecycle</h2>
 <div class="eline">
-  <div class="ebox ebox-dev">Dev writes code</div>
+  <div class="ebox ebox-dev">Session opens</div>
   <div class="earrow">→</div>
-  <div class="ebox ebox-claude">Skills advise</div>
+  <div class="ebox ebox-hook">SessionStart<br/><span style="font-size:7px">manifest inject</span></div>
   <div class="earrow">→</div>
-  <div class="ebox ebox-claude">Agents validate</div>
+  <div class="ebox ebox-claude">Andie / Andie Jr<br/><span style="font-size:7px">domain detected</span></div>
   <div class="earrow">→</div>
-  <div class="ebox ebox-hook">git commit</div>
+  <div class="ebox ebox-pass">✅ work begins</div>
+</div>
+<div class="eline" style="margin-top:8px">
+  <div class="ebox ebox-dev">User types prompt</div>
   <div class="earrow">→</div>
-  <div class="ebox ebox-hook">pre-commit hook</div>
+  <div class="ebox ebox-hook">UserPromptSubmit<br/><span style="font-size:7px">cve-prompt-guard</span></div>
+  <div class="earrow">→</div>
+  <div class="ebox ebox-pass">CVE hint injected</div>
+  <div class="earrow" style="color:#ffcdd2">|</div>
+  <div class="ebox ebox-block">no install intent → pass</div>
+</div>
+<div class="eline" style="margin-top:8px">
+  <div class="ebox ebox-dev">Claude runs Bash</div>
+  <div class="earrow">→</div>
+  <div class="ebox ebox-hook">PreToolUse Bash<br/><span style="font-size:7px">schema-guard</span></div>
+  <div class="earrow">→</div>
+  <div class="ebox ebox-pass">✅ safe → runs</div>
+  <div class="earrow" style="color:#ffcdd2">|</div>
+  <div class="ebox ebox-block">❌ DROP/TRUNCATE → BLOCKED</div>
+</div>
+<div class="eline" style="margin-top:8px">
+  <div class="ebox ebox-dev">Claude writes file</div>
+  <div class="earrow">→</div>
+  <div class="ebox ebox-hook">PostToolUse Write<br/><span style="font-size:7px">secret-scan async</span></div>
+  <div class="earrow">→</div>
+  <div class="ebox ebox-pass">✅ clean</div>
+  <div class="earrow" style="color:#ffcdd2">|</div>
+  <div class="ebox ebox-block">⚠️ secret → warn</div>
+</div>
+<div class="eline" style="margin-top:8px">
+  <div class="ebox ebox-dev">git commit</div>
+  <div class="earrow">→</div>
+  <div class="ebox ebox-hook">pre-commit hook<br/><span style="font-size:7px">5 gates</span></div>
   <div class="earrow">→</div>
   <div class="ebox ebox-pass">✅ CLEARED</div>
   <div class="earrow" style="color:#ffcdd2">|</div>
   <div class="ebox ebox-block">❌ BLOCKED</div>
 </div>
-<div class="eline">
-  <div class="ebox ebox-dev">git push</div>
+<div class="eline" style="margin-top:8px">
+  <div class="ebox ebox-dev">Session ends</div>
   <div class="earrow">→</div>
-  <div class="ebox ebox-hook">pre-receive (server)</div>
+  <div class="ebox ebox-hook">Stop<br/><span style="font-size:7px">session-gate + audit</span></div>
   <div class="earrow">→</div>
-  <div class="ebox ebox-hook">CI/CD (GitHub Actions)</div>
-  <div class="earrow">→</div>
-  <div class="ebox ebox-pass">✅ merged</div>
-  <div class="earrow" style="color:#ffcdd2">|</div>
-  <div class="ebox ebox-block">❌ rejected</div>
+  <div class="ebox ebox-pass">git status + Obsidian log</div>
 </div>
 
 <!-- DEV TOOLS -->
@@ -93,19 +119,21 @@
 </div>
 
 <!-- SKILLS -->
-<h2>Layer 2 — Skills (Progressive Disclosure)</h2>
+<h2>Layer 2 — Skills (46 total · Progressive Disclosure)</h2>
 <div class="layer" style="border-color:#ce93d8;">
   <div class="layer-hdr l-skill">~100 tokens at startup · Full rules load only when triggered</div>
   <div class="grid">
-    <div class="card"><div class="card-title">raven-core</div><div class="card-sub">Entry point · Reads live manifest<br/>Routes to rule files on demand</div><div class="tag t-auto">always active</div></div>
-    <div class="card"><div class="card-title">raven-expert</div><div class="card-sub">L99 mode · No hedging<br/>World-class specialist depth</div></div>
+    <div class="card"><div class="card-title">andie v5.2</div><div class="card-sub">Multi-modal architect · Deep / Kaizen / War / Drama<br/>OODA · HITL gates · Specialist triads</div><div class="tag t-auto">orchestration</div></div>
+    <div class="card"><div class="card-title">andie-jr v1.0</div><div class="card-sub">Fast-burn debug · Brownfield + bug fixes only<br/>2 rounds · 150 words · Obsidian-aware</div><div class="tag t-auto">new</div></div>
+    <div class="card"><div class="card-title">db-router</div><div class="card-sub">Thin DB router · Auto-detects DB type<br/>Postgres · MySQL · MongoDB · Qdrant · Databricks · Snowflake</div><div class="tag t-auto">new · thin router</div></div>
+    <div class="card"><div class="card-title">ui-router</div><div class="card-sub">Thin frontend router · Auto-detects framework<br/>React · Vue · Angular · JS · Design (claude-design default)</div><div class="tag t-auto">new · thin router</div></div>
+    <div class="card"><div class="card-title">raven-core</div><div class="card-sub">Entry point · Reads live manifest<br/>Routes to rule files on demand</div></div>
     <div class="card"><div class="card-title">raven-plan</div><div class="card-sub">Architecture-first planning<br/>Dependency map before code</div></div>
     <div class="card"><div class="card-title">raven-review</div><div class="card-sub">Manifest-aware code review<br/>Stack + style + security</div></div>
     <div class="card"><div class="card-title">raven-security</div><div class="card-sub">CVE-aware security review<br/>Pre-merge vulnerability scan</div></div>
     <div class="card"><div class="card-title">raven-refactor</div><div class="card-sub">Style enforcement + simplify<br/>150 lines · type hints · logging</div></div>
-    <div class="card"><div class="card-title">raven-test</div><div class="card-sub">Test-first discipline<br/>pytest · edge cases · mocks</div></div>
-    <div class="card"><div class="card-title">raven-document</div><div class="card-sub">Docstrings · architecture.md<br/>Changelog · README</div></div>
-    <div class="card"><div class="card-title">andie</div><div class="card-sub">Work orchestrator · Drama Mode<br/>OODA · Diagrams · Strategy</div><div class="tag t-auto">cross-domain</div></div>
+    <div class="card"><div class="card-title">raven-test / raven-document</div><div class="card-sub">Test-first discipline · Docstrings<br/>architecture.md · Changelog · README</div></div>
+    <div class="card"><div class="card-title">+ 36 domain specialists</div><div class="card-sub">Oracle · Salesforce · AWS · GCP · Azure · OCI<br/>Kafka · Postgres · Databricks · Snowflake · k8s · Terraform<br/>Odoo · FastAPI · Security · AI/ML + more</div></div>
   </div>
 </div>
 
@@ -124,27 +152,35 @@
 </div>
 
 <!-- HOOKS -->
-<h2>Layer 4 — Hooks (Event Triggers)</h2>
+<h2>Layer 4 — 7 Always-On Hooks (Claude Code lifecycle)</h2>
 <div class="layer" style="border-color:#ffe082;">
-  <div class="layer-hdr l-hook">Fire automatically · Developer cannot bypass pre-receive</div>
+  <div class="layer-hdr l-hook">Fire automatically · Wired via .claude/settings.json · Two types: INTEGRITY (block) · CONTEXT (inform)</div>
   <div class="grid">
-    <div class="card"><div class="card-title">PreToolUse</div><div class="card-sub">Before ANY Claude action<br/>Manifest check · hard stop if missing</div><div class="tag t-block">always first</div></div>
-    <div class="card"><div class="card-title">PostEdit</div><div class="card-sub">After every file save<br/>Triggers style + stack agents</div></div>
-    <div class="card"><div class="card-title">pre-commit (local)</div><div class="card-sub">git commit gate<br/>5 checks · manifest · secrets · CVE · style · deletions</div><div class="tag t-block">hard block</div></div>
-    <div class="card"><div class="card-title">pre-receive (server)</div><div class="card-sub">Every git push — server side<br/>Cannot bypass with --no-verify</div><div class="tag t-block">unforgeable</div></div>
-    <div class="card"><div class="card-title">GitHub Actions CI</div><div class="card-sub">Every push + PR<br/>Manifest · secrets · CVE · tamper check</div><div class="tag t-block">server-side</div></div>
+    <div class="card"><div class="card-title">SessionStart</div><div class="card-sub">Manifest inject on open<br/>Brownfield hint if no manifest</div><div class="tag t-auto">context</div></div>
+    <div class="card"><div class="card-title">UserPromptSubmit</div><div class="card-sub">cve-prompt-guard.py<br/>Install intent → CVE reminder injected</div><div class="tag t-warn">async warn</div></div>
+    <div class="card"><div class="card-title">PreToolUse · any</div><div class="card-sub">tool-guard.py<br/>Blocks rm -rf · sudo · restricted actions</div><div class="tag t-block">INTEGRITY · block</div></div>
+    <div class="card"><div class="card-title">PreToolUse · Bash</div><div class="card-sub">schema-guard.py<br/>Stops DROP TABLE · TRUNCATE · DELETE without WHERE</div><div class="tag t-block">INTEGRITY · block</div></div>
+    <div class="card"><div class="card-title">PostToolUse · Write/Edit</div><div class="card-sub">secret-scan.py --file<br/>Scans every written file immediately · async warn</div><div class="tag t-warn">async warn</div></div>
+    <div class="card"><div class="card-title">PostToolUse · any</div><div class="card-sub">audit-log.py<br/>Encrypted audit entry → S3/GCS/Azure/OCI</div><div class="tag t-auto">async · always</div></div>
+    <div class="card"><div class="card-title">PreCompact</div><div class="card-sub">token-guard.py<br/>Budget warnings at 25/50/75/90%</div><div class="tag t-warn">warn</div></div>
+    <div class="card"><div class="card-title">Stop</div><div class="card-sub">session-gate.py + audit-log.py + obsidian-log.py<br/>Git status · open observations · Obsidian session note</div><div class="tag t-auto">async · context</div></div>
+    <div class="card"><div class="card-title">pre-commit (git hook)</div><div class="card-sub">5 gates: manifest · secrets hard block · CVE · style · deletion guard<br/>Separate from Claude Code hooks — always fires on git commit</div><div class="tag t-block">hard block</div></div>
   </div>
 </div>
 
 <!-- SCRIPTS -->
-<h2>Layer 5 — Scripts</h2>
+<h2>Layer 5 — raven-core Scripts (single source of truth · symlinked everywhere)</h2>
 <div class="layer" style="border-color:#ffcdd2;">
-  <div class="layer-hdr l-infra">Python scripts · Called by hooks and agents</div>
+  <div class="layer-hdr l-infra">Python scripts in raven-core/ · symlink-init.sh wires them to core/scripts · plugin/scripts · .claude/scripts</div>
   <div class="grid">
-    <div class="card"><div class="card-title">cve-check.py</div><div class="card-sub">Three-tier library check<br/>Tier 1: org whitelist → auto-approve<br/>Tier 2: category → auto-approve<br/>Tier 3: PyPI Safety + GPT-5.4-Cyber</div></div>
-    <div class="card"><div class="card-title">secret-scan.py</div><div class="card-sub">Regex pattern scan on staged files<br/>AWS keys · OpenAI keys · passwords<br/>SSH keys · Bearer tokens</div><div class="tag t-block">hard block</div></div>
-    <div class="card"><div class="card-title">skill-search.py</div><div class="card-sub">Search + audit + install skills<br/>anthropics/skills + GitHub<br/>Security audit before install<br/>Approval required</div></div>
-    <div class="card"><div class="card-title">setup-claudemem.sh</div><div class="card-sub">Installs Claude Mem<br/>Updates CLAUDE.md<br/>Local session indexing</div></div>
+    <div class="card"><div class="card-title">schema-guard.py</div><div class="card-sub">PreToolUse Bash · BLOCKS<br/>DROP TABLE · TRUNCATE · DELETE without WHERE<br/>Returns JSON continue:false</div><div class="tag t-block">new · INTEGRITY</div></div>
+    <div class="card"><div class="card-title">cve-prompt-guard.py</div><div class="card-sub">UserPromptSubmit · async<br/>Detects pip/npm/yarn install intent<br/>Injects CVE reminder via additionalContext</div><div class="tag t-warn">new · context</div></div>
+    <div class="card"><div class="card-title">secret-scan.py</div><div class="card-sub">11-pattern scanner · --file mode for PostToolUse<br/>AWS · OpenAI · SSH · Bearer · passwords<br/>Pre-commit hard block · PostToolUse async warn</div><div class="tag t-block">dual-mode</div></div>
+    <div class="card"><div class="card-title">cve-check.py</div><div class="card-sub">Three-tier library check<br/>Tier 1: org whitelist → auto-approve<br/>Tier 2: category → auto-approve<br/>Tier 3: PyPI Safety + GPT deep scan</div></div>
+    <div class="card"><div class="card-title">audit-log.py</div><div class="card-sub">Encrypted audit trail<br/>Every PostToolUse + Stop event<br/>→ S3 / GCS / Azure Blob / OCI / local</div></div>
+    <div class="card"><div class="card-title">db-guard.py</div><div class="card-sub">PostToolUse Write/Edit<br/>Inline SQL · raw queries in non-SQL files<br/>Missing ERDs · broken migration numbering</div></div>
+    <div class="card"><div class="card-title">session-gate.py</div><div class="card-sub">Stop hook · global (~/.claude/scripts/)<br/>Git status · recent commits<br/>Open .raven/memory/ observations</div><div class="tag t-auto">new · context</div></div>
+    <div class="card"><div class="card-title">emit-violation.py</div><div class="card-sub">Violation signal → Raven Hub<br/>P1/P2/P3 incident escalation</div></div>
   </div>
 </div>
 
@@ -153,11 +189,11 @@
 <div class="layer" style="border-color:#f48fb1;">
   <div class="layer-hdr l-notify">Slash commands · Run explicitly</div>
   <div class="grid">
-    <div class="card"><div class="card-title">/shay-scaffold</div><div class="card-sub">Plan before code<br/>Dependency map + file structure</div></div>
-    <div class="card"><div class="card-title">/shay-approve</div><div class="card-sub">Architect approves library<br/>Updates manifest + changelog</div></div>
-    <div class="card"><div class="card-title">/shay-debug</div><div class="card-sub">Full boot diagnostic<br/>All layers checked + cleared</div></div>
-    <div class="card"><div class="card-title">/shay-incident</div><div class="card-sub">Manual P1/P2/P3 incident<br/>Notifies Prism7</div></div>
-    <div class="card"><div class="card-title">/shay-search</div><div class="card-sub">Find + audit + install skills<br/>Security check before install</div></div>
+    <div class="card"><div class="card-title">/raven-scaffold</div><div class="card-sub">Plan before code<br/>Dependency map + file structure</div></div>
+    <div class="card"><div class="card-title">/raven-approve</div><div class="card-sub">Architect approves library<br/>Updates manifest + changelog</div></div>
+    <div class="card"><div class="card-title">/raven-debug</div><div class="card-sub">Full boot diagnostic<br/>All layers checked + cleared</div></div>
+    <div class="card"><div class="card-title">/raven-incident</div><div class="card-sub">Manual P1/P2/P3 incident<br/>Notifies Prism7</div></div>
+    <div class="card"><div class="card-title">/raven-search</div><div class="card-sub">Find + audit + install skills<br/>Security check before install</div></div>
     <div class="card"><div class="card-title">/andie drama</div><div class="card-sub">Expert debate mode<br/>OODA + diagrams + strategy docs</div></div>
   </div>
 </div>

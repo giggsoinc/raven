@@ -188,37 +188,41 @@
 flowchart TB
     subgraph CORE ["☁️  GitHub — giggsoinc"]
         direction TB
-        RC["📦 raven-core\n─────────────────\nVERSION = 2.8.0\nbundle.sh\ncve-check.py\nsecret-scan.py\naudit-log.py\nemit-violation.py\nserver.py (MCP)\nregistry/\n  raven-register.py\n  raven-sync.py"]
+        RC["📦 raven-core v3.0\n─────────────────────────\nsymlink-init.sh ← single source of truth\ncve-check.py · secret-scan.py\nschema-guard.py · cve-prompt-guard.py\naudit-log.py · db-guard.py\nemit-violation.py · server.py MCP\nregistry/ · requirements.txt"]
         RR["🗄️ raven-registry\n─────────────────\nregistry.json\nhistory/"]
-        RAVEN["🔧 giggsoinc/raven\n─────────────────\nCLAUDE/RAVEN/\n  core/\n  guard/\n  codex/\n  mcp/\n  scripts/\n  skills/"]
-        RA["⚡ raven-action\n─────────────────\nGitHub Actions\nPR gate\nscripts/"]
+        RAVEN["🔧 giggsoinc/raven\n─────────────────────\nCLAUDE/RAVEN/\n  core/ · guard/ · mcp/\n  skills/ (46 skills)\n  raven-core/ ← symlink source\n  core/hooks/settings.json"]
+        RA["⚡ raven-action\n─────────────────\nGitHub Actions\nPR gate · scripts/"]
     end
 
     subgraph LOCAL ["💻 Developer Machine"]
         direction TB
         REG["~/.raven/\n─────────────────\nregistry.json\nremote/ ← clone"]
+        GLOBAL["~/.claude/\n─────────────────\nsettings.json ← 7 hooks\nskills/ (andie · andie-jr\n  db-router · ui-router)\nscripts/session-gate.py\nscripts/obsidian-log.py"]
 
         subgraph PROJECTS ["Registered Projects"]
-            P1["lockey/\n.raven/raven_version\n.claude/scripts/\n.claude/mcp/\n.claude/skills/"]
-            P2["fin-processor/\n.raven/raven_version\n.claude/scripts/\n.claude/skills/"]
-            P3["new-project/\n.raven/raven_version\n.claude/scripts/\n.claude/skills/"]
+            P1["project/\n.raven/manifest.json\n.claude/scripts/ ← symlinks\n.claude/settings.json ← hooks\n.claude/skills/\n.git/hooks/pre-commit"]
+            P2["fin-processor/\n.raven/manifest.json\n.claude/scripts/ ← symlinks\n.claude/settings.json ← hooks"]
+            P3["new-project/\n(raven-init pending)"]
         end
+
+        OBS["~/RavenVault/\n─────────────────\nsessions/ · projects/\ndecisions/ · index/"]
     end
 
-    RC -->|"bundle.sh\n(auto on commit)"| RAVEN
-    RC -->|"bundle.sh\n(auto on commit)"| RA
+    RC -->|"symlink-init.sh\n(wires symlinks)"| RAVEN
     RC -->|"raven-sync.py"| P1
     RC -->|"raven-sync.py"| P2
-    RC -->|"raven-sync.py"| P3
     REG <-->|"push/pull\nbackup"| RR
     P1 <-->|"git push"| CORE
-    RAVEN -.->|"skills installed\ninto projects"| PROJECTS
+    RAVEN -.->|"skills + scripts\ninto projects"| PROJECTS
+    GLOBAL -.->|"Stop hook\nobsidian-log"| OBS
 
     style RC fill:#1a0a2e,stroke:#7c3aed,color:#e6edf3
     style RR fill:#0a1628,stroke:#1f6feb,color:#e6edf3
     style RAVEN fill:#0a1628,stroke:#1f6feb,color:#e6edf3
     style RA fill:#0a1628,stroke:#1f6feb,color:#e6edf3
     style REG fill:#1a2a1a,stroke:#238636,color:#e6edf3
+    style GLOBAL fill:#1a2a1a,stroke:#238636,color:#e6edf3
+    style OBS fill:#1a1a2e,stroke:#7c3aed,color:#e6edf3
     style P1 fill:#161b22,stroke:#21262d,color:#8b949e
     style P2 fill:#161b22,stroke:#21262d,color:#8b949e
     style P3 fill:#161b22,stroke:#21262d,color:#8b949e
@@ -247,12 +251,12 @@ flowchart TB
         <li>git commit</li>
         <li class="warn">pre-commit hook runs CVE + security checks</li>
         <li class="warn">post-commit hook fires bundle.sh</li>
-        <li class="done">Scripts copied to SHAY-ROLLS</li>
+        <li class="done">Scripts copied to RAVEN</li>
         <li class="done">Scripts copied to raven-action</li>
         <li class="done">Andie skill synced</li>
         <li class="done">tools-landscape synced</li>
         <li class="done">Version stamp written everywhere</li>
-        <li>You push raven-core + SHAY-ROLLS</li>
+        <li>You push raven-core + RAVEN</li>
       </ul>
     </div>
 
@@ -305,7 +309,7 @@ sequenceDiagram
     participant PRE as 🔒 pre-commit hook
     participant POST as ⚡ post-commit hook
     participant BND as 🔧 bundle.sh
-    participant SR  as 🦅 SHAY-ROLLS/RAVEN
+    participant SR  as 🦅 RAVEN
     participant RA  as ⚡ raven-action
 
     Dev->>RC: git commit
@@ -321,7 +325,7 @@ sequenceDiagram
     BND->>RA: write .raven/raven_version
     BND-->>Dev: ✅ Done — commit each platform repo
     Dev->>RC: git push raven-core
-    Dev->>SR: git push SHAY-ROLLS
+    Dev->>SR: git push RAVEN
     Dev->>RA: git push raven-action
     </div>
   </div>
@@ -425,7 +429,7 @@ flowchart LR
           <td><span class="badge gray">local only</span></td>
           <td><span class="badge green">✅</span></td>
           <td><span class="badge gray">—</span></td>
-          <td style="font-size:11px;color:#8b949e">shay-* skills (legacy)</td>
+          <td style="font-size:11px;color:#8b949e">raven-* skills (legacy)</td>
         </tr>
         <tr>
           <td style="color:#8b949e"><em>your-new-project</em></td>

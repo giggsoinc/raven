@@ -1,5 +1,6 @@
 {
   "hooks": {
+
     "PreToolUse": [
       {
         "matcher": "*",
@@ -9,12 +10,39 @@
             "command": "python3 .claude/scripts/tool-guard.py"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type":    "command",
+            "command": "python3 .claude/scripts/schema-guard.py"
+          }
+        ]
       }
     ],
+
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type":    "command",
+            "command": "python3 .claude/scripts/cve-prompt-guard.py 2>/dev/null || true",
+            "async":   true
+          }
+        ]
+      }
+    ],
+
     "PostToolUse": [
       {
-        "matcher": "Write|Edit",
+        "matcher": "Write|Edit|MultiEdit",
         "hooks": [
+          {
+            "type":    "command",
+            "command": "jq -r '.tool_input.file_path // .tool_response.filePath // \"\"' | { read -r f; [ -n \"$f\" ] && python3 .claude/scripts/secret-scan.py --file \"$f\"; } 2>/dev/null || true",
+            "async":   true
+          },
           {
             "type":    "command",
             "command": "python3 .claude/scripts/db-guard.py",
@@ -33,6 +61,7 @@
         ]
       }
     ],
+
     "PreCompact": [
       {
         "hooks": [
@@ -43,6 +72,7 @@
         ]
       }
     ],
+
     "Notification": [
       {
         "hooks": [
@@ -54,6 +84,7 @@
         ]
       }
     ],
+
     "Stop": [
       {
         "hooks": [
@@ -61,19 +92,26 @@
             "type":    "command",
             "command": "python3 .claude/scripts/audit-log.py",
             "async":   true
+          },
+          {
+            "type":    "command",
+            "command": "python3 ~/.claude/scripts/session-gate.py 2>/dev/null || true",
+            "async":   true
           }
         ]
       }
     ],
+
     "SessionStart": [
       {
         "hooks": [
           {
             "type":    "command",
-            "command": "python3 -c \"import json,sys; d=json.load(open('.raven/manifest.json')); print(json.dumps({'additionalContext': f\\\"Raven v{d.get('standards','2.8')} active. Project: {d.get('project')}. Mode: {d.get('mode','team')}.\\\"}))\" 2>/dev/null || true"
+            "command": "python3 -c \"import json,pathlib,sys\nm=pathlib.Path('.raven/manifest.json')\nif m.exists():\n    try:\n        d=json.loads(m.read_text())\n        print(json.dumps({'additionalContext':f\\\"Raven v{d.get('raven_version',d.get('standards','3.0'))} active. Project: {d.get('project','unknown')}. Mode: {d.get('mode','team')}.\\\"}))  \n    except: pass\nelse:\n    print(json.dumps({'additionalContext':'RAVEN: manifest.json not found — project not initialised. Ask user if they want to run raven-init.'}))\" 2>/dev/null || true"
           }
         ]
       }
     ]
+
   }
 }
