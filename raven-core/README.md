@@ -23,6 +23,7 @@ are symlinks pointing here. Deleting a file here silently breaks all of them.
 | `emit-violation.py` | on violation | Violation signal emitter → Raven Hub |
 | `db-guard.py` | PostToolUse Write/Edit | Inline SQL and raw query detector |
 | `obsidian-log.py` | Stop | Three-layer session logger — AI summary + transcript parse + git state → RavenVault |
+| `session-start.py` | SessionStart | Brownfield/greenfield detection + model discovery → injects context at session open |
 | `server.py` | — | Raven MCP server (5 tools) |
 
 ## Setup (new install)

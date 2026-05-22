@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>AI-native engineering discipline for Claude Code · GitHub Copilot · OpenAI Codex</strong><br/>
-  46 domain skills · 10 always-on guard agents · 8 always-on hooks · CVE scanning · secret detection · audit logs · Obsidian session memory<br/>
+  46 domain skills · 10 always-on guard agents · 9 always-on hooks · CVE scanning · secret detection · audit logs · Obsidian session memory<br/>
   Works for individual developers, entire engineering teams, and enterprise IT rollouts
 </p>
 
@@ -116,12 +116,13 @@ Skills activate only when your work matches their domain — ~100 tokens each, n
 **Tooling**
 > `security` · `log-management` · `agent-chaining` · `tools-landscape` · `task-observer`
 
-### 🪝 8 Always-On Hooks — Fire Without Being Asked
+### 🪝 9 Always-On Hooks — Fire Without Being Asked
 
 Unlike skills (which activate on domain match), hooks fire automatically at specific lifecycle events. You cannot forget to run them.
 
 | Event | Hook | Type | What it does |
 |---|---|---|---|
+| `SessionStart` | `session-start.py` | Context | Detects brownfield/greenfield · discovers available models · writes `.model.env` if missing |
 | `PreToolUse` any tool | `tool-guard.py` | **BLOCK** | Blocks restricted actions (rm -rf, sudo, etc.) |
 | `PreToolUse` Bash | `schema-guard.py` | **BLOCK** | Stops DROP TABLE / TRUNCATE / DELETE without WHERE before execution |
 | `UserPromptSubmit` | `cve-prompt-guard.py` | Warn | Detects install intent (`pip install`, `npm install`, etc.) — injects CVE reminder before Claude responds |
@@ -130,7 +131,6 @@ Unlike skills (which activate on domain match), hooks fire automatically at spec
 | `PreCompact` | `token-guard.py` | Warn | Token budget warnings at 25/50/75/90% |
 | `Stop` | `session-gate.py` | Async | Git status + recent commits + open observations at session end |
 | `Stop` | `obsidian-log.py` | Async | Three-layer session log → Obsidian vault: AI summary + files touched + git state |
-| `SessionStart` | manifest inject | Context | Loads project config; flags if Raven not yet initialised |
 
 **INTEGRITY hooks** (BLOCK type) fire before execution and stop dangerous actions.
 **CONTEXT hooks** (Warn/Async) inform without blocking — so they never kill adoption.
