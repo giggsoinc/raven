@@ -487,11 +487,11 @@ This wires `%USERPROFILE%\.claude\` with all 41 skills, 10 agents, and the globa
 
 ## Hook Architecture — What Fires Automatically
 
-Raven wires 8 hooks into Claude Code's lifecycle via `.claude/settings.json`. These fire without any user action.
+Raven wires 9 hooks into Claude Code's lifecycle via `.claude/settings.json`. These fire without any user action.
 
 | Event | Hook | Blocks? | What it does |
 |---|---|---|---|
-| `SessionStart` | manifest inject | No | Loads project config; warns if Raven not initialised |
+| `SessionStart` | `session-start.py` | No | Detects brownfield/greenfield · discovers available models · writes `.model.env` if missing |
 | `UserPromptSubmit` | `cve-prompt-guard.py` | No | Detects install intent → injects CVE reminder before Claude responds |
 | `PreToolUse` any | `tool-guard.py` | **Yes** | Blocks restricted actions (rm -rf, sudo, etc.) |
 | `PreToolUse` Bash | `schema-guard.py` | **Yes** | Stops DROP TABLE / TRUNCATE / DELETE without WHERE before it runs |
@@ -502,7 +502,7 @@ Raven wires 8 hooks into Claude Code's lifecycle via `.claude/settings.json`. Th
 | `Stop` | `obsidian-log.py` | No (async) | Three-layer session log → Obsidian vault (AI summary + files touched + git state) |
 
 **INTEGRITY hooks** (schema-guard, tool-guard, pre-commit) block before execution.
-**CONTEXT hooks** (secret-scan warn, cve-prompt, session-gate, obsidian-log) inform asynchronously — no adoption friction.
+**CONTEXT hooks** (session-start, secret-scan warn, cve-prompt, session-gate, obsidian-log) inform asynchronously — no adoption friction.
 
 The pre-commit hook (separate from Claude Code hooks) adds: manifest check · secret hard block · CVE gate · style check · deletion guard.
 
