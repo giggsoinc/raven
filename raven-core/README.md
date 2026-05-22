@@ -22,6 +22,7 @@ are symlinks pointing here. Deleting a file here silently breaks all of them.
 | `audit-log.py` | PostToolUse + Stop | Encrypted audit trail → S3/GCS/Azure/OCI |
 | `emit-violation.py` | on violation | Violation signal emitter → Raven Hub |
 | `db-guard.py` | PostToolUse Write/Edit | Inline SQL and raw query detector |
+| `obsidian-log.py` | Stop | Three-layer session logger — AI summary + transcript parse + git state → RavenVault |
 | `server.py` | — | Raven MCP server (5 tools) |
 
 ## Setup (new install)
