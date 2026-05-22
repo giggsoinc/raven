@@ -16,12 +16,19 @@ DRY_RUN=false
 CORE_DIR="$(cd "$(dirname "$0")" && pwd)"
 RAVEN_DIR="$(dirname "$CORE_DIR")"
 
-ENGINE_SCRIPTS=(cve-check.py secret-scan.py audit-log.py emit-violation.py db-guard.py)
+ENGINE_SCRIPTS=(
+  cve-check.py
+  secret-scan.py
+  audit-log.py
+  emit-violation.py
+  db-guard.py
+  schema-guard.py
+  cve-prompt-guard.py
+)
 
 TARGETS=(
   "$RAVEN_DIR/core/scripts"
   "$RAVEN_DIR/plugin/scripts"
-  "$RAVEN_DIR/codex/scripts"
   "$RAVEN_DIR/.claude/scripts"
 )
 
