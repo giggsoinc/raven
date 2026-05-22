@@ -2,10 +2,11 @@
 
 ---
 
-## SESSION OPEN — Fire This Immediately, Before The User Types Anything
+## SESSION OPEN — Fire On First User Message (Before Responding To It)
 
-At the start of every session, run these steps in order before waiting for any user input.
-Do not wait. Do not ask. Fire immediately.
+When the user sends their **first message** of the session, run these steps IN FULL before
+responding to their request. Do not skip. Do not answer their question first.
+The SessionStart hook has already fired silently — this is the visible boot sequence.
 
 ### Step 1 — Version Check (runs before anything is shown to user)
 
