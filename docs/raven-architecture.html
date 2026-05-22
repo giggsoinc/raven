@@ -201,7 +201,7 @@ flowchart TB
 
         subgraph PROJECTS ["Registered Projects"]
             P1["project/\n.raven/manifest.json\n.claude/scripts/ ← symlinks\n.claude/settings.json ← hooks\n.claude/skills/\n.git/hooks/pre-commit"]
-            P2["fin-processor/\n.raven/manifest.json\n.claude/scripts/ ← symlinks\n.claude/settings.json ← hooks"]
+            P2["my-service/\n.raven/manifest.json\n.claude/scripts/ ← symlinks\n.claude/settings.json ← hooks"]
             P3["new-project/\n(raven-init pending)"]
         end
 
@@ -402,8 +402,8 @@ flowchart LR
       </thead>
       <tbody>
         <tr>
-          <td><strong>lockey</strong></td>
-          <td style="color:#8b949e;font-size:12px">/AntiGravity_Projects/lockey</td>
+          <td><strong>my-project</strong></td>
+          <td style="color:#8b949e;font-size:12px">/projects/my-project</td>
           <td>2.8.0</td>
           <td><span class="badge green">✅ current</span></td>
           <td><span class="badge purple">GitHub</span></td>
@@ -412,8 +412,8 @@ flowchart LR
           <td style="font-size:11px;color:#8b949e">raven-core · security · andie · tools-landscape + more</td>
         </tr>
         <tr>
-          <td><strong>fin-processor</strong></td>
-          <td style="color:#8b949e;font-size:12px">/AntiGravity_Projects/Proj1/fin-processor</td>
+          <td><strong>my-service</strong></td>
+          <td style="color:#8b949e;font-size:12px">/projects/Proj1/my-service</td>
           <td>2.8.0</td>
           <td><span class="badge green">✅ current</span></td>
           <td><span class="badge gray">local only</span></td>
@@ -423,7 +423,7 @@ flowchart LR
         </tr>
         <tr>
           <td><strong>Dev-Claude-Arch</strong></td>
-          <td style="color:#8b949e;font-size:12px">/AntiGravity_Projects/Dev-Claude-Arch</td>
+          <td style="color:#8b949e;font-size:12px">/projects/Dev-Claude-Arch</td>
           <td>2.8.0</td>
           <td><span class="badge green">✅ current</span></td>
           <td><span class="badge gray">local only</span></td>
@@ -456,13 +456,13 @@ flowchart LR
     <div class="mermaid">
 flowchart LR
     subgraph LOST ["💥 You lose your machine or delete a repo"]
-        L1["Deleted: lockey/"]
+        L1["Deleted: my-project/"]
         L2["Wiped: ~/.raven/"]
         L3["Deleted: raven-core/"]
     end
 
     subgraph RECOVER ["🔄 Recovery"]
-        R1["git clone giggsoinc/lockey\n→ lockey restored"]
+        R1["git clone giggsoinc/my-project\n→ my-project restored"]
         R2["git clone giggsoinc/raven-registry ~/.raven/remote\ncp registry.json ~/.raven/\n→ registry restored"]
         R3["git clone giggsoinc/raven-core\n→ bundle.sh + scripts back"]
     end
