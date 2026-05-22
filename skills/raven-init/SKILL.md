@@ -248,19 +248,46 @@ manifest.secrets.json
 
 4. Copy `manifest.secrets.example.json` → `.raven/manifest.secrets.example.json`
 
-5. Output instructions:
+5. Write `.claude/CLAUDE.md` (project-level boot instructions) if not already present:
+
+```markdown
+# CLAUDE.md — Raven Project
+
+Raven v3.0 is active for this project.
+
+## Session Boot (on first user message, before responding)
+
+1. Load `.raven/manifest.json` — trust the declared stack
+2. Output: "Raven ✅ | {project} | {stack.work_type} — guards active. What are we building?"
+3. Invoke the domain skill for this project's stack (e.g. raven:odoo-specialist for Odoo)
+4. Then respond to the user's request
+
+## Non-Negotiable Rules
+
+- NO SECRETS committed to Git
+- NO LIBRARY added without CVE check
+- NO DELETION without approval or [GUARD:ALLOW-DELETE] flag
+- Domain specialist skill MUST be invoked before file reads or code responses
+```
+
+   Create `.claude/` directory if not exists.
+   Do NOT overwrite if `.claude/CLAUDE.md` already exists.
+
+6. Add `.claude/CLAUDE.md` to project `.gitignore` is NOT needed — it should be committed.
+   Add `.model.env` to `.gitignore` if not already there.
+
+7. Output instructions:
 ```
 ✅ manifest.json created
+✅ .claude/CLAUDE.md written — Raven will auto-boot on next session open
 
 Next steps:
 1. Get manifest.secrets.json from your architect via secure channel
 2. Place it at: .raven/manifest.secrets.json
-3. Run: claude --debug to validate everything loaded
-4. Commit manifest.json to Git:
+3. Commit to Git:
 
-   git add .raven/manifest.json
-   git add .raven/.gitignore
-   git commit -m "chore: init raven manifest v1.0 [RAVEN:INIT]"
+   git add .raven/manifest.json .raven/.gitignore .claude/CLAUDE.md
+   git commit -m "chore: init raven v3.0 [RAVEN:INIT]"
    git push
 
 ⚠️  NEVER commit manifest.secrets.json
