@@ -3,7 +3,7 @@
 ⚠️  **DO NOT DELETE FILES FROM THIS FOLDER.**
 
 Every `.py` script here is the **only real copy** of that engine script.
-All other locations (`core/scripts/`, `plugin/scripts/`, `codex/scripts/`, `.claude/scripts/`)
+All other locations (`core/scripts/`, `plugin/scripts/`, `.claude/scripts/`)
 are symlinks pointing here. Deleting a file here silently breaks all of them.
 
 ## Rule
@@ -13,14 +13,16 @@ are symlinks pointing here. Deleting a file here silently breaks all of them.
 
 ## Files
 
-| Script | Purpose |
-|---|---|
-| `cve-check.py` | Three-tier CVE gate — PyPI + GPT deep scan |
-| `secret-scan.py` | 11-pattern secret scanner — pre-commit hard block |
-| `audit-log.py` | Encrypted audit trail → S3/GCS/Azure/OCI |
-| `emit-violation.py` | Violation signal emitter → Raven Hub |
-| `db-guard.py` | Inline SQL and raw query detector |
-| `server.py` | Raven MCP server (5 tools) |
+| Script | Hook event | Purpose |
+|---|---|---|
+| `cve-check.py` | pre-commit + UserPromptSubmit | Three-tier CVE gate — PyPI + GPT deep scan |
+| `secret-scan.py` | PostToolUse Write/Edit + pre-commit | 11-pattern secret scanner — warns on write, hard blocks at commit |
+| `schema-guard.py` | PreToolUse Bash | Blocks DROP TABLE / TRUNCATE / DELETE without WHERE — hard block |
+| `cve-prompt-guard.py` | UserPromptSubmit | Detects install intent, injects CVE reminder before Claude responds |
+| `audit-log.py` | PostToolUse + Stop | Encrypted audit trail → S3/GCS/Azure/OCI |
+| `emit-violation.py` | on violation | Violation signal emitter → Raven Hub |
+| `db-guard.py` | PostToolUse Write/Edit | Inline SQL and raw query detector |
+| `server.py` | — | Raven MCP server (5 tools) |
 
 ## Setup (new install)
 
