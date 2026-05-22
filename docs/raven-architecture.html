@@ -197,7 +197,7 @@ flowchart TB
     subgraph LOCAL ["💻 Developer Machine"]
         direction TB
         REG["~/.raven/\n─────────────────\nregistry.json\nremote/ ← clone"]
-        GLOBAL["~/.claude/\n─────────────────\nsettings.json ← 7 hooks\nskills/ (andie · andie-jr\n  db-router · ui-router)\nscripts/session-gate.py\nscripts/obsidian-log.py"]
+        GLOBAL["~/.claude/\n─────────────────\nsettings.json ← 8 hooks\nskills/ (andie · andie-jr\n  db-router · ui-router)\nscripts/session-gate.py\nscripts/obsidian-log.py\nscripts/schema-guard.py\nscripts/cve-prompt-guard.py"]
 
         subgraph PROJECTS ["Registered Projects"]
             P1["project/\n.raven/manifest.json\n.claude/scripts/ ← symlinks\n.claude/settings.json ← hooks\n.claude/skills/\n.git/hooks/pre-commit"]
