@@ -19,6 +19,24 @@
 
 ---
 
+## Performance
+
+Token cost is a first-class design constraint. Skills load once on invocation and remain in the context window for the entire session — smaller skills mean every subsequent message is cheaper.
+
+| Optimisation | Before | After | Saving |
+|---|---|---|---|
+| Andie (v5.2 → v6.1) | ~9,955 tok | ~3,103 tok | **−6,852 tok** |
+| db-router (pure routing table) | ~3,034 tok | ~474 tok | **−2,560 tok** |
+| ui-router | ~2,987 tok | ~1,424 tok | **−1,564 tok** |
+| agent-chaining | ~3,046 tok | ~1,361 tok | **−1,686 tok** |
+| **Total skill footprint** | **~22,321 tok** | **~9,523 tok** | **−57%** |
+| `raven-skill-reminder` hook | ~71 tok × every message | ~10 tok × first message only | **−61 tok/msg** |
+| Obsidian → `session-start` continuity | cold start each session | last session summary injected | **context carry** |
+
+In a 20-message session using Andie + 1 specialist: **~53% fewer context-tokens** compared to v3.0.
+
+---
+
 ## The Problem Raven Solves
 
 AI coding assistants are powerful — but left unchecked, they ship secrets in commits, add CVE-laden libraries, skip tests, ignore your stack conventions, and produce code that the next developer can't follow.
