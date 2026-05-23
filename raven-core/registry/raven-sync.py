@@ -40,6 +40,7 @@ ENGINE_SCRIPTS = [
 
 SKILLS_TO_SYNC = [
     "andie",
+    "andie-jr",
     "tools-landscape",
 ]
 
@@ -178,7 +179,7 @@ def sync_project(project, current_version, dry_run=False):
         git_run(["add", ".claude/", ".raven/raven_version"], cwd=path)
         git_run([
             "commit", "-m",
-            f"chore(raven): sync to v{current_version} — scripts · skills · Andie v4.0"
+            f"chore(raven): sync to v{current_version} — scripts · skills · Andie compact"
         ], cwd=path)
         print(f"    ✅ committed")
 
