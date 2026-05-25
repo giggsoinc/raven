@@ -25,7 +25,7 @@ Token cost is a first-class design constraint. Skills load once on invocation an
 
 | Optimisation | Before | After | Saving |
 |---|---|---|---|
-| Andie (v5.2 → v6.1) | ~9,955 tok | ~3,103 tok | **−6,852 tok** |
+| Andie (v5.2 → v6.2) | ~9,955 tok | ~3,103 tok | **−6,852 tok** |
 | db-router (pure routing table) | ~3,034 tok | ~474 tok | **−2,560 tok** |
 | ui-router | ~2,987 tok | ~1,424 tok | **−1,564 tok** |
 | agent-chaining | ~3,046 tok | ~1,361 tok | **−1,686 tok** |
