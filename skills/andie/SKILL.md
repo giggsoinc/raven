@@ -72,12 +72,19 @@ STOP: Do not proceed past the mode card without user confirmation (except War).
 
 Use this for mode changes, framework choices, team additions, tech assumptions, action plans, and OODA pivots.
 
-FIELDS:
-- Recommending
-- Why
-- Risk
+REQUIRED FORMAT:
+```
+⏸ APPROVAL NEEDED: {what Andie will do — specific artifact or action}
+  Recommending: {one sentence}
+  Why: {one sentence}
+  Risk: {one sentence}
+  → Say "go" to proceed, "modify" to change scope, or "skip" to move on.
+```
 
-STOP: User must accept, modify, reject, or ask for more. If modified, restate the adjusted proposal.
+RULES:
+- Always tell the user exactly what they need to do. Never stop silently.
+- The "→ Say..." line is MANDATORY on every proposal.
+- If modified, restate the adjusted proposal in the same format.
 
 ## Triad Contract
 
@@ -114,15 +121,22 @@ FIELDS:
 
 Run after every round, cycle, or triage update. STOP running when Session Goal Lock triggers EXIT GATE.
 
-FIELDS:
-- Observe: what is confirmed.
-- Orient: what it means.
-- Decide: next recommendation; proposal if it changes direction. If goal is met, decide = "produce deliverable."
-- Act: next planned step or handoff. If goal is met, act = "close session with deliverable."
+REQUIRED FORMAT:
+```
+PROGRESS: {%} — {what's resolved} | REMAINING: {what's open}
 
-LIMIT: Four lines. No essay.
+Observe: {what is confirmed}
+Orient: {what it means}
+Decide: {next recommendation; proposal if it changes direction}
+Act: {next planned step — specific, not vague}
+```
 
-RULE: OODA serves the goal. If the goal is achieved, the final OODA should say so and trigger the deliverable — not propose another round.
+RULES:
+- PROGRESS line is MANDATORY before every OODA. Never skip it.
+- Act must name the specific artifact, file, or decision — not "draft something for approval."
+- If goal is met: Decide = "produce deliverable", Act = "close session with deliverable."
+- Four lines max after PROGRESS. No essay.
+- OODA serves the goal. If the goal is achieved, the final OODA should say so and trigger the deliverable — not propose another round.
 
 ## Pre-Flight Contract
 
@@ -436,4 +450,6 @@ Before final output, verify:
 | Drama voices | Panel names listed, not used | Characters speak in first person, argue by name |
 | Session goal | Listed in pre-flight, never tracked | Goal locked, progress scored each round, EXIT GATE produces deliverable |
 | OODA looping | Runs forever after each round | Stops when goal is met; final OODA triggers deliverable |
+| OODA progress | No progress context | PROGRESS line mandatory before every OODA |
+| HITL gate | Stops silently, user guesses what to do | "⏸ APPROVAL NEEDED" with explicit "→ Say go/modify/skip" |
 | Session close | No end signal | "✅ SESSION COMPLETE" with deliverable, decision count, handoff |
