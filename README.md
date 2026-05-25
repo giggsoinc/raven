@@ -57,6 +57,8 @@ Every session starts with **Andie**, Raven's orchestration layer. Andie isn't a 
 - **Proposes before proceeding** — every tech recommendation, framework pick, and team suggestion is a PROPOSAL (accept / modify / reject). Nothing proceeds without your explicit confirmation. This is HITL as a first-class design principle, not an afterthought
 - **Runs OODA continuously** — Observe / Orient / Decide / Act fires after every round in every mode. When orientation shifts the picture, a PROPOSAL is issued before anything changes direction
 - **Picks the right thinking mode** — Deep (expert explanation), Kaizen (improvement cycles), War (crisis triage), Drama (multi-stakeholder debate). Shows you what each mode would produce *for your specific problem* before you commit to one
+- **200-word cap per generation** — Andie moves at human pace. One idea per round, fully absorbed before the next
+- **Feynman recap after every round** — "📌 Here is what we learnt:" — 100–150 word summary combining domain, technical, and data insights
 
 ### 🛡️ 10 Guard Agents — Always On
 
