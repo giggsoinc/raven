@@ -1,0 +1,68 @@
+{
+  "project": "raven",
+  "owner": "giggso",
+  "version": "3.1.0",
+  "stack": {
+    "language": [
+      "python3.13",
+      "shell"
+    ],
+    "frontend": [
+      "none"
+    ],
+    "data": [],
+    "db": [
+      "none"
+    ],
+    "infra": [],
+    "cloud": "on-prem",
+    "libraries": []
+  },
+  "standards": "raven-v1",
+  "min_compatible_version": "1.0",
+  "approval_mode": "first_responder",
+  "approval_mode_version": "1.0",
+  "approval_mode_changeable": true,
+  "guard": {
+    "enabled": true,
+    "version": "1.0",
+    "git": {
+      "force_push": "hard_block",
+      "branch_deletion": "approval_flow",
+      "file_deletion": "approval_flow",
+      "deletion_flag": "GUARD:ALLOW-DELETE"
+    },
+    "db": {
+      "mass_deletion_threshold": 100,
+      "truncation": "hard_block",
+      "schema_drop": "hard_block",
+      "index_deletion": "approval_flow"
+    },
+    "infra": {
+      "s3_delete": "approval_flow",
+      "terraform_state": "hard_block",
+      "vm_terminate": "approval_flow",
+      "network_change": "approval_flow"
+    },
+    "firewall": {
+      "open_world": "hard_block",
+      "rule_change": "approval_flow",
+      "egress_change": "approval_flow"
+    },
+    "incidents": {
+      "p1_sla_minutes": 15,
+      "p2_sla_minutes": 60,
+      "p3_sla_hours": 24
+    }
+  },
+  "changelog": [
+    {
+      "version": "3.1.0",
+      "date": "2026-05-23T00:00:00Z",
+      "changed_by": "giggso.ravi@gmail.com",
+      "summary": "Sync Andie v6.1 tuning, brownfield survey, andie-frames. \u221257% skill footprint, \u221253% session context.",
+      "pr": "pending",
+      "approved_by": "giggso.ravi@gmail.com"
+    }
+  ]
+}
