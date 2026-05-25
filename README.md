@@ -7,7 +7,7 @@
 <p align="center">
   <strong>AI-native engineering discipline for Claude Code · GitHub Copilot · OpenAI Codex</strong><br/>
   46 domain skills · 10 always-on guard agents · 9 always-on hooks · CVE scanning · secret detection · audit logs · Obsidian session memory<br/>
-  Works for individual developers, entire engineering teams, and enterprise IT rollouts
+  Works for individual developers and engineering teams
 </p>
 
 <p align="center">
@@ -47,7 +47,7 @@ AI coding assistants are powerful — but left unchecked, they ship secrets in c
 
 ## What Raven Does
 
-### 🧠 Andie — Your AI Architect (v5.2)
+### 🧠 Andie — Your AI Architect (v6.2)
 
 Every session starts with **Andie**, Raven's orchestration layer. Andie isn't a chatbot — it's a structured expert system that:
 
@@ -173,9 +173,7 @@ This means teams on shared codebases never silently drift onto old versions.
 
 **Tech leads and architects** — architecture-guard ensures decisions are documented. HITL gates in Andie mean recommendations are proposals, not auto-actions. The session memory in `.raven/memory/` gives you an audit trail of what was decided and why.
 
-**Enterprise IT and DevOps** — silent MDM install on macOS (Jamf, Ansible), Windows (Intune, GPO, SCCM). Managed MCP config pushed org-wide. New hire workstations provisioned automatically.
-
-**CISOs and security teams** — CVE scanning on every library addition, secret detection on every commit, escalation paths for critical violations, audit logs for every action Raven takes.
+**Enterprise IT** — need MDM deployment, MCP governance, model routing, and org-level risk dashboards? See [Raven Enterprise](https://github.com/giggsoinc/raven-enterprise).
 
 ---
 
@@ -203,10 +201,10 @@ Unknown or mixed domains trigger `dynamic-specialist` — a 9-step on-demand exp
 
 ### Quickest — Plugin (no terminal needed)
 
-1. Download [`raven-plugin-v3.0.0.zip`](plugin/raven-plugin-v3.0.0.zip)
+1. Download [`raven-plugin-v3.2.0.zip`](plugin/raven-plugin-v3.2.0.zip)
 2. Open Claude Desktop → Settings → Extensions → Add plugin
 3. Upload the ZIP
-4. Done — 41 skills and 10 guard agents load automatically
+4. Done — 46 skills and 10 guard agents load automatically
 
 ### Individual Developer
 
@@ -220,27 +218,9 @@ curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | b
 iwr https://raw.githubusercontent.com/giggsoinc/raven/main/install.ps1 | iex
 ```
 
-### Enterprise (IT / Admin)
+### Enterprise
 
-**macOS / Linux — interactive or MDM (Jamf, Ansible):**
-```bash
-# Interactive
-sudo bash install-enterprise.sh
-
-# Silent for MDM
-sudo bash install-enterprise.sh --silent --org "AcmeCorp" --email "it@acme.com"
-```
-
-**Windows — interactive or MDM (Intune, GPO, SCCM):**
-```powershell
-# Interactive
-.\install-enterprise.ps1
-
-# Silent for MDM / Intune
-.\install-enterprise.ps1 -Silent -OrgName "AcmeCorp" -OrgEmail "it@acme.com"
-```
-
-[→ Full enterprise guide](HOW-TO-USE.md#enterprise-mac-linux)
+For MDM deployment (Jamf, Intune, GPO), MCP governance, model routing, and Hub — see [Raven Enterprise](https://github.com/giggsoinc/raven-enterprise).
 
 ---
 
@@ -267,7 +247,8 @@ You open Claude Code. Andie detects "production down" signal. War mode fires. No
 | [giggsoinc/raven](https://github.com/giggsoinc/raven) | Claude Code · Codex · Copilot | This repo — full install, plugin ZIP, all skills |
 | [giggsoinc/raven-codex](https://github.com/giggsoinc/raven-codex) | Codex / Copilot users | Plugin-only version |
 | [giggsoinc/raven-guard](https://github.com/giggsoinc/raven-guard) | DevOps / architects | Production-grade guard layer |
-| [giggsoinc/andie](https://github.com/giggsoinc/andie) | All AI platforms | Andie v5.2 standalone — works on ChatGPT, Gemini, Manus, Perplexity too |
+| [giggsoinc/raven-enterprise](https://github.com/giggsoinc/raven-enterprise) | Enterprise IT | Superset — Hub, MCP guard, dynamic model routing, org risk |
+| [giggsoinc/andie](https://github.com/giggsoinc/andie) | All AI platforms | Andie v6.2 standalone — works on ChatGPT, Gemini, Manus, Perplexity too |
 
 ---
 
