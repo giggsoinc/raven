@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>AI-native engineering discipline for Claude Code · GitHub Copilot · OpenAI Codex</strong><br/>
-  46 domain skills · 10 always-on guard agents · 9 always-on hooks · CVE scanning · secret detection · audit logs · Obsidian session memory<br/>
+  61 domain skills · 10 always-on guard agents · 9 always-on hooks · CVE scanning · secret detection · audit logs · Obsidian session memory<br/>
   Works for individual developers and engineering teams
 </p>
 
@@ -25,7 +25,7 @@ Token cost is a first-class design constraint. Skills load once on invocation an
 
 | Optimisation | Before | After | Saving |
 |---|---|---|---|
-| Andie (v5.2 → v6.2) | ~9,955 tok | ~3,103 tok | **−6,852 tok** |
+| Andie (v5.2 → v6.3) | ~9,955 tok | ~3,103 tok | **−6,852 tok** |
 | db-router (pure routing table) | ~3,034 tok | ~474 tok | **−2,560 tok** |
 | ui-router | ~2,987 tok | ~1,424 tok | **−1,564 tok** |
 | agent-chaining | ~3,046 tok | ~1,361 tok | **−1,686 tok** |
@@ -47,7 +47,7 @@ AI coding assistants are powerful — but left unchecked, they ship secrets in c
 
 ## What Raven Does
 
-### 🧠 Andie — Your AI Architect (v6.2)
+### 🧠 Andie — Your AI Architect (v6.3)
 
 Every session starts with **Andie**, Raven's orchestration layer. Andie isn't a chatbot — it's a structured expert system that:
 
@@ -250,7 +250,7 @@ You open Claude Code. Andie detects "production down" signal. War mode fires. No
 | [giggsoinc/raven-codex](https://github.com/giggsoinc/raven-codex) | Codex / Copilot users | Plugin-only version |
 | [giggsoinc/raven-guard](https://github.com/giggsoinc/raven-guard) | DevOps / architects | Production-grade guard layer |
 | [giggsoinc/raven-enterprise](https://github.com/giggsoinc/raven-enterprise) | Enterprise IT | Superset — Hub, MCP guard, dynamic model routing, org risk |
-| [giggsoinc/andie](https://github.com/giggsoinc/andie) | All AI platforms | Andie v6.2 standalone — works on ChatGPT, Gemini, Manus, Perplexity too |
+| [giggsoinc/andie](https://github.com/giggsoinc/andie) | All AI platforms | Andie v6.3 standalone — works on ChatGPT, Gemini, Manus, Perplexity too |
 
 ---
 
