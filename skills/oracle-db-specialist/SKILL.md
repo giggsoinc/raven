@@ -1,6 +1,6 @@
 ---
 name: oracle-db-specialist
-description: Oracle Database guidance for SQL, PL/SQL, SQLcl, ORDS, administration, performance, security, migrations, and agent-safe database workflows. Trigger on: SQL, PL/SQL, SQLcl, ORDS, JDBC, node-oracledb, AWR, ASH, explain plan, Data Guard, RAC, Multitenant, Exadata, schema migrations, VPD, auditing, encryption, vector search, SELECT AI.
+description: Oracle Database guidance for SQL, PL/SQL, SQLcl, ORDS, administration, performance, security, migrations, and agent-safe database workflows. Version-aware across 19c, 21c, and 23ai. Trigger on: SQL, PL/SQL, SQLcl, ORDS, JDBC, node-oracledb, AWR, ASH, explain plan, Data Guard, RAC, Multitenant, Exadata, schema migrations, VPD, auditing, encryption, vector search, SELECT AI, property graph, JSON Relational Duality, OML, True Cache.
 ---
 
 # Oracle Database Specialist
@@ -32,6 +32,33 @@ On network failure: answer from built-in Oracle DB knowledge and note the limita
 | Privileges, VPD, masking, auditing, encryption, network security | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/security/README.md` |
 | SQL tuning, patterns, dynamic SQL, injection avoidance | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/sql-dev/README.md` |
 | SQLcl scripting, Liquibase, DDL gen, MCP server, AWR, background jobs | `https://raw.githubusercontent.com/giggsoinc/skills/main/db/sqlcl/sqlcl-mcp-server.md` |
+
+## Version Capability Matrix
+
+Ask the customer's Oracle version FIRST. Features vary significantly across versions.
+
+| Feature | 19c | 21c | 23ai | Notes |
+|---------|-----|-----|------|-------|
+| Multitenant | ✅ | ✅ | ✅ | 19c limited to 3 PDBs (free) |
+| JSON support | Basic | Native JSON type | JSON Relational Duality | 23ai duality views are game-changing |
+| Vector search | ❌ | ❌ | ✅ | VECTOR datatype, DBMS_VECTOR, similarity search |
+| SELECT AI | ❌ | ❌ | ✅ | Natural language SQL via AI profiles |
+| Property Graph | Basic (PGX) | Basic (PGX) | ✅ SQL/PGQ | 23ai: graph queries in standard SQL |
+| In-DB ML (OML) | ✅ | ✅ | ✅ Enhanced | 23ai adds AutoML, ONNX import |
+| Edition-Based Redefinition | ✅ | ✅ | ✅ | Zero-downtime schema changes |
+| In-Memory | ✅ | ✅ | ✅ | Requires Enterprise Edition + option |
+| Blockchain Tables | ❌ | ✅ | ✅ | Immutable rows |
+| True Cache | ❌ | ❌ | ✅ | In-memory read-only cache instances |
+| ORDS | ✅ 20+ | ✅ | ✅ | REST APIs, version-independent |
+| Data Guard | ✅ | ✅ | ✅ | Active Data Guard requires license |
+| RAC | ✅ | ✅ | ✅ | Enterprise Edition only |
+
+### Version-Specific Guidance Rules
+- Never recommend 23ai features to a 19c customer without flagging the version gap
+- Always ask: "Which Oracle version and edition (SE2/EE)?" before architecture advice
+- If customer says "latest" → assume 23ai but confirm
+- If customer is migrating versions → fetch `migrations/` guides for cross-version considerations
+- 19c is in extended support until April 2027 — still widely deployed, never dismiss it
 
 ## Common Flows
 

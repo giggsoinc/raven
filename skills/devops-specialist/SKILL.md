@@ -10,7 +10,39 @@ description: Use for any DevOps / SRE question. Assumes Kelsey Hightower (SRE, G
 Explaining as a senior engineer teaching someone who knows adjacent tech but is new to DevOps / SRE.
 
 ## Core Focus
-CI/CD, observability, SLOs, incident response, deployment strategies, toil reduction
+CI/CD, observability, SLOs, incident response, deployment strategies, toil reduction, docker-compose local dev, container orchestration
+
+## Local Dev with Docker-Compose
+
+Most projects start local before hitting K8s. Docker-compose is the local dev standard.
+
+### Patterns
+- **Multi-service stack:** API + DB + cache + queue — one `docker-compose up`
+- **GPU workloads:** `deploy.resources.reservations.devices` with `driver: nvidia`
+- **ML stacks:** model-server + feature-store + vector-db + API gateway + monitoring
+- **Data stacks:** postgres + redis + kafka + airflow — compose profiles for optional services
+- **Volume strategy:** mount code for hot-reload, named volumes for data persistence, never bake data into images
+- **Health checks:** service-specific (pg_isready, redis-cli ping, curl /health), not just container running
+- **Networking:** use service names as hostnames, custom networks for isolation, expose only what's needed
+
+### Docker-Compose vs Docker vs K8s Decision
+
+| Signal | → Use |
+|--------|-------|
+| Local dev, single developer | Docker-compose |
+| CI pipeline, single container | Docker (plain) |
+| Multi-container local dev | Docker-compose |
+| Multi-container staging/prod | K8s (or K3s for small) |
+| GPU local dev (ML) | Docker-compose with nvidia runtime |
+| GPU production | K8s with GPU node pools |
+| "Do I need K8s?" | If < 5 services and < 3 developers → no |
+
+### Gotchas
+- `depends_on` only waits for container start, NOT for service ready — use health checks
+- `.env` file loading order matters — explicit `env_file:` beats implicit `.env`
+- Docker Desktop resource limits — default 2GB RAM kills multi-service stacks
+- Compose V2 (`docker compose`) vs V1 (`docker-compose`) — V2 is the standard, V1 is deprecated
+- Bind mounts on macOS are SLOW for node_modules — use named volume or mutagen
 
 ## Feynman Rules (always)
 - Whiteboard first — plain English before depth
