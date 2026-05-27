@@ -1,4 +1,4 @@
-# Raven Plugin — v3.0.0
+# Raven Plugin — v3.3.0
 
 Upload this folder via Claude Desktop to install Raven as a plugin.
 
@@ -6,22 +6,24 @@ Upload this folder via Claude Desktop to install Raven as a plugin.
 
 1. Clone or download [giggsoinc/raven](https://github.com/giggsoinc/raven)
 2. Open **Claude Desktop → Settings → Extensions → Add plugin**
-3. Upload `raven-plugin-v3.0.0.zip` — or select the `raven/plugin/` folder directly
-4. Done — 41 skills and 10 guard agents load automatically
+3. Upload `raven-plugin-v3.3.0.zip` — or select the `raven/plugin/` folder directly
+4. Done — 61 skills and 10 guard agents load automatically
 
 ## What's included
 
-- **41 skills** — Andie v5.2 (with specialist triads, HITL gates, domain-adaptive questions, continuous OODA), all domain specialists, Raven core skills. Includes 6 Oracle specialist skills (`oracle-db`, `oracle-apex`, `oracle-apexlang`, `oracle-graal`, `oracle-fusion`, `oracle-oci`) implemented as thin dynamic-fetch routers that pull content from [giggsoinc/skills](https://github.com/giggsoinc/skills) at runtime (~2-4KB each)
+- **61 skills** — Andie v6.3 with mode splitting, 6 Kaizen methods, Guru, capability routing. All domain specialists including ML, Graph DB, Workflow, MLOps. Raven core skills.
 - **10 guard agents** — manifest-checker, stack-validator, style-enforcer, architecture-guard, db-guard, skill-guard, claude-mem, guard-git-watch, odoo-guard, salesforce-guard
 - **10 slash commands** — /raven-debug, /raven-review, /raven-approve, /raven-harden, /raven-incident, and more
 - **Scripts** — CVE check, secret scan, audit log, work-mode detection
 
-## What's new in v3.0.0
+## What's new in v3.3.0
 
-- **Andie v5.2** — HITL gates, specialist triads (Functional + Technical + Data), domain-adaptive questions, mode previews, continuous OODA loop
-- **Specialist triads** — Oracle ERP Fusion, Oracle DB, Oracle APEX, Oracle APEXLang, Oracle GraalVM, Oracle OCI, Salesforce, AWS, Agentic AI, SAP, Data Engineering, Security, Kubernetes, Odoo, and more
-- **Every recommendation is a PROPOSAL** — accept, modify, or reject before anything proceeds
+- **Andie v6.3** — mode splitting (-56% per-message tokens), 6 Kaizen methods, Guru explainer, capability routing
+- **4 new Tier 1 specialists** — ml-specialist, graph-db-specialist, workflow-specialist, ml-ops-specialist
+- **Domain packs** — agent-frameworks, local-dev (loaded by dynamic-specialist)
+- **Oracle version matrix** — 19c/21c/23ai capability awareness
+- **Docker-compose patterns** — local dev support in devops-specialist
 
 ## Update
 
-Re-download the repo and re-upload `raven-plugin-v3.0.0.zip` — or pull latest and re-select the folder.
+Re-download the repo and re-upload `raven-plugin-v3.3.0.zip` — or pull latest and re-select the folder.

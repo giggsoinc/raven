@@ -203,10 +203,10 @@ Unknown or mixed domains trigger `dynamic-specialist` — a 9-step on-demand exp
 
 ### Quickest — Plugin (no terminal needed)
 
-1. Download [`raven-plugin-v3.2.0.zip`](plugin/raven-plugin-v3.2.0.zip)
+1. Download [`raven-plugin-v3.3.0.zip`](plugin/raven-plugin-v3.3.0.zip)
 2. Open Claude Desktop → Settings → Extensions → Add plugin
 3. Upload the ZIP
-4. Done — 46 skills and 10 guard agents load automatically
+4. Done — 61 skills and 10 guard agents load automatically
 
 ### Individual Developer
 
