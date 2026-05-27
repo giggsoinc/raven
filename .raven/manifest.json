@@ -57,6 +57,14 @@
   },
   "changelog": [
     {
+      "version": "3.3.0",
+      "date": "2026-05-27T00:00:00Z",
+      "changed_by": "giggso.ravi@gmail.com",
+      "summary": "Raven v4 agent architecture. 61 skills. Andie v6.3 mode splitting, 6 Kaizen methods, Guru, capability routing. 4 new specialists (ML, Graph DB, Workflow, MLOps). Domain packs.",
+      "pr": "merged",
+      "approved_by": "giggso.ravi@gmail.com"
+    },
+    {
       "version": "3.1.0",
       "date": "2026-05-23T00:00:00Z",
       "changed_by": "giggso.ravi@gmail.com",
