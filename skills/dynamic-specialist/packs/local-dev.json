@@ -1,0 +1,165 @@
+{
+  "pack": "local-dev",
+  "version": "1.0",
+  "last_reviewed": "2026-05-27",
+  "description": "Local development environments — containers, devcontainers, lightweight K8s, and dev tooling",
+  "consumed_by": ["devops-specialist", "dynamic-specialist"],
+  "tokens_estimated": 1200,
+
+  "tools": [
+    {
+      "name": "Dev Containers",
+      "category": "dev-environment",
+      "description": "VS Code / IDE-native containerized dev environments. Defined in .devcontainer/devcontainer.json.",
+      "best_for": "Consistent dev environments across team — works on any OS, any machine",
+      "gotchas": [
+        "Docker Desktop required — adds RAM overhead (2-4GB baseline)",
+        "Extension compatibility — not all VS Code extensions work in containers",
+        "File sync on macOS is slow for large node_modules — use named volumes"
+      ],
+      "anti_patterns": ["Putting the entire production stack in one devcontainer — use compose for multi-service"],
+      "docker": "mcr.microsoft.com/devcontainers/* — official base images",
+      "version_note": "Spec 0.250+ stable, supported in VS Code, IntelliJ, Codespaces, Gitpod",
+      "links": ["https://containers.dev/"]
+    },
+    {
+      "name": "K3s",
+      "category": "lightweight-k8s",
+      "description": "Lightweight Kubernetes by Rancher. Single binary, ~512MB RAM, production-grade.",
+      "best_for": "Local K8s testing when you need real K8s APIs but not full cluster overhead",
+      "gotchas": [
+        "Default uses SQLite not etcd — fine for dev, not for HA",
+        "Traefik is default ingress — may conflict if you expect nginx",
+        "Some CRDs from cloud providers won't work — test compatibility"
+      ],
+      "anti_patterns": ["Using K3s in production without understanding the tradeoffs vs full K8s"],
+      "docker": "rancher/k3s:latest — or install via curl script",
+      "version_note": "Tracks K8s releases closely, ~1 month lag",
+      "links": ["https://k3s.io/"]
+    },
+    {
+      "name": "Tilt",
+      "category": "dev-workflow",
+      "description": "Smart rebuilds for K8s dev. Watches files, builds images, updates pods — live reload for containers.",
+      "best_for": "Microservice development on K8s with fast feedback loops",
+      "gotchas": [
+        "Tiltfile (Starlark/Python-like) has a learning curve",
+        "Requires a running K8s cluster (K3s, minikube, or remote)",
+        "Image build caching is critical — without it, rebuilds are slow"
+      ],
+      "anti_patterns": ["Using Tilt for single-container apps — docker-compose is simpler"],
+      "docker": "N/A — CLI tool, works with any K8s cluster",
+      "version_note": "0.33+ stable, Docker acquired Tilt team",
+      "links": ["https://tilt.dev/"]
+    },
+    {
+      "name": "Skaffold",
+      "category": "dev-workflow",
+      "description": "Google's CI/CD and dev tool for K8s. Build, push, deploy in one command.",
+      "best_for": "GKE-native teams wanting unified dev-to-prod pipeline tooling",
+      "gotchas": [
+        "Config complexity grows with multi-service setups — profiles help",
+        "File sync mode is faster than full rebuild but has limitations",
+        "Google-centric — works elsewhere but best with GKE/Cloud Build"
+      ],
+      "anti_patterns": ["Using Skaffold just for local dev when Tilt gives better live-reload UX"],
+      "docker": "N/A — CLI tool",
+      "version_note": "2.x stable",
+      "links": ["https://skaffold.dev/"]
+    },
+    {
+      "name": "Minikube",
+      "category": "lightweight-k8s",
+      "description": "Official local K8s cluster. Runs in VM or container. Full K8s API compatibility.",
+      "best_for": "Learning K8s, testing manifests, when you need exact K8s API compatibility",
+      "gotchas": [
+        "Heavier than K3s — 2GB+ RAM default",
+        "VM driver choice matters — Docker driver is fastest, HyperKit/VirtualBox are slower",
+        "Addons (dashboard, ingress, metrics) each add resource overhead"
+      ],
+      "anti_patterns": ["Running minikube in CI — use Kind (K8s in Docker) for CI pipelines instead"],
+      "docker": "N/A — manages its own container/VM",
+      "version_note": "1.33+ stable",
+      "links": ["https://minikube.sigs.k8s.io/"]
+    },
+    {
+      "name": "Kind (K8s in Docker)",
+      "category": "lightweight-k8s",
+      "description": "Kubernetes clusters using Docker containers as nodes. Designed for testing K8s itself.",
+      "best_for": "CI pipelines, integration testing, multi-node cluster simulation",
+      "gotchas": [
+        "No persistent storage by default — data lost when cluster deleted",
+        "LoadBalancer services don't work — use NodePort or ingress",
+        "Multi-node clusters eat Docker resources fast"
+      ],
+      "anti_patterns": ["Using Kind for day-to-day development — Tilt+K3s gives better DX"],
+      "docker": "kindest/node:v1.x — one container per K8s node",
+      "version_note": "0.23+ stable",
+      "links": ["https://kind.sigs.k8s.io/"]
+    },
+    {
+      "name": "Mutagen",
+      "category": "file-sync",
+      "description": "Fast, bidirectional file sync. Solves macOS Docker bind mount performance problem.",
+      "best_for": "macOS developers with large codebases in Docker — eliminates the volume mount slowness",
+      "gotchas": [
+        "Adds a sync daemon — one more thing to manage",
+        "Conflict resolution on bidirectional sync needs attention",
+        "Free tier is limited — Mutagen Compose is commercial"
+      ],
+      "anti_patterns": ["Using Mutagen on Linux — bind mounts are already fast on Linux"],
+      "docker": "N/A — companion tool alongside Docker",
+      "version_note": "0.17+ stable",
+      "links": ["https://mutagen.io/"]
+    }
+  ],
+
+  "decision_matrix": [
+    {
+      "signal": "Team needs consistent dev environment across OS",
+      "recommend": "Dev Containers",
+      "why": "IDE-native, works on any OS, .devcontainer in repo"
+    },
+    {
+      "signal": "Need local K8s, minimal resources",
+      "recommend": "K3s",
+      "why": "512MB RAM, single binary, production-grade APIs"
+    },
+    {
+      "signal": "Microservice dev with live reload on K8s",
+      "recommend": "Tilt + K3s",
+      "why": "File watch → rebuild → deploy in seconds"
+    },
+    {
+      "signal": "GKE team, unified dev-to-prod",
+      "recommend": "Skaffold",
+      "why": "Google-native, profiles for dev/staging/prod"
+    },
+    {
+      "signal": "Learning K8s, exact API compat needed",
+      "recommend": "Minikube",
+      "why": "Official, full API, addon ecosystem"
+    },
+    {
+      "signal": "CI pipeline, disposable K8s clusters",
+      "recommend": "Kind",
+      "why": "Fast create/destroy, Docker-only dependency"
+    },
+    {
+      "signal": "macOS, slow Docker volumes",
+      "recommend": "Mutagen",
+      "why": "Eliminates bind mount performance penalty"
+    },
+    {
+      "signal": "Simple multi-service local dev, no K8s needed",
+      "recommend": "Docker-compose (see devops-specialist)",
+      "why": "Don't introduce K8s complexity if you don't need K8s"
+    }
+  ],
+
+  "relationships": {
+    "upstream": ["devops-specialist (docker-compose patterns)", "k8s-specialist (production K8s)"],
+    "downstream": ["ml-specialist (local GPU dev)", "workflow-specialist (local Airflow/Temporal)"],
+    "related_specialists": ["devops-specialist", "k8s-specialist"]
+  }
+}
