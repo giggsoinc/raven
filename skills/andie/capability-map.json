@@ -1,0 +1,135 @@
+{
+  "version": "1.0",
+  "description": "Maps business needs to capability domains and specialists. Andie reads this at dispatch — not carried in context.",
+
+  "capabilities": [
+    {
+      "domain": "ML / AI Models",
+      "signals": ["machine learning", "training", "inference", "model", "prediction", "classification", "regression", "neural network", "deep learning", "fine-tune", "embeddings"],
+      "specialists": ["ml-specialist", "aiml-specialist"],
+      "tier": 1
+    },
+    {
+      "domain": "MLOps / ML Pipelines",
+      "signals": ["mlops", "feature store", "experiment tracking", "model registry", "ml pipeline", "training pipeline", "MLflow", "Feast", "DVC", "W&B"],
+      "specialists": ["ml-ops-specialist"],
+      "tier": 1
+    },
+    {
+      "domain": "Graph Database",
+      "signals": ["graph", "knowledge graph", "neo4j", "falkordb", "cypher", "traversal", "property graph", "graph algorithm", "PageRank", "community detection"],
+      "specialists": ["graph-db-specialist"],
+      "tier": 1
+    },
+    {
+      "domain": "Workflow Orchestration",
+      "signals": ["workflow", "pipeline", "orchestration", "n8n", "step functions", "airflow", "temporal", "dagster", "prefect", "DAG", "state machine"],
+      "specialists": ["workflow-specialist"],
+      "tier": 1
+    },
+    {
+      "domain": "Agent Frameworks",
+      "signals": ["multi-agent", "agent framework", "langraph", "crewai", "autogen", "semantic kernel", "agent orchestration", "a2a", "nanobot", "open claw"],
+      "specialists": ["aiml-specialist"],
+      "pack": "agent-frameworks",
+      "tier": "2a"
+    },
+    {
+      "domain": "Local Development",
+      "signals": ["local dev", "devcontainer", "k3s", "tilt", "skaffold", "minikube", "docker-compose", "local kubernetes", "dev environment"],
+      "specialists": ["devops-specialist"],
+      "pack": "local-dev",
+      "tier": "2a"
+    },
+    {
+      "domain": "Streaming / Events",
+      "signals": ["kafka", "streaming", "event-driven", "pub/sub", "message queue", "consumer group", "real-time"],
+      "specialists": ["kafka-specialist"],
+      "tier": 1
+    },
+    {
+      "domain": "Database",
+      "signals": ["database", "SQL", "schema", "migration", "query", "index", "postgres", "oracle", "mysql"],
+      "specialists": ["db-specialist", "postgres-specialist", "oracle-db-specialist"],
+      "tier": 1
+    },
+    {
+      "domain": "Oracle",
+      "signals": ["oracle", "PL/SQL", "ORDS", "apex", "fusion", "23ai", "19c", "21c", "RAC", "Data Guard", "OCI"],
+      "specialists": ["oracle-db-specialist", "oracle-fusion-specialist", "oracle-apex-specialist", "oracle-oci-specialist"],
+      "tier": 1
+    },
+    {
+      "domain": "Salesforce",
+      "signals": ["salesforce", "apex", "LWC", "flow", "soql", "agentforce", "data cloud"],
+      "specialists": ["salesforce-specialist"],
+      "tier": 1
+    },
+    {
+      "domain": "Kubernetes / Containers",
+      "signals": ["kubernetes", "k8s", "container", "pod", "deployment", "helm", "service mesh", "istio"],
+      "specialists": ["k8s-specialist", "devops-specialist"],
+      "tier": 1
+    },
+    {
+      "domain": "Infrastructure as Code",
+      "signals": ["terraform", "infrastructure", "IaC", "module", "state", "plan", "apply"],
+      "specialists": ["terraform-specialist"],
+      "tier": 1
+    },
+    {
+      "domain": "Cloud — AWS",
+      "signals": ["aws", "lambda", "s3", "ec2", "bedrock", "sagemaker", "dynamodb", "cloudformation"],
+      "specialists": ["aws-specialist"],
+      "tier": 1
+    },
+    {
+      "domain": "Cloud — GCP",
+      "signals": ["gcp", "google cloud", "bigquery", "vertex", "cloud run", "gke"],
+      "specialists": ["gcp-specialist"],
+      "tier": 1
+    },
+    {
+      "domain": "Cloud — Azure",
+      "signals": ["azure", "app service", "cosmos", "aks", "azure functions"],
+      "specialists": ["azure-specialist"],
+      "tier": 1
+    },
+    {
+      "domain": "Security",
+      "signals": ["security", "vulnerability", "CVE", "threat", "auth", "encryption", "compliance", "pentest"],
+      "specialists": ["security-specialist"],
+      "tier": 1
+    },
+    {
+      "domain": "Data Engineering",
+      "signals": ["data pipeline", "ETL", "ELT", "data lake", "data warehouse", "dbt", "spark", "data quality"],
+      "specialists": ["dataeng-specialist", "bigdata-specialist"],
+      "tier": 1
+    },
+    {
+      "domain": "Vector Database",
+      "signals": ["vector", "embeddings store", "qdrant", "pinecone", "milvus", "weaviate", "chromadb", "similarity search"],
+      "specialists": ["vector-db-specialist"],
+      "tier": 1
+    },
+    {
+      "domain": "API / Backend",
+      "signals": ["fastapi", "REST", "API", "endpoint", "middleware", "backend"],
+      "specialists": ["fastapi-specialist"],
+      "tier": 1
+    },
+    {
+      "domain": "Odoo ERP",
+      "signals": ["odoo", "OWL", "odoo module", "odoo python"],
+      "specialists": ["odoo-specialist"],
+      "tier": 1
+    },
+    {
+      "domain": "UI / Frontend",
+      "signals": ["UI", "frontend", "component", "nicegui", "streamlit", "react", "design system"],
+      "specialists": ["nicegui-specialist"],
+      "tier": 1
+    }
+  ]
+}
