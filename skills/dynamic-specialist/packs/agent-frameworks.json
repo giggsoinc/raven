@@ -1,0 +1,180 @@
+{
+  "pack": "agent-frameworks",
+  "version": "1.0",
+  "last_reviewed": "2026-05-27",
+  "description": "Multi-agent and agentic AI frameworks — orchestration, chaining, and autonomous agent patterns",
+  "consumed_by": ["aiml-specialist", "dynamic-specialist"],
+  "tokens_estimated": 1800,
+
+  "tools": [
+    {
+      "name": "LangGraph",
+      "category": "agent-orchestration",
+      "description": "Stateful, cyclical agent graphs built on LangChain. Graph-based control flow for complex agent workflows.",
+      "best_for": "Teams already on LangChain wanting structured multi-step agents with human-in-the-loop",
+      "gotchas": [
+        "Tight coupling to LangChain ecosystem — hard to mix with non-LC components",
+        "Graph complexity explodes fast — start with linear chains, add cycles only when needed",
+        "State management requires explicit checkpointing for long-running agents"
+      ],
+      "anti_patterns": ["Using LangGraph for simple single-prompt tasks — overkill"],
+      "docker": "No official image — runs as Python library",
+      "version_note": "0.2.x as of 2025, API still evolving",
+      "links": ["https://langchain-ai.github.io/langgraph/"]
+    },
+    {
+      "name": "CrewAI",
+      "category": "multi-agent",
+      "description": "Role-based multi-agent framework. Define agents with roles, goals, and backstories. Agents collaborate on tasks.",
+      "best_for": "Quick prototyping of multi-agent teams with role-based delegation",
+      "gotchas": [
+        "Agent 'hallucination loops' — agents can get stuck in circular delegation",
+        "Token cost scales linearly with agent count — 5 agents = 5x the tokens per round",
+        "Limited control over execution order without explicit task dependencies"
+      ],
+      "anti_patterns": ["Defining 10+ agents for a problem 2 agents could solve"],
+      "docker": "No official image — Python library",
+      "version_note": "0.80+ as of 2025",
+      "links": ["https://docs.crewai.com/"]
+    },
+    {
+      "name": "AutoGen",
+      "category": "multi-agent",
+      "description": "Microsoft's multi-agent conversation framework. Agents communicate via message passing.",
+      "best_for": "Research-oriented multi-agent conversations, code generation with execution feedback",
+      "gotchas": [
+        "Conversation can diverge without strong termination conditions",
+        "Default GroupChat is round-robin — not intelligent routing",
+        "Docker execution for code agents is recommended but adds setup complexity"
+      ],
+      "anti_patterns": ["Letting agents auto-execute code without sandboxing"],
+      "docker": "No official image — Python library with optional Docker code executor",
+      "version_note": "0.4.x (AG2 fork) as of 2025",
+      "links": ["https://microsoft.github.io/autogen/"]
+    },
+    {
+      "name": "Semantic Kernel",
+      "category": "agent-orchestration",
+      "description": "Microsoft's SDK for AI orchestration. Plugins, planners, and memory in C#/Python/Java.",
+      "best_for": "Enterprise .NET shops wanting AI agent capabilities with Azure integration",
+      "gotchas": [
+        "Python SDK lags behind C# — check feature parity before choosing",
+        "Planner can generate incorrect plans — always validate before execution",
+        "Plugin ecosystem is growing but thinner than LangChain's"
+      ],
+      "anti_patterns": ["Using SK for Python-only projects when LangChain/LangGraph is more mature"],
+      "docker": "No official image — NuGet/PyPI library",
+      "version_note": "1.x stable for C#, Python catching up",
+      "links": ["https://learn.microsoft.com/semantic-kernel/"]
+    },
+    {
+      "name": "OpenAI Agents SDK",
+      "category": "agent-orchestration",
+      "description": "OpenAI's native agent framework. Handoffs, guardrails, tracing built-in.",
+      "best_for": "Teams committed to OpenAI models wanting first-party agent tooling",
+      "gotchas": [
+        "Vendor lock-in to OpenAI models — no multi-provider support",
+        "Tracing requires OpenAI dashboard — can't export to custom observability",
+        "Handoff patterns are opinionated — may not fit all agent architectures"
+      ],
+      "anti_patterns": ["Using for multi-provider setups — it's OpenAI-only by design"],
+      "docker": "No official image — Python library",
+      "version_note": "Released March 2025, rapidly evolving",
+      "links": ["https://openai.github.io/openai-agents-python/"]
+    },
+    {
+      "name": "Claude Agent SDK",
+      "category": "agent-orchestration",
+      "description": "Anthropic's SDK for building agents with Claude. Tool use, multi-turn, structured outputs.",
+      "best_for": "Teams building on Claude wanting native agent patterns with safety guardrails",
+      "gotchas": [
+        "Anthropic-only — no multi-provider abstraction",
+        "Tool use patterns differ from OpenAI — not a drop-in replacement",
+        "Extended thinking mode changes token economics significantly"
+      ],
+      "anti_patterns": ["Wrapping in LangChain when direct SDK is simpler"],
+      "docker": "No official image — Python/TypeScript library",
+      "version_note": "Stable, production-ready",
+      "links": ["https://docs.anthropic.com/"]
+    },
+    {
+      "name": "Google A2A (Agent-to-Agent)",
+      "category": "protocol",
+      "description": "Open protocol for agent interoperability. Agent Cards, task lifecycle, streaming.",
+      "best_for": "Multi-vendor agent ecosystems where agents from different frameworks need to communicate",
+      "gotchas": [
+        "Protocol spec, not implementation — you still need a framework underneath",
+        "Early stage — limited production deployments",
+        "Agent Card discovery mechanism still maturing"
+      ],
+      "anti_patterns": ["Adopting A2A when all your agents are in one framework — unnecessary abstraction"],
+      "docker": "N/A — protocol specification",
+      "version_note": "Announced April 2025, early adoption",
+      "links": ["https://google.github.io/A2A/"]
+    },
+    {
+      "name": "N8N (as agent orchestrator)",
+      "category": "low-code-agent",
+      "description": "Visual workflow builder with AI agent nodes. Connects LLMs to 400+ integrations without code.",
+      "best_for": "Business teams wanting agent capabilities without Python — visual, self-hosted, low-code",
+      "gotchas": [
+        "AI agent nodes have limited control vs code-based frameworks",
+        "Single-threaded execution — not suitable for high-concurrency agent workloads",
+        "Error handling in visual workflows is less granular than code"
+      ],
+      "anti_patterns": ["Using N8N for complex multi-agent research when code frameworks give more control"],
+      "docker": "n8nio/n8n:latest, port 5678",
+      "version_note": "1.x stable, AI nodes added 2024",
+      "links": ["https://docs.n8n.io/"]
+    }
+  ],
+
+  "decision_matrix": [
+    {
+      "signal": "Already using LangChain, need multi-step agents",
+      "recommend": "LangGraph",
+      "why": "Native extension of existing LangChain investment"
+    },
+    {
+      "signal": "Quick multi-agent prototype with role-based delegation",
+      "recommend": "CrewAI",
+      "why": "Fastest path to role-based agent teams"
+    },
+    {
+      "signal": "Enterprise .NET shop with Azure",
+      "recommend": "Semantic Kernel",
+      "why": "First-party Microsoft support, C# mature"
+    },
+    {
+      "signal": "All-in on OpenAI models",
+      "recommend": "OpenAI Agents SDK",
+      "why": "First-party, tightest integration, built-in tracing"
+    },
+    {
+      "signal": "All-in on Claude models",
+      "recommend": "Claude Agent SDK",
+      "why": "First-party, safety-first design, tool use native"
+    },
+    {
+      "signal": "Need agents from different vendors to talk",
+      "recommend": "Google A2A protocol",
+      "why": "Only open interop standard for agent communication"
+    },
+    {
+      "signal": "Business team, no Python, visual builder",
+      "recommend": "N8N with AI nodes",
+      "why": "Low-code, self-hosted, 400+ integrations"
+    },
+    {
+      "signal": "Research, code-gen with execution feedback",
+      "recommend": "AutoGen",
+      "why": "Best conversation-based multi-agent with code execution"
+    }
+  ],
+
+  "relationships": {
+    "upstream": ["LLM providers (OpenAI, Anthropic, Google, local models)"],
+    "downstream": ["workflow-specialist (for orchestration infra)", "devops-specialist (for deployment)"],
+    "related_specialists": ["aiml-specialist", "workflow-specialist"]
+  }
+}
