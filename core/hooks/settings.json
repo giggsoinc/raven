@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type":    "command",
-            "command": "python3 .claude/scripts/tool-guard.py"
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/tool-guard.py\""
           }
         ]
       },
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type":    "command",
-            "command": "python3 .claude/scripts/schema-guard.py"
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/schema-guard.py\""
           }
         ]
       }
@@ -27,7 +27,7 @@
         "hooks": [
           {
             "type":    "command",
-            "command": "python3 .claude/scripts/cve-prompt-guard.py 2>/dev/null || true",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/cve-prompt-guard.py\" 2>/dev/null || true",
             "async":   true
           }
         ]
@@ -40,12 +40,12 @@
         "hooks": [
           {
             "type":    "command",
-            "command": "jq -r '.tool_input.file_path // .tool_response.filePath // \"\"' | { read -r f; [ -n \"$f\" ] && python3 .claude/scripts/secret-scan.py --file \"$f\"; } 2>/dev/null || true",
+            "command": "jq -r '.tool_input.file_path // .tool_response.filePath // \"\"' | { read -r f; [ -n \"$f\" ] && python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/secret-scan.py\" --file \"$f\"; } 2>/dev/null || true",
             "async":   true
           },
           {
             "type":    "command",
-            "command": "python3 .claude/scripts/db-guard.py",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/db-guard.py\"",
             "async":   true
           }
         ]
@@ -55,7 +55,7 @@
         "hooks": [
           {
             "type":    "command",
-            "command": "python3 .claude/scripts/audit-log.py",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/audit-log.py\"",
             "async":   true
           }
         ]
@@ -67,7 +67,7 @@
         "hooks": [
           {
             "type":    "command",
-            "command": "python3 .claude/scripts/token-guard.py"
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/token-guard.py\""
           }
         ]
       }
@@ -78,7 +78,7 @@
         "hooks": [
           {
             "type":    "command",
-            "command": "python3 .claude/scripts/token-guard.py",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/token-guard.py\"",
             "async":   true
           }
         ]
@@ -90,12 +90,12 @@
         "hooks": [
           {
             "type":    "command",
-            "command": "python3 .claude/scripts/audit-log.py",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/audit-log.py\"",
             "async":   true
           },
           {
             "type":    "command",
-            "command": "python3 ~/.claude/scripts/session-gate.py 2>/dev/null || true",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/session-gate.py\" 2>/dev/null || true",
             "async":   true
           }
         ]
