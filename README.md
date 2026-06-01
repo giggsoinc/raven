@@ -175,8 +175,6 @@ This means teams on shared codebases never silently drift onto old versions.
 
 **Tech leads and architects** — architecture-guard ensures decisions are documented. HITL gates in Andie mean recommendations are proposals, not auto-actions. The session memory in `.raven/memory/` gives you an audit trail of what was decided and why.
 
-**Enterprise IT** — need MDM deployment, MCP governance, model routing, and org-level risk dashboards? See [Raven Enterprise](https://github.com/giggsoinc/raven-enterprise).
-
 ---
 
 ## Specialist Triads — How Andie Handles Any Domain
@@ -220,10 +218,6 @@ curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | b
 iwr https://raw.githubusercontent.com/giggsoinc/raven/main/install.ps1 | iex
 ```
 
-### Enterprise
-
-For MDM deployment (Jamf, Intune, GPO), MCP governance, model routing, and Hub — see [Raven Enterprise](https://github.com/giggsoinc/raven-enterprise).
-
 ---
 
 ## How It Feels in Practice
@@ -249,7 +243,6 @@ You open Claude Code. Andie detects "production down" signal. War mode fires. No
 | [giggsoinc/raven](https://github.com/giggsoinc/raven) | Claude Code · Codex · Copilot | This repo — full install, plugin ZIP, all skills |
 | [giggsoinc/raven-codex](https://github.com/giggsoinc/raven-codex) | Codex / Copilot users | Plugin-only version |
 | [giggsoinc/raven-guard](https://github.com/giggsoinc/raven-guard) | DevOps / architects | Production-grade guard layer |
-| [giggsoinc/raven-enterprise](https://github.com/giggsoinc/raven-enterprise) | Enterprise IT | Superset — Hub, MCP guard, dynamic model routing, org risk |
 | [giggsoinc/andie](https://github.com/giggsoinc/andie) | All AI platforms | Andie v6.3 standalone — works on ChatGPT, Gemini, Manus, Perplexity too |
 
 ---
