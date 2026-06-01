@@ -1,7 +1,7 @@
 {
   "name": "raven",
-  "description": "Raven v3.0 Discipline Engine — AI-native engineering discipline for Claude Code. Compact Andie routing with specialist triads, HITL gates, OODA, and Andie Jr brownfield bug handoff. 35 skills, 10 guard agents, CVE scanning, secret detection, audit logs.",
-  "version": "3.0.0",
+  "description": "Raven v3.4 Discipline Engine — AI-native engineering discipline for Claude Code. Compact Andie routing with specialist triads, HITL gates, OODA, and Andie Jr brownfield bug handoff. 60 skills, 10 guard agents, CVE scanning, secret detection, audit logs.",
+  "version": "3.4.0",
   "author": {
     "name": "Giggso / AntiGravity Projects",
     "email": "giggso.ravi@gmail.com",
