@@ -238,9 +238,17 @@ def classify(
     return tier, score, reasons, model_string
 
 
-def write_session_json(tier: str, score: int, reasons: List[str], model: str, prompt: str) -> Path:
+def write_session_json(tier: str, score: int, reasons: List[str], model: str, prompt: str, source: str = "user_work") -> Path:
     """
     Write classification result to .raven/.model-session.json.
+
+    Two-bucket schema:
+      - raven_overhead: tokens from Raven internals (hooks, skill loads, banners)
+      - user_work: tokens from the user's actual prompt + Claude's response
+
+    Default source = user_work (this is the typical case — Claude is responding
+    to a user prompt). When called from a hook context that's purely overhead,
+    pass --source raven_overhead.
 
     Returns:
         Path to written file
@@ -250,21 +258,47 @@ def write_session_json(tier: str, score: int, reasons: List[str], model: str, pr
 
     session_file = raven_dir / ".model-session.json"
 
-    # Create output JSON
-    output = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
-        "user_query_hash": hashlib.sha256(prompt.encode()).hexdigest()[:16],
-        "tier": tier,
-        "score": score,
-        "reasons": reasons,
-        "model_for_tier": model,
-        "env_var_value": f"RAVEN_MODEL_TIER={tier}",
-        "note": "Classification for this UserPromptSubmit cycle. Skills can override per-Agent() if needed."
-    }
+    # Load existing or init two-bucket schema
+    if session_file.exists():
+        try:
+            data = json.loads(session_file.read_text())
+        except Exception:
+            data = {}
+    else:
+        data = {}
+
+    # Init schema if missing or legacy
+    if "raven_overhead" not in data or "user_work" not in data:
+        data = {
+            "session_started_at": data.get("session_started_at") or (datetime.utcnow().isoformat() + "Z"),
+            "raven_overhead": {"tokens": 0, "cost_usd": 0.0, "calls": 0, "by_source": {}},
+            "user_work": {
+                "tokens": 0,
+                "cost_usd": 0.0,
+                "calls": 0,
+                "tier_counts": {"SIMPLE": 0, "MEDIUM": 0, "COMPLEX": 0, "LOCAL_ONLY": 0},
+                "last_classification": None,
+            },
+            "providers": {},
+        }
+
+    # Update the appropriate bucket
+    bucket = data[source] if source in ("user_work", "raven_overhead") else data["user_work"]
+    bucket["calls"] += 1
+    if source == "user_work":
+        bucket["tier_counts"][tier] = bucket["tier_counts"].get(tier, 0) + 1
+        bucket["last_classification"] = {
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "user_query_hash": hashlib.sha256(prompt.encode()).hexdigest()[:16],
+            "tier": tier,
+            "score": score,
+            "reasons": reasons,
+            "model_for_tier": model,
+        }
 
     # Write atomically
     try:
-        session_file.write_text(json.dumps(output, indent=2))
+        session_file.write_text(json.dumps(data, indent=2))
         return session_file
     except Exception as e:
         print(f"Error writing {session_file}: {e}", file=sys.stderr)
@@ -278,8 +312,19 @@ def main():
     parser.add_argument("--prompt", required=True, help="User query text")
     parser.add_argument("--context", default="", help="Additional context (JSON or text)")
     parser.add_argument("--write-json", action="store_true", help="Write result to .raven/.model-session.json")
+    parser.add_argument("--source", default="user_work",
+                        choices=["user_work", "raven_overhead"],
+                        help="Attribution bucket: user_work (default) or raven_overhead")
 
     args = parser.parse_args()
+
+    # Method B inference — if called from a hook context, override to overhead
+    # CLAUDE_HOOK_EVENT is set by Claude Code when a hook fires
+    if os.environ.get("CLAUDE_HOOK_EVENT") and args.source == "user_work":
+        # Still default to user_work because the user prompt IS user work,
+        # even though model-router runs from a hook. The hook FIRES it but
+        # the work being classified IS the user's. Leave as user_work.
+        pass
 
     # Classify
     tier, score, reasons, model = classify(args.prompt, args.context)
@@ -289,14 +334,15 @@ def main():
         "score": score,
         "reasons": reasons,
         "model": model,
+        "source": args.source,
     }
 
     print(json.dumps(result, indent=2))
 
     # Optionally write to session file
     if args.write_json:
-        session_file = write_session_json(tier, score, reasons, model, args.prompt)
-        print(f"# Written to {session_file}", file=sys.stderr)
+        session_file = write_session_json(tier, score, reasons, model, args.prompt, source=args.source)
+        print(f"# Written to {session_file} (bucket: {args.source})", file=sys.stderr)
 
     return 0
 

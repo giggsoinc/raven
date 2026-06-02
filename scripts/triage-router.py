@@ -98,12 +98,33 @@ def main():
             return
     if classify(prompt):
         # additionalContext injection — Claude Code reads stdout on UserPromptSubmit
-        sys.stdout.write(
+        emission = (
             "[ANDIE-JR REQUIRED] This prompt reports a symptom on an existing "
             "system. MANDATORY: invoke `andie-jr` skill BEFORE any diagnosis, "
             "file read, bash command, or response. Andie-jr structures the "
             "debug flow: problem → root cause → fix → why → audit note.\n"
         )
+        sys.stdout.write(emission)
+        # Log as raven_overhead — this injection contributes to context
+        _log_overhead("triage-router", emission)
+
+
+def _log_overhead(source: str, text: str) -> None:
+    """Fire log-overhead.py in fail-soft mode to record contribution."""
+    try:
+        import subprocess
+        from pathlib import Path
+        script_dir = Path(__file__).parent
+        log_path = script_dir / "log-overhead.py"
+        if not log_path.exists():
+            return
+        tokens = max(1, len(text) // 4)
+        subprocess.Popen(
+            ["python3", str(log_path), "--source", source, "--tokens", str(tokens)],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+    except Exception:
+        pass  # never block
 
 
 if __name__ == "__main__":

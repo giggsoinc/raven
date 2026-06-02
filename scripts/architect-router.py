@@ -122,13 +122,33 @@ def main():
         except Exception:
             return
     if classify(prompt):
-        sys.stdout.write(
+        emission = (
             "[ANDIE REQUIRED] This prompt is architecture-class — it involves "
             "design decisions, multi-component scope, or strategic tradeoffs. "
             "MANDATORY: invoke `andie` skill BEFORE responding. Andie runs the "
             "Functional/Technical/Data triad, HITL-gates proposals, OODA loops, "
             "and hands off a crisp plan. Do not free-style the design.\n"
         )
+        sys.stdout.write(emission)
+        _log_overhead("architect-router", emission)
+
+
+def _log_overhead(source: str, text: str) -> None:
+    """Fire log-overhead.py in fail-soft mode to record contribution."""
+    try:
+        import subprocess
+        from pathlib import Path
+        script_dir = Path(__file__).parent
+        log_path = script_dir / "log-overhead.py"
+        if not log_path.exists():
+            return
+        tokens = max(1, len(text) // 4)
+        subprocess.Popen(
+            ["python3", str(log_path), "--source", source, "--tokens", str(tokens)],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+    except Exception:
+        pass  # never block
 
 
 if __name__ == "__main__":
