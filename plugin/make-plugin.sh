@@ -52,6 +52,7 @@ mkdir -p "$TMP_DIR/scripts"
 for script in \
     session-start.py \
     triage-router.py \
+    architect-router.py \
     model-router.py \
     token-guard.py \
     obsidian-log.py \
