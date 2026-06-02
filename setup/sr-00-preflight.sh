@@ -23,15 +23,54 @@ if [[ ! -f "$DETECT_SCRIPT" ]]; then
     exit 1
 fi
 
-DETECTED=$(python3 "$DETECT_SCRIPT" "$(pwd)" 2>/dev/null)
-if [[ -z "$DETECTED" ]]; then
-    # Detection failed — fall back to unknown mode
-    DETECTED='{"platform":"Unknown","has_git":false,"manifest_exists":false,"mode":"unknown","primary":"unknown","secondary":null,"signals":{},"confidence":"none","mode_description":"","mode_rules":[]}'
+DETECT_STDERR="$(mktemp)"
+DETECTED=$(python3 "$DETECT_SCRIPT" "$(pwd)" 2>"$DETECT_STDERR")
+DETECT_EXIT=$?
+
+# Defensive: fail-loud with clear context, then fall back to safe default
+SAFE_DEFAULT='{"platform":"Unknown","has_git":false,"manifest_exists":false,"has_source_code":false,"mode":"unknown","primary":"unknown","secondary":null,"signals":{},"confidence":"none","mode_description":"","mode_rules":[]}'
+
+if [[ $DETECT_EXIT -ne 0 || -z "$DETECTED" ]]; then
+    echo -e "${Y}⚠️  Workmode detection failed (exit $DETECT_EXIT). Falling back to unknown mode.${N}" >&2
+    if [[ -s "$DETECT_STDERR" ]]; then
+        echo -e "${Y}    Detection script stderr:${N}" >&2
+        sed 's/^/      /' "$DETECT_STDERR" >&2
+    fi
+    DETECTED="$SAFE_DEFAULT"
+fi
+rm -f "$DETECT_STDERR"
+
+# Verify the JSON parses BEFORE downstream depends on it
+if ! echo "$DETECTED" | python3 -c "import sys,json; json.load(sys.stdin)" 2>/dev/null; then
+    echo -e "${R}❌ JSON decode error: workmode detection returned invalid JSON.${N}" >&2
+    echo -e "${R}   First 200 chars of output:${N}" >&2
+    echo "      ${DETECTED:0:200}" >&2
+    echo -e "${R}   Reset to safe unknown-mode default.${N}" >&2
+    DETECTED="$SAFE_DEFAULT"
 fi
 
-# Parse JSON fields
-_jq() { echo "$DETECTED" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('$1','') or '')" 2>/dev/null; }
-_jq_bool() { echo "$DETECTED" | python3 -c "import sys,json; d=json.load(sys.stdin); print('true' if d.get('$1') else 'false')" 2>/dev/null; }
+# Parse JSON fields — defensive (catches malformed JSON, returns empty, never crashes)
+_jq() {
+    echo "$DETECTED" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    print(d.get('$1', '') or '')
+except Exception:
+    print('')
+" 2>/dev/null
+}
+
+_jq_bool() {
+    echo "$DETECTED" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    print('true' if d.get('$1') else 'false')
+except Exception:
+    print('false')
+" 2>/dev/null
+}
 
 DETECTED_PLATFORM=$(_jq "platform")
 DETECTED_MODE=$(_jq "mode")
@@ -68,17 +107,25 @@ echo ""
 echo -e "  Scanned this directory. Here's what I see:"
 echo ""
 
-# Print signals
-echo "$DETECTED" | python3 - << 'PYEOF'
-import sys, json
-d = json.load(sys.stdin)
-signals = d.get("signals", {})
+# Print signals — uses env var (heredoc + pipe conflict was the original bug)
+DETECTED="$DETECTED" python3 -c "
+import os, json, sys
+raw = os.environ.get('DETECTED', '')
+if not raw.strip():
+    print('    (no detection data)')
+    sys.exit(0)
+try:
+    d = json.loads(raw)
+except json.JSONDecodeError as e:
+    print(f'    ⚠️  signals: JSON parse failed ({e})')
+    sys.exit(0)
+signals = d.get('signals', {}) if isinstance(d, dict) else {}
 if signals:
     for label, val in signals.items():
-        print(f"    {label:<26} {val}")
+        print(f'    {label:<26} {val}')
 else:
-    print("    (no recognisable project files found)")
-PYEOF
+    print('    (no recognisable project files found)')
+"
 
 echo ""
 echo -e "    Platform                   ${W}${DETECTED_PLATFORM}${N} (auto-detected)"

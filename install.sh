@@ -163,7 +163,17 @@ mkdir -p "$BIN_DIR"
 cat > "$BIN_DIR/raven-setup" << CMDEOF
 #!/bin/bash
 # Raven per-project setup — creates manifest + pre-commit hook
-bash "$RAVEN_DIR/raven-setup.sh" "\$@"
+# Wrapper that explicitly resolves the install location so sourced scripts
+# find setup/ correctly even when invoked via different shells/PATH order.
+RAVEN_INSTALL_DIR="$RAVEN_DIR"
+if [[ ! -f "\$RAVEN_INSTALL_DIR/raven-setup.sh" ]]; then
+    echo "❌ raven-setup.sh not found at \$RAVEN_INSTALL_DIR" >&2
+    echo "   Reinstall: bash <(curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh)" >&2
+    exit 1
+fi
+# Explicit export — guarantees sr-00-preflight finds setup/sr-detect-workmode.py
+export SR_REPO_DIR="\$RAVEN_INSTALL_DIR"
+bash "\$RAVEN_INSTALL_DIR/raven-setup.sh" "\$@"
 CMDEOF
 chmod +x "$BIN_DIR/raven-setup"
 
