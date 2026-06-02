@@ -152,16 +152,52 @@ def aggregate(days: int = 30, project_filter: Optional[str] = None) -> dict:
         "projects_seen": set(),
     }
 
-    # ── Read current .model-session.json ──
+    # ── Read current .model-session.json (two-bucket schema) ──
     if MODEL_SESSION.exists():
         try:
             ms = json.loads(MODEL_SESSION.read_text())
-            metrics["last_session"] = {
-                "tokens": ms.get("session_tokens", 0),
-                "cost_usd": ms.get("session_cost_usd", 0.0),
-                "tier_counts": ms.get("tier_counts", {}),
-                "started_at": ms.get("session_started_at"),
-            }
+            # Handle legacy flat schema or new two-bucket schema
+            if "raven_overhead" in ms:
+                ov = ms["raven_overhead"]
+                uw = ms["user_work"]
+                metrics["last_session"] = {
+                    "started_at": ms.get("session_started_at"),
+                    "raven_overhead": {
+                        "tokens": ov.get("tokens", 0),
+                        "cost_usd": ov.get("cost_usd", 0.0),
+                        "calls": ov.get("calls", 0),
+                        "by_source": ov.get("by_source", {}),
+                    },
+                    "user_work": {
+                        "tokens": uw.get("tokens", 0),
+                        "cost_usd": uw.get("cost_usd", 0.0),
+                        "calls": uw.get("calls", 0),
+                        "tier_counts": uw.get("tier_counts", {}),
+                        "last_classification": uw.get("last_classification"),
+                    },
+                    "providers": ms.get("providers", {}),
+                    # Back-compat top-level fields (sum of both buckets)
+                    "tokens": ov.get("tokens", 0) + uw.get("tokens", 0),
+                    "cost_usd": round(ov.get("cost_usd", 0.0) + uw.get("cost_usd", 0.0), 6),
+                    "tier_counts": uw.get("tier_counts", {}),
+                }
+            else:
+                # Legacy flat schema → treat as 100% user_work
+                metrics["last_session"] = {
+                    "started_at": ms.get("session_started_at"),
+                    "raven_overhead": {"tokens": 0, "cost_usd": 0.0, "calls": 0, "by_source": {}},
+                    "user_work": {
+                        "tokens": ms.get("session_tokens", 0),
+                        "cost_usd": ms.get("session_cost_usd", 0.0),
+                        "calls": ms.get("session_calls", 0),
+                        "tier_counts": ms.get("tier_counts", {}),
+                        "last_classification": None,
+                    },
+                    "providers": {},
+                    "tokens": ms.get("session_tokens", 0),
+                    "cost_usd": ms.get("session_cost_usd", 0.0),
+                    "tier_counts": ms.get("tier_counts", {}),
+                }
         except Exception:
             metrics["last_session"] = None
     else:
@@ -420,16 +456,52 @@ def render_cli(metrics: dict, metadata: dict, recs: list) -> str:
     out.append(f"  Days              : {metrics['window_days']}")
     out.append("")
 
-    # Last session
+    # Last session — TWO-BUCKET ATTRIBUTION
     ls = metrics.get("last_session") or {}
-    out.append("⚡ Last Session")
+    ov = ls.get("raven_overhead") or {"tokens": 0, "cost_usd": 0.0, "calls": 0, "by_source": {}}
+    uw = ls.get("user_work") or {"tokens": 0, "cost_usd": 0.0, "calls": 0, "tier_counts": {}}
+    total_tok = ov.get("tokens", 0) + uw.get("tokens", 0)
+    total_cost = ov.get("cost_usd", 0.0) + uw.get("cost_usd", 0.0)
+    ov_pct = (ov.get("tokens", 0) / total_tok * 100) if total_tok else 0
+    uw_pct = (uw.get("tokens", 0) / total_tok * 100) if total_tok else 0
+    out.append("⚡ Last Session — Tokenomics Split (Raven Overhead vs User Work)")
     out.append(bar)
-    out.append(f"  Tokens            : {ls.get('tokens', 0):,}")
-    out.append(f"  Cost              : ${ls.get('cost_usd', 0):.4f}")
-    tcs = ls.get("tier_counts") or {}
-    if tcs:
-        out.append(f"  Tier breakdown    : {' · '.join(f'{k}:{v}' for k,v in tcs.items() if v)}")
+    out.append(f"  {'METRIC':<22} {'RAVEN CODE':>14} {'USER WORK':>14} {'TOTAL':>14}")
+    out.append(f"  {'-'*22} {'-'*14:>14} {'-'*14:>14} {'-'*14:>14}")
+    out.append(f"  {'Tokens':<22} {ov.get('tokens',0):>14,} {uw.get('tokens',0):>14,} {total_tok:>14,}")
+    out.append(f"  {'Cost (USD)':<22} ${ov.get('cost_usd',0):>13.4f} ${uw.get('cost_usd',0):>13.4f} ${total_cost:>13.4f}")
+    out.append(f"  {'Calls':<22} {ov.get('calls',0):>14} {uw.get('calls',0):>14} {ov.get('calls',0)+uw.get('calls',0):>14}")
+    out.append(f"  {'Share':<22} {ov_pct:>13.1f}% {uw_pct:>13.1f}% {'100.0%':>14}")
     out.append("")
+
+    # User work tier breakdown
+    tcs = uw.get("tier_counts") or {}
+    if any(tcs.values()):
+        out.append(f"  USER WORK — Tier breakdown:")
+        out.append(f"    {' · '.join(f'{k}:{v}' for k,v in tcs.items() if v)}")
+        out.append("")
+
+    # Raven overhead by-source breakdown
+    by_src = ov.get("by_source") or {}
+    if by_src:
+        out.append(f"  RAVEN CODE — Overhead by source:")
+        for src, info in sorted(by_src.items(), key=lambda x: -x[1].get("tokens", 0)):
+            tok = info.get("tokens", 0)
+            calls = info.get("calls", 0)
+            cost = info.get("cost_usd", 0.0)
+            out.append(f"    {src:<24} {tok:>7,} tok  {calls:>3} calls  ${cost:.5f}")
+        out.append("")
+
+    # Provider attribution (matters for Codex tier)
+    providers = ls.get("providers") or {}
+    if providers:
+        out.append(f"  PROVIDER attribution:")
+        for prov, info in providers.items():
+            tok = info.get("tokens", 0)
+            cost = info.get("cost_usd", 0.0)
+            pct = (tok / total_tok * 100) if total_tok else 0
+            out.append(f"    {prov:<12} {tok:>10,} tok ({pct:>4.1f}%)  ${cost:.4f}")
+        out.append("")
 
     # Cumulative
     out.append("📊 Cumulative ({} days)".format(metrics["window_days"]))
@@ -554,10 +626,67 @@ def render_obsidian(metrics: dict, metadata: dict, recs: list) -> str:
     lines.append(f"| Total cost (USD) | **${metrics['total_cost_usd']:.2f}** |")
     lines.append(f"| Avg cost / session | ${metrics['avg_cost_per_session']:.4f} |")
     lines.append(f"| Avg tokens / session | {metrics['avg_tokens_per_session']:,} |")
-    ls = metrics.get("last_session") or {}
-    lines.append(f"| Last session tokens | {ls.get('tokens', 0):,} |")
-    lines.append(f"| Last session cost | ${ls.get('cost_usd', 0):.4f} |")
     lines.append("")
+
+    # Two-bucket attribution split
+    ls = metrics.get("last_session") or {}
+    ov = ls.get("raven_overhead") or {"tokens": 0, "cost_usd": 0.0, "calls": 0, "by_source": {}}
+    uw = ls.get("user_work") or {"tokens": 0, "cost_usd": 0.0, "calls": 0, "tier_counts": {}}
+    total_tok = ov.get("tokens", 0) + uw.get("tokens", 0)
+    total_cost = ov.get("cost_usd", 0.0) + uw.get("cost_usd", 0.0)
+    ov_pct = (ov.get("tokens", 0) / total_tok * 100) if total_tok else 0
+    uw_pct = (uw.get("tokens", 0) / total_tok * 100) if total_tok else 0
+
+    lines.append("## ⚡ Last Session — Two-Bucket Tokenomics")
+    lines.append("")
+    lines.append("| Metric | 🪶 Raven Code (overhead) | 👤 User Work | Total |")
+    lines.append("|---|---:|---:|---:|")
+    lines.append(f"| Tokens | **{ov.get('tokens',0):,}** | **{uw.get('tokens',0):,}** | {total_tok:,} |")
+    lines.append(f"| Cost (USD) | ${ov.get('cost_usd',0):.4f} | ${uw.get('cost_usd',0):.4f} | ${total_cost:.4f} |")
+    lines.append(f"| Calls | {ov.get('calls',0)} | {uw.get('calls',0)} | {ov.get('calls',0)+uw.get('calls',0)} |")
+    lines.append(f"| Share | {ov_pct:.1f}% | {uw_pct:.1f}% | 100.0% |")
+    lines.append("")
+    lines.append("> 🪶 **Raven Code** = tokens consumed by hooks, skill loads, classifier injections, banners. Raven team's lever.")
+    lines.append("> 👤 **User Work** = tokens consumed by your prompts + Claude's responses + tool calls. Your lever.")
+    lines.append("")
+
+    # Raven Code breakdown
+    by_src = ov.get("by_source") or {}
+    if by_src:
+        lines.append("### 🪶 Raven Code — Overhead by Source")
+        lines.append("")
+        lines.append("| Source | Tokens | Calls | Cost (USD) |")
+        lines.append("|---|---:|---:|---:|")
+        for src, info in sorted(by_src.items(), key=lambda x: -x[1].get("tokens", 0)):
+            lines.append(f"| `{src}` | {info.get('tokens',0):,} | {info.get('calls',0)} | ${info.get('cost_usd',0):.5f} |")
+        lines.append("")
+
+    # User Work breakdown
+    tcs = uw.get("tier_counts") or {}
+    if any(tcs.values()):
+        lines.append("### 👤 User Work — Tier Mix")
+        lines.append("")
+        lines.append("| Tier | Count |")
+        lines.append("|---|---:|")
+        for tier in ["SIMPLE", "MEDIUM", "COMPLEX", "LOCAL_ONLY"]:
+            c = tcs.get(tier, 0)
+            if c:
+                lines.append(f"| {tier} | {c} |")
+        lines.append("")
+
+    # Provider attribution (for Codex tier especially)
+    providers = ls.get("providers") or {}
+    if providers:
+        lines.append("### 🔌 Provider Attribution")
+        lines.append("")
+        lines.append("| Provider | Tokens | Share | Cost (USD) |")
+        lines.append("|---|---:|---:|---:|")
+        for prov, info in providers.items():
+            tok = info.get("tokens", 0)
+            cost = info.get("cost_usd", 0.0)
+            pct = (tok / total_tok * 100) if total_tok else 0
+            lines.append(f"| `{prov}` | {tok:,} | {pct:.1f}% | ${cost:.4f} |")
+        lines.append("")
 
     # Tier mix
     if metrics["tier_counts"]:
@@ -730,6 +859,60 @@ def render_html(metrics: dict, metadata: dict, recs: list) -> str:
     <div class="stat"><div class="stat-label">Avg / Session</div><div class="stat-value">${metrics['avg_cost_per_session']:.3f}</div></div>
   </div>
 """
+
+    # ── Two-bucket Tokenomics Split ──
+    ls = metrics.get("last_session") or {}
+    ov = ls.get("raven_overhead") or {"tokens": 0, "cost_usd": 0.0, "calls": 0, "by_source": {}}
+    uw = ls.get("user_work") or {"tokens": 0, "cost_usd": 0.0, "calls": 0, "tier_counts": {}}
+    total_tok = ov.get("tokens", 0) + uw.get("tokens", 0)
+    total_cost = ov.get("cost_usd", 0.0) + uw.get("cost_usd", 0.0)
+    ov_pct = (ov.get("tokens", 0) / total_tok * 100) if total_tok else 0
+    uw_pct = (uw.get("tokens", 0) / total_tok * 100) if total_tok else 0
+
+    html += f"""
+<h2>⚡ Tokenomics Split — Raven Code vs User Work</h2>
+<p style="color:#94a3b8;font-size:13px;margin-bottom:16px;">
+  Different cost owners need different levers. 🪶 <strong>Raven Code</strong>
+  (overhead) is Raven team's lever. 👤 <strong>User Work</strong> is your lever.
+</p>
+<div class="stat-grid" style="grid-template-columns:1fr 1fr;">
+  <div class="stat" style="border-left:4px solid #8b5cf6;">
+    <div class="stat-label">🪶 Raven Code (Overhead)</div>
+    <div class="stat-value">{ov.get('tokens',0):,}</div>
+    <div style="color:#94a3b8;font-size:13px;margin-top:8px;">
+      ${ov.get('cost_usd',0):.4f} · {ov.get('calls',0)} calls · {ov_pct:.1f}% of total
+    </div>
+  </div>
+  <div class="stat" style="border-left:4px solid #10b981;">
+    <div class="stat-label">👤 User Work</div>
+    <div class="stat-value">{uw.get('tokens',0):,}</div>
+    <div style="color:#94a3b8;font-size:13px;margin-top:8px;">
+      ${uw.get('cost_usd',0):.4f} · {uw.get('calls',0)} calls · {uw_pct:.1f}% of total
+    </div>
+  </div>
+</div>
+"""
+
+    # Raven Code by-source breakdown
+    by_src = ov.get("by_source") or {}
+    if by_src:
+        html += '<h2>🪶 Raven Code — Overhead by Source</h2>\n'
+        html += '<table>\n<thead><tr><th>Source</th><th class="num">Tokens</th><th class="num">Calls</th><th class="num">Cost (USD)</th></tr></thead>\n<tbody>\n'
+        for src, info in sorted(by_src.items(), key=lambda x: -x[1].get("tokens", 0)):
+            html += f'<tr><td><code>{src}</code></td><td class="num">{info.get("tokens",0):,}</td><td class="num">{info.get("calls",0)}</td><td class="num">${info.get("cost_usd",0):.5f}</td></tr>\n'
+        html += '</tbody></table>\n'
+
+    # Provider attribution (Codex-tier matters)
+    providers = ls.get("providers") or {}
+    if providers:
+        html += '<h2>🔌 Provider Attribution</h2>\n'
+        html += '<table>\n<thead><tr><th>Provider</th><th class="num">Tokens</th><th class="num">Share</th><th class="num">Cost (USD)</th></tr></thead>\n<tbody>\n'
+        for prov, info in providers.items():
+            tok = info.get("tokens", 0)
+            cost = info.get("cost_usd", 0.0)
+            pct = (tok / total_tok * 100) if total_tok else 0
+            html += f'<tr><td><code>{prov}</code></td><td class="num">{tok:,}</td><td class="num">{pct:.1f}%</td><td class="num">${cost:.4f}</td></tr>\n'
+        html += '</tbody></table>\n'
 
     if metrics["tier_counts"]:
         html += '<h2>🎯 Tier Mix</h2>\n<table>\n<thead><tr><th>Tier</th><th class="num">Count</th><th class="num">Share</th><th class="num">Cost (USD)</th><th>Distribution</th></tr></thead>\n<tbody>\n'
