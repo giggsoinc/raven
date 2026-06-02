@@ -300,125 +300,219 @@ def aggregate(days: int = 30, project_filter: Optional[str] = None) -> dict:
     return metrics
 
 
-# ── Recommendations Engine (rule-based) ────────────────────────────────────────
-def recommend(metrics: dict, metadata: dict) -> list:
-    """Apply rules to metrics → return list of actionable recommendations."""
+# ── Recommendations Engine — Split by Owner ────────────────────────────────────
+#
+# Two rule sets, two owners:
+#   🪶 RAVEN HYGIENE  → judges raven_overhead bucket. Raven team owns the fix.
+#   👤 USER BEHAVIOR  → judges user_work bucket. User owns the fix.
+#   🌐 ENVIRONMENT    → manifest, vault, hooks, guards (neither bucket — config)
+
+def recommend_raven_hygiene(metrics: dict, metadata: dict) -> list:
+    """Rules that judge raven_overhead — Raven team owns these levers."""
     recs = []
+    ls = metrics.get("last_session") or {}
+    ov = ls.get("raven_overhead") or {"tokens": 0, "cost_usd": 0.0, "by_source": {}}
+    uw = ls.get("user_work") or {"tokens": 0}
+    total_tok = ov.get("tokens", 0) + uw.get("tokens", 0)
+    ov_pct = (ov.get("tokens", 0) / total_tok * 100) if total_tok else 0
+    by_src = ov.get("by_source") or {}
 
-    # Rule 1 — Opus over-classification
-    opus_pct = metrics.get("tier_share_pct", {}).get("COMPLEX", 0)
-    if opus_pct > 30:
+    # Rule R1 — Overhead share too high
+    if ov_pct > 20 and total_tok > 1000:
         recs.append({
-            "metric": "Opus % at {:.0f}%".format(opus_pct),
+            "owner": "raven_team",
+            "metric": "Raven overhead at {:.1f}% of total tokens".format(ov_pct),
             "severity": "high",
-            "issue": "Too many prompts classified as COMPLEX — likely over-routing to Opus.",
-            "action": "Review your last 10 prompts. Most should be MEDIUM (Sonnet). "
-                     "Tune .model.env keyword weights, or be more specific in prompts so "
-                     "the classifier sees scope clearly.",
-            "savings_estimate_usd": round(metrics["total_cost_usd"] * (opus_pct - 20) / 100, 2),
-        })
-    elif opus_pct == 0 and metrics["sessions_count"] > 5:
-        recs.append({
-            "metric": "Opus 0% across {} sessions".format(metrics["sessions_count"]),
-            "severity": "info",
-            "issue": "No COMPLEX classifications — may indicate router isn't catching "
-                     "architecture/security prompts.",
-            "action": "Verify model-router.py is wired in UserPromptSubmit hook. Test "
-                     "with: PROMPT='design a multi-region architecture' python3 model-router.py",
+            "issue": "Raven's own footprint exceeds 20%. The framework is too heavy.",
+            "action": "Audit by-source breakdown. Likely candidates: skill SKILL.md size, "
+                     "session-start banner length, classifier emission verbosity. "
+                     "File issue: github.com/giggsoinc/raven/issues",
+            "savings_estimate_usd": round(ov.get("cost_usd", 0) * 0.5, 4),
         })
 
-    # Rule 2 — Average cost per session
-    avg = metrics.get("avg_cost_per_session", 0)
-    if avg > 1.0:
-        recs.append({
-            "metric": "${:.2f} avg cost/session".format(avg),
-            "severity": "medium",
-            "issue": "High average session cost — sessions are running long or hitting "
-                     "Opus too often.",
-            "action": "Use /clear more aggressively. Set CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=50. "
-                     "Or switch to Haiku for setup/scaffolding work.",
-            "savings_estimate_usd": round((avg - 0.50) * metrics["sessions_count"], 2),
-        })
-
-    # Rule 3 — Token efficiency
-    avg_tok = metrics.get("avg_tokens_per_session", 0)
-    if avg_tok > 50000:
-        recs.append({
-            "metric": "{:,} avg tokens/session".format(avg_tok),
-            "severity": "medium",
-            "issue": "Session token consumption is high.",
-            "action": "Check CLAUDE.md size — compress with /caveman. Review which skills "
-                     "load by default; trim unused.",
-        })
-
-    # Rule 4 — Guard violations trending
-    total_violations = sum(metrics.get("violations", {}).values())
-    if total_violations > 10:
-        top_violation = max(metrics["violations"].items(), key=lambda x: x[1])
-        recs.append({
-            "metric": "{} guard violations".format(total_violations),
-            "severity": "high",
-            "issue": "Top violation: {} ({} occurrences).".format(top_violation[0], top_violation[1]),
-            "action": "Address the root cause of repeated {} violations. "
-                     "Consider relaxing the rule if it's a false positive pattern, "
-                     "or train the team on the policy.".format(top_violation[0]),
-        })
-
-    # Rule 5 — Approval overrides
-    total_overrides = sum(metrics.get("approvals", {}).values())
-    if total_overrides > 5:
-        recs.append({
-            "metric": "{} approval overrides".format(total_overrides),
-            "severity": "medium",
-            "issue": "Frequent GUARD:ALLOW-* overrides suggest guards are too strict "
-                     "or used as escape hatches.",
-            "action": "Review override audit log: cat .raven/audit/$(date +%Y-%m-%d).log "
-                     "| grep -i override. If valid, codify the exception in manifest. "
-                     "If improper, address with the developer.",
-        })
-
-    # Rule 6 — No vault sessions = obsidian-log not firing
-    sessions_dir_count = len(list(VAULT_SESSIONS.glob("*.md"))) if VAULT_SESSIONS.exists() else 0
-    if sessions_dir_count == 0:
-        recs.append({
-            "metric": "0 vault sessions",
-            "severity": "high",
-            "issue": "No session summaries in ~/RavenVault/sessions/ — obsidian-log "
-                     "hook isn't firing.",
-            "action": "Check plugin/settings.json has Stop hook wired to obsidian-log.py. "
-                     "Reinstall plugin: claude plugin install raven-plugin-v{}.zip"
-                     .format(PLUGIN_VERSION),
-        })
-
-    # Rule 7 — Top specialist concentration
-    specs = metrics.get("specialists_used", {})
-    if specs:
-        top_spec, top_count = next(iter(specs.items()))
-        total_spec = sum(specs.values())
-        if total_spec and top_count / total_spec > 0.7:
+    # Rule R2 — Single source dominates overhead
+    if by_src:
+        top_src, top_info = max(by_src.items(), key=lambda x: x[1].get("tokens", 0))
+        top_share = (top_info.get("tokens", 0) / ov.get("tokens", 1) * 100) if ov.get("tokens", 0) else 0
+        if top_share > 50 and ov.get("tokens", 0) > 1000:
             recs.append({
-                "metric": "{} = {:.0f}% of all specialist invocations".format(
-                    top_spec, 100 * top_count / total_spec),
-                "severity": "info",
-                "issue": "Heavy concentration on one specialist — may indicate "
-                         "router isn't surfacing alternatives.",
-                "action": "If this project is genuinely single-domain, ignore. "
-                         "If multi-domain, check db-router/ui-router/triage-router "
-                         "are all wired in settings.json.",
+                "owner": "raven_team",
+                "metric": "{} = {:.0f}% of Raven overhead".format(top_src, top_share),
+                "severity": "medium",
+                "issue": "One source dominates Raven's footprint.",
+                "action": "If skill-load: split the skill into mode-files (load on demand). "
+                         "If session-start: compress banner. "
+                         "If classifier: shorten the [REQUIRED] emission.",
             })
 
-    # Rule 8 — Missing manifest
-    if not metadata["manifest_present"]:
+    # Rule R3 — Skill-load specifically (Andie/specialist size)
+    skill_loads = {k: v for k, v in by_src.items() if k.startswith("skill-load:")}
+    if skill_loads:
+        skill_total = sum(v.get("tokens", 0) for v in skill_loads.values())
+        if skill_total > 5000:
+            top_skill = max(skill_loads.items(), key=lambda x: x[1].get("tokens", 0))
+            recs.append({
+                "owner": "raven_team",
+                "metric": "Skill loads: {:,} tokens ({} is heaviest at {:,})".format(
+                    skill_total, top_skill[0].replace("skill-load:", ""), top_skill[1].get("tokens", 0)),
+                "severity": "medium",
+                "issue": "Skill load weight is a primary Raven cost. Mode-splitting helps.",
+                "action": "Move rarely-used sections of {} into mode-files referenced via "
+                         "frontmatter. Load on demand, not always.".format(
+                    top_skill[0].replace("skill-load:", "")),
+            })
+
+    # Rule R4 — Classifier emissions too verbose
+    classifiers = ["triage-router", "architect-router"]
+    classifier_total = sum(by_src.get(c, {}).get("tokens", 0) for c in classifiers)
+    classifier_calls = sum(by_src.get(c, {}).get("calls", 0) for c in classifiers)
+    if classifier_calls > 0:
+        avg_per_call = classifier_total / classifier_calls
+        if avg_per_call > 100:
+            recs.append({
+                "owner": "raven_team",
+                "metric": "Classifier emission avg {:.0f} tokens/call".format(avg_per_call),
+                "severity": "info",
+                "issue": "Classifier [REQUIRED] injections are larger than necessary.",
+                "action": "Trim triage-router and architect-router emission text. "
+                         "Target ≤50 tokens per injection.",
+            })
+
+    return recs
+
+
+def recommend_user_behavior(metrics: dict, metadata: dict) -> list:
+    """Rules that judge user_work — user owns these levers."""
+    recs = []
+    ls = metrics.get("last_session") or {}
+    uw = ls.get("user_work") or {"tokens": 0, "cost_usd": 0.0, "tier_counts": {}}
+    tcs = uw.get("tier_counts") or {}
+    total_user_calls = sum(tcs.values()) or 1
+
+    # Rule U1 — User Opus over-classification (user_work tier mix only)
+    user_opus_pct = (tcs.get("COMPLEX", 0) / total_user_calls * 100)
+    if user_opus_pct > 30:
         recs.append({
-            "metric": "Manifest missing",
+            "owner": "user",
+            "metric": "Your Opus rate: {:.0f}%".format(user_opus_pct),
             "severity": "high",
-            "issue": ".raven/manifest.json doesn't exist — Raven is running without "
-                     "project context.",
-            "action": "Type anything in Claude Code — Andie's Branch A onboarding will "
-                     "auto-create the manifest. Or run /raven-init.",
+            "issue": "Your prompts are classifying as COMPLEX too often. This routes "
+                     "you to Opus (~50× cost of Haiku).",
+            "action": "Be more specific in prompts so scope is clear. Split big asks "
+                     "into smaller steps. For simple edits, say 'simple' explicitly.",
+            "savings_estimate_usd": round(uw.get("cost_usd", 0) * (user_opus_pct - 20) / 100, 2),
+        })
+    elif user_opus_pct == 0 and total_user_calls > 5:
+        recs.append({
+            "owner": "user",
+            "metric": "0% COMPLEX across {} prompts".format(total_user_calls),
+            "severity": "info",
+            "issue": "No architecture-class prompts detected — either none happened, "
+                     "or architect-router isn't catching them.",
+            "action": "If you DID make design decisions: architect-router should have "
+                     "fired. Check by typing 'design a multi-region auth system' — "
+                     "should trigger [ANDIE REQUIRED].",
+        })
+
+    # Rule U2 — User work cost per session
+    if uw.get("cost_usd", 0) > 1.0:
+        recs.append({
+            "owner": "user",
+            "metric": "${:.2f} on your work this session".format(uw.get("cost_usd", 0)),
+            "severity": "medium",
+            "issue": "Your session is expensive on the user_work side (separate from "
+                     "Raven's overhead). Long context, many Opus calls, or both.",
+            "action": "Use /clear to reset context between tasks. For repeated edit "
+                     "loops, switch to Haiku via .model.env override.",
+        })
+
+    # Rule U3 — User token consumption
+    if uw.get("tokens", 0) > 50000:
+        recs.append({
+            "owner": "user",
+            "metric": "{:,} tokens in your prompts/responses".format(uw.get("tokens", 0)),
+            "severity": "medium",
+            "issue": "Heavy session context. Long prompts, big tool outputs, or accumulated state.",
+            "action": "Use /clear more often. Trim CLAUDE.md if it's bloated. "
+                     "Avoid pasting large files — reference them by path.",
+        })
+
+    # Rule U4 — LOCAL_ONLY share (secrets in prompts)
+    local_pct = (tcs.get("LOCAL_ONLY", 0) / total_user_calls * 100) if total_user_calls else 0
+    if local_pct > 50 and total_user_calls > 5:
+        recs.append({
+            "owner": "user",
+            "metric": "{:.0f}% routed LOCAL_ONLY".format(local_pct),
+            "severity": "info",
+            "issue": "More than half your prompts trigger LOCAL_ONLY (secret detection).",
+            "action": "Either: (a) you're working on lots of secrets (good — local Ollama keeps "
+                     "data on-machine), or (b) secret detection is too sensitive. "
+                     "Check .raven/audit/ logs for false positives.",
         })
 
     return recs
+
+
+def recommend_environment(metrics: dict, metadata: dict) -> list:
+    """Rules that judge configuration — neither bucket, just setup health."""
+    recs = []
+
+    # Rule E1 — Missing manifest
+    if not metadata["manifest_present"]:
+        recs.append({
+            "owner": "config",
+            "metric": "Manifest missing",
+            "severity": "high",
+            "issue": ".raven/manifest.json doesn't exist — Raven is running without project context.",
+            "action": "Type anything in Claude Code — Andie's Branch A onboarding will auto-create. "
+                     "Or run /raven-init.",
+        })
+
+    # Rule E2 — No vault sessions
+    sessions_dir_count = len(list(VAULT_SESSIONS.glob("*.md"))) if VAULT_SESSIONS.exists() else 0
+    if sessions_dir_count == 0:
+        recs.append({
+            "owner": "config",
+            "metric": "0 vault sessions",
+            "severity": "high",
+            "issue": "No session summaries in ~/RavenVault/sessions/ — obsidian-log not firing.",
+            "action": "Verify settings.json wires Stop → obsidian-log.py. "
+                     "Reinstall plugin: claude plugin install raven-plugin-v{}.zip".format(PLUGIN_VERSION),
+        })
+
+    # Rule E3 — Guard violations / approvals (still useful, not bucket-specific)
+    total_violations = sum(metrics.get("violations", {}).values())
+    if total_violations > 10:
+        top = max(metrics["violations"].items(), key=lambda x: x[1])
+        recs.append({
+            "owner": "config",
+            "metric": "{} guard violations".format(total_violations),
+            "severity": "high",
+            "issue": "Top: {} ({} times). Either policy needs tuning or training needed.".format(top[0], top[1]),
+            "action": "Address root cause. If false positive, relax rule in manifest. "
+                     "Otherwise educate the team.",
+        })
+
+    total_overrides = sum(metrics.get("approvals", {}).values())
+    if total_overrides > 5:
+        recs.append({
+            "owner": "config",
+            "metric": "{} approval overrides".format(total_overrides),
+            "severity": "medium",
+            "issue": "Frequent GUARD:ALLOW-* overrides — guards too strict or used as escape hatches.",
+            "action": "Review .raven/audit/$(date +%Y-%m-%d).log. Codify legitimate exceptions; address misuse.",
+        })
+
+    return recs
+
+
+def recommend(metrics: dict, metadata: dict) -> list:
+    """Aggregate all three rule sets into a single list (back-compat)."""
+    return (
+        recommend_raven_hygiene(metrics, metadata)
+        + recommend_user_behavior(metrics, metadata)
+        + recommend_environment(metrics, metadata)
+    )
 
 
 # ── Renderer: CLI ──────────────────────────────────────────────────────────────
@@ -548,21 +642,37 @@ def render_cli(metrics: dict, metadata: dict, recs: list) -> str:
             out.append(f"  {event:<40} {count:>5}")
         out.append("")
 
-    # Recommendations
-    out.append("💡 Recommendations")
+    # Recommendations — GROUPED BY OWNER
+    out.append("💡 Recommendations — Grouped by Owner")
     out.append(bar)
     if not recs:
         out.append("  ✓ All metrics within healthy bands. No actions needed.")
     else:
         sev_icon = {"high": "🔴", "medium": "🟡", "info": "🔵"}
-        for i, r in enumerate(recs, 1):
-            icon = sev_icon.get(r["severity"], "⚪")
-            out.append(f"  {icon} [{i}] {r['metric']}")
-            out.append(f"       Issue:  {r['issue']}")
-            out.append(f"       Action: {r['action']}")
-            if r.get("savings_estimate_usd"):
-                out.append(f"       Est. savings: ${r['savings_estimate_usd']:.2f}")
-            out.append("")
+        groups = {
+            "raven_team": ("🪶 RAVEN HYGIENE — Raven team owns these fixes", []),
+            "user":       ("👤 USER BEHAVIOR — You own these fixes", []),
+            "config":     ("⚙️  ENVIRONMENT — Configuration / setup fixes", []),
+        }
+        for r in recs:
+            owner = r.get("owner", "config")
+            groups.get(owner, groups["config"])[1].append(r)
+
+        counter = 1
+        for owner_key, (title, items) in groups.items():
+            if not items:
+                continue
+            out.append(f"  {title}")
+            out.append(f"  {'-' * 60}")
+            for r in items:
+                icon = sev_icon.get(r["severity"], "⚪")
+                out.append(f"    {icon} [{counter}] {r['metric']}")
+                out.append(f"         Issue:  {r['issue']}")
+                out.append(f"         Action: {r['action']}")
+                if r.get("savings_estimate_usd"):
+                    out.append(f"         Est. savings: ${r['savings_estimate_usd']:.2f}")
+                counter += 1
+                out.append("")
 
     out.append("━" * 70)
     out.append(f"  Generated by Raven v{PLUGIN_VERSION}  ·  Local-only  ·  No telemetry")
@@ -743,23 +853,40 @@ def render_obsidian(metrics: dict, metadata: dict, recs: list) -> str:
             lines.append(f"| {event} | {count} |")
         lines.append("")
 
-    # Recommendations
-    lines.append("## 💡 Recommendations")
+    # Recommendations — grouped by owner
+    lines.append("## 💡 Recommendations — Grouped by Owner")
+    lines.append("")
+    lines.append("> Different cost owners need different fixes. Issues are tagged by who controls the lever.")
     lines.append("")
     if not recs:
         lines.append("✓ All metrics within healthy bands. No actions needed.")
     else:
         sev = {"high": "🔴 HIGH", "medium": "🟡 MEDIUM", "info": "🔵 INFO"}
-        for i, r in enumerate(recs, 1):
-            lines.append(f"### {i}. {sev.get(r['severity'], 'INFO')} — {r['metric']}")
+        groups = {
+            "raven_team": ("🪶 Raven Hygiene", "Raven team owns these — file issues at github.com/giggsoinc/raven/issues if persistent."),
+            "user":       ("👤 User Behavior", "You own these — prompt tuning, /clear cadence, model choice."),
+            "config":     ("⚙️ Environment / Setup", "Configuration issues — manifest, hooks, guards, vault wiring."),
+        }
+        counter = 1
+        for owner_key, (title, blurb) in groups.items():
+            owner_recs = [r for r in recs if r.get("owner") == owner_key]
+            if not owner_recs:
+                continue
+            lines.append(f"### {title}")
             lines.append("")
-            lines.append(f"**Issue:** {r['issue']}")
+            lines.append(f"*{blurb}*")
             lines.append("")
-            lines.append(f"**Action:** {r['action']}")
-            if r.get("savings_estimate_usd"):
+            for r in owner_recs:
+                lines.append(f"#### {counter}. {sev.get(r['severity'], 'INFO')} — {r['metric']}")
                 lines.append("")
-                lines.append(f"**Estimated savings:** ${r['savings_estimate_usd']:.2f}")
-            lines.append("")
+                lines.append(f"**Issue:** {r['issue']}")
+                lines.append("")
+                lines.append(f"**Action:** {r['action']}")
+                if r.get("savings_estimate_usd"):
+                    lines.append("")
+                    lines.append(f"**Estimated savings:** ${r['savings_estimate_usd']:.2f}")
+                lines.append("")
+                counter += 1
     lines.append("---")
     lines.append("")
 
@@ -944,17 +1071,31 @@ def render_html(metrics: dict, metadata: dict, recs: list) -> str:
             html += f'<tr><td>{event}</td><td class="num">{count}</td></tr>\n'
         html += '</tbody></table>\n'
 
-    html += '<h2>💡 Recommendations</h2>\n'
+    html += '<h2>💡 Recommendations — Grouped by Owner</h2>\n'
+    html += '<p style="color:#94a3b8;font-size:13px;margin-bottom:16px;">Different cost owners need different fixes. Issues are tagged by who controls the lever.</p>\n'
     if not recs:
         html += '<p style="color:#10b981;background:#1e293b;padding:16px;border-radius:8px;">✓ All metrics within healthy bands. No actions needed.</p>\n'
     else:
-        for i, r in enumerate(recs, 1):
-            html += f'<div class="rec {r["severity"]}">\n'
-            html += f'<div class="rec-metric">[{i}] {r["metric"]}</div>\n'
-            html += f'<div class="rec-body"><strong>Issue:</strong> {r["issue"]}<br><strong>Action:</strong> {r["action"]}'
-            if r.get("savings_estimate_usd"):
-                html += f' <br><strong>Estimated savings:</strong> ${r["savings_estimate_usd"]:.2f}'
-            html += '</div></div>\n'
+        groups = {
+            "raven_team": ("🪶 Raven Hygiene", "Raven team owns these — file issues if persistent.", "#8b5cf6"),
+            "user":       ("👤 User Behavior", "You own these — prompt tuning, /clear cadence, model choice.", "#10b981"),
+            "config":     ("⚙️ Environment / Setup", "Configuration issues — manifest, hooks, guards, vault wiring.", "#f59e0b"),
+        }
+        counter = 1
+        for owner_key, (title, blurb, color) in groups.items():
+            owner_recs = [r for r in recs if r.get("owner") == owner_key]
+            if not owner_recs:
+                continue
+            html += f'<h3 style="color:{color};margin-top:24px;margin-bottom:8px;border-bottom:2px solid {color};padding-bottom:4px;">{title}</h3>\n'
+            html += f'<p style="color:#94a3b8;font-size:13px;margin-bottom:12px;">{blurb}</p>\n'
+            for r in owner_recs:
+                html += f'<div class="rec {r["severity"]}" style="border-left-color:{color};">\n'
+                html += f'<div class="rec-metric">[{counter}] {r["metric"]}</div>\n'
+                html += f'<div class="rec-body"><strong>Issue:</strong> {r["issue"]}<br><strong>Action:</strong> {r["action"]}'
+                if r.get("savings_estimate_usd"):
+                    html += f' <br><strong>Estimated savings:</strong> ${r["savings_estimate_usd"]:.2f}'
+                html += '</div></div>\n'
+                counter += 1
 
     html += f"""
   <div class="footer">
