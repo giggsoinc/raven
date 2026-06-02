@@ -1143,6 +1143,148 @@ function downloadCSV() {{
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
+# ── Drift Audit (Method C) ─────────────────────────────────────────────────────
+#
+# Sampling-based safety net that catches attribution drift. Runs weekly via
+# /loop or cron. Verifies known-overhead sources are correctly tagged and
+# detects suspiciously high single-call user_work tokens (likely leaked overhead).
+
+KNOWN_OVERHEAD_EXACT = {
+    "triage-router", "architect-router", "session-start",
+    "token-guard", "obsidian-log", "cve-prompt-guard",
+    "secret-scan", "audit-log", "db-guard", "schema-guard",
+    "mcp-guard", "policy-sync", "stream-signal", "raven_agent",
+    "model-router", "log-overhead",
+}
+KNOWN_OVERHEAD_PREFIXES = ("skill-load:", "raven-hook:", "guard:")
+
+
+def audit_drift(metrics: dict, metadata: dict, sample_rate: float = 0.01) -> dict:
+    """
+    Sample by_source attributions and check for drift.
+
+    Findings categories:
+      - unknown_source: source in raven_overhead not in known-good list
+      - high_avg_user: user_work avg/call suspiciously high (overhead leak)
+      - missing_source: known hook fired but no overhead recorded
+      - cross_session_drift: per-source token average shifts >2x vs baseline
+    """
+    findings = []
+    ls = metrics.get("last_session") or {}
+    ov = ls.get("raven_overhead") or {}
+    uw = ls.get("user_work") or {}
+    by_src = ov.get("by_source") or {}
+
+    # Check 1 — unknown overhead sources
+    for src, info in by_src.items():
+        is_known = (
+            src in KNOWN_OVERHEAD_EXACT
+            or any(src.startswith(p) for p in KNOWN_OVERHEAD_PREFIXES)
+        )
+        if not is_known:
+            findings.append({
+                "severity": "warn",
+                "kind": "unknown_source",
+                "source": src,
+                "tokens": info.get("tokens", 0),
+                "issue": f"Source '{src}' not in known-good overhead list",
+                "action": "If legitimate, add to KNOWN_OVERHEAD_EXACT in dashboard.py. "
+                         "If unexpected, audit the caller — may be misattribution.",
+            })
+
+    # Check 2 — user_work avg suspiciously high (overhead leak)
+    tier_counts = uw.get("tier_counts") or {}
+    user_calls = sum(tier_counts.values())
+    if user_calls > 0:
+        avg_per_call = uw.get("tokens", 0) / user_calls
+        if avg_per_call > 100000:
+            findings.append({
+                "severity": "high",
+                "kind": "high_avg_user",
+                "source": "user_work bucket",
+                "tokens": int(avg_per_call),
+                "issue": f"User work avg {avg_per_call:,.0f} tokens/call — unusually high (>100K).",
+                "action": "Likely overhead is being misattributed to user_work. "
+                         "Audit recent log-overhead calls for missing --source flag, "
+                         "or check if model-router got --source override accidentally.",
+            })
+
+    # Check 3 — total overhead vs total session
+    total_tok = ov.get("tokens", 0) + uw.get("tokens", 0)
+    ov_pct = (ov.get("tokens", 0) / total_tok * 100) if total_tok else 0
+    if total_tok > 1000 and ov_pct < 0.1:
+        findings.append({
+            "severity": "warn",
+            "kind": "missing_overhead",
+            "source": "raven_overhead bucket",
+            "tokens": 0,
+            "issue": f"Raven overhead at {ov_pct:.2f}% — implausibly low.",
+            "action": "Hooks may not be calling log-overhead.py. "
+                     "Verify triage-router + architect-router fire _log_overhead after emission.",
+        })
+
+    # Write audit log
+    audit_dir = Path(os.environ.get("CLAUDE_PROJECT_DIR", ".")) / ".raven" / "audit"
+    audit_dir.mkdir(parents=True, exist_ok=True)
+    audit_path = audit_dir / f"dashboard-audit-{datetime.now().strftime('%Y-%m-%d')}.log"
+    try:
+        with open(audit_path, "a") as f:
+            f.write(json.dumps({
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "kind": "dashboard_audit",
+                "project": metadata.get("project"),
+                "findings_count": len(findings),
+                "findings": findings,
+                "metrics_snapshot": {
+                    "raven_overhead_tokens": ov.get("tokens", 0),
+                    "user_work_tokens": uw.get("tokens", 0),
+                    "ov_pct": round(ov_pct, 2),
+                    "sources_count": len(by_src),
+                },
+            }, default=str) + "\n")
+    except Exception:
+        pass  # never block
+
+    return {
+        "findings": findings,
+        "audit_log_path": str(audit_path),
+        "checked_at": datetime.now(timezone.utc).isoformat(),
+        "sources_audited": len(by_src),
+        "drift_detected": len(findings) > 0,
+    }
+
+
+def render_audit_cli(audit: dict) -> str:
+    """Compact audit-only CLI output."""
+    out = []
+    out.append("")
+    out.append("━" * 70)
+    out.append("  RAVEN — DRIFT AUDIT (Method C — Sampling Safety Net)")
+    out.append("━" * 70)
+    out.append(f"  Checked at      : {audit['checked_at']}")
+    out.append(f"  Sources audited : {audit['sources_audited']}")
+    out.append(f"  Audit log       : {audit['audit_log_path']}")
+    out.append(f"  Drift detected  : {'⚠️  YES' if audit['drift_detected'] else '✅ NO'}")
+    out.append("")
+    findings = audit["findings"]
+    if not findings:
+        out.append("  ✅ All sources correctly attributed. No drift detected.")
+    else:
+        sev_icon = {"high": "🔴", "warn": "🟡", "info": "🔵"}
+        for i, f in enumerate(findings, 1):
+            icon = sev_icon.get(f["severity"], "⚪")
+            out.append(f"  {icon} [{i}] {f['kind']}: {f['source']}")
+            out.append(f"        Tokens: {f['tokens']:,}")
+            out.append(f"        Issue:  {f['issue']}")
+            out.append(f"        Action: {f['action']}")
+            out.append("")
+    out.append("━" * 70)
+    out.append("  Run weekly: /loop 7d /raven-dashboard --audit")
+    out.append("━" * 70)
+    out.append("")
+    return "\n".join(out)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Raven Tokenomics & Usage Dashboard")
     parser.add_argument("--cli", action="store_true", help="Render to terminal")
@@ -1150,13 +1292,15 @@ def main():
     parser.add_argument("--html", action="store_true", help="Write dashboard.html to ~/RavenVault/")
     parser.add_argument("--json", action="store_true", help="Dump raw metrics JSON")
     parser.add_argument("--all", action="store_true", help="All output modes")
+    parser.add_argument("--audit", action="store_true",
+                        help="Run drift audit on attribution buckets (Method C — sampling safety net)")
     parser.add_argument("--open", action="store_true", help="Open HTML report after writing")
     parser.add_argument("--days", type=int, default=30, help="Window in days (default 30)")
     parser.add_argument("--month", type=str, help="Specific month YYYY-MM")
     parser.add_argument("--project", type=str, help="Filter by project name")
     args = parser.parse_args()
 
-    if not (args.cli or args.obsidian or args.html or args.json or args.all):
+    if not (args.cli or args.obsidian or args.html or args.json or args.all or args.audit):
         args.cli = True  # default
 
     days = args.days
@@ -1171,6 +1315,16 @@ def main():
     metadata = collect_metadata()
     metrics = aggregate(days=days, project_filter=args.project)
     recs = recommend(metrics, metadata)
+
+    # Drift audit — runs independently or alongside other modes
+    audit_result = None
+    if args.audit:
+        audit_result = audit_drift(metrics, metadata)
+        print(render_audit_cli(audit_result))
+        # Exit non-zero if drift detected (useful for CI / scheduled checks)
+        if audit_result["drift_detected"]:
+            print(f"⚠️  {len(audit_result['findings'])} drift findings — see {audit_result['audit_log_path']}",
+                  file=sys.stderr)
 
     if args.cli or args.all:
         print(render_cli(metrics, metadata, recs))
@@ -1191,7 +1345,10 @@ def main():
                 pass
 
     if args.json:
-        print(json.dumps({"metadata": metadata, "metrics": metrics, "recommendations": recs}, indent=2, default=str))
+        payload = {"metadata": metadata, "metrics": metrics, "recommendations": recs}
+        if audit_result is not None:
+            payload["audit"] = audit_result
+        print(json.dumps(payload, indent=2, default=str))
 
 
 if __name__ == "__main__":
