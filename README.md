@@ -2,16 +2,16 @@
   <img src="./assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
 </p>
 
-<h1 align="center">Raven v3.0</h1>
+<h1 align="center">Raven v3.4</h1>
 
 <p align="center">
   <strong>AI-native engineering discipline for Claude Code · GitHub Copilot · OpenAI Codex</strong><br/>
-  61 domain skills · 10 always-on guard agents · 9 always-on hooks · CVE scanning · secret detection · audit logs · Obsidian session memory<br/>
-  Works for individual developers and engineering teams
+  60 domain skills · 10 always-on guard agents · CVE scanning · secret detection · audit logs · Obsidian session memory<br/>
+  Andie greets you on install. ≤2 questions. No bash. No 8-question wizard.
 </p>
 
 <p align="center">
-  <a href="https://github.com/giggsoinc/raven/releases/tag/v3.0">v3.0</a> ·
+  <a href="https://github.com/giggsoinc/raven/releases/tag/v3.4.0">v3.4.0</a> ·
   <a href="docs/HOW-TO-USE.md">Full Documentation</a> ·
   MIT License ·
   Built by <a href="https://giggso.com">Giggso</a>
@@ -46,6 +46,24 @@ AI coding assistants are powerful — but left unchecked, they ship secrets in c
 ---
 
 ## What Raven Does
+
+### 💰 Cost-Aware Routing — Built In
+
+Raven classifies every prompt and routes it to the cheapest adequate model:
+
+| Tier | Triggers | Model | Approx cost |
+|------|----------|-------|-------------|
+| **SIMPLE** | "fix typo", "rename var", single-file edits | Haiku | ~$0.25 / 1M tok |
+| **MEDIUM** | tests, docs, debug, refactor scope | Sonnet | ~$3 / 1M tok |
+| **COMPLEX** | architecture, security audit, multi-file reasoning | Opus | ~$15 / 1M tok |
+| **LOCAL_ONLY** | secrets detected in prompt, offline mode | Ollama | free, on-machine |
+
+- **Session token counter + cost shown in banner** every session start.
+- **Stop event writes session summary** to `~/RavenVault/sessions/` (Obsidian-compatible).
+- **Secrets in your prompt** → automatically forced to local Ollama. Cloud never sees them.
+- **No telemetry. No Hub. Local-only.** All cost data stays on your machine.
+
+Configure via `.raven/.model.env` — raven-init writes it for you.
 
 ### 🧠 Andie — Your AI Architect (v6.3)
 
