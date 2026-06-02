@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "description": "Raven v3.0 — Automated governance gate via Andie",
+  "hooks": {
+    "UserPromptSubmit": "andie --auto --mode=detect"
+  },
+  "permissions": {
+    "bash": ["git", "python3"],
+    "mcp": ["raven-core", "raven-review", "raven-security"]
+  },
+  "governance": {
+    "enforcement": "mandatory",
+    "andie_gate": "automatic",
+    "fallback": "prompt-start"
+  }
+}

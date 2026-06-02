@@ -155,6 +155,36 @@ Andie is at: `.claude/skills/andie/SKILL.md`
 
 ---
 
+## Automated Andie Gate — UserPromptSubmit Hook
+
+**Enforcement Method:** Automatic via `.claude/settings.json` hook
+
+Every user request triggers the Andie gate BEFORE any response is generated:
+
+```
+User message → UserPromptSubmit hook fires → Andie pre-flight → Route to specialist → Response
+```
+
+**Why Automated?**
+- Removes silent discretion. Governance always runs.
+- Developer cannot accidentally skip the discipline layer.
+- Transparent to user; no extra prompts.
+
+**Hook Configuration:**
+```json
+{
+  "hooks": {
+    "UserPromptSubmit": "andie --auto --mode=detect"
+  }
+}
+```
+
+**Fallback:** If hook fails to load, Andie loads via prompt-start fallback.
+
+**Exception:** Users may opt out per-session by setting `RAVEN_DISABLED=1` in environment (this is logged and auditable).
+
+---
+
 ## Agent Priority Order
 
 ```
@@ -170,6 +200,7 @@ Priority 4 → architecture-guard  (no diagram = warn, block after 24h)
 
 | Hook | Fires When | Action |
 |---|---|---|
+| UserPromptSubmit | Before any user request is processed | Andie pre-flight → route to specialist (automated) |
 | PreToolUse | Before any tool use | tool-guard.py — blocks restricted actions |
 | PostEdit | After every file save | secret-scan.py + audit-log.py |
 | PreCommit | Before git commit | Full gate: manifest + secrets + CVE + style |
