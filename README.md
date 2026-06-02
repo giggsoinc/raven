@@ -12,7 +12,7 @@
 
 <p align="center">
   <a href="https://github.com/giggsoinc/raven/releases/tag/v3.0">v3.0</a> ·
-  <a href="HOW-TO-USE.md">Full Documentation</a> ·
+  <a href="docs/HOW-TO-USE.md">Full Documentation</a> ·
   MIT License ·
   Built by <a href="https://giggso.com">Giggso</a>
 </p>
@@ -197,26 +197,31 @@ Unknown or mixed domains trigger `dynamic-specialist` — a 9-step on-demand exp
 
 ---
 
-## Install
+## Install — 90 seconds, zero questions
 
-### Quickest — Plugin (no terminal needed)
+1. Download [`raven-plugin-v3.4.0.zip`](plugin/raven-plugin-v3.4.0.zip)
+2. Open Claude Desktop → Settings → Extensions → Add plugin → drop the zip
+3. Open your project. Type anything.
 
-1. Download [`raven-plugin-v3.3.0.zip`](plugin/raven-plugin-v3.3.0.zip)
-2. Open Claude Desktop → Settings → Extensions → Add plugin
-3. Upload the ZIP
-4. Done — 61 skills and 10 guard agents load automatically
+Andie greets you, scans your project, builds the manifest — done.
 
-### Individual Developer
+> 👋 *"Hey, I'm Andie. I'm the mind of your installed Raven. Good — you have a keen ask for responsible and resilient AI. I noticed you don't have a manifest yet — to get Raven working, I need to scan your project and build one. OK to proceed?"*
 
-**macOS / Linux:**
+That's it. No bash. No setup script. No 8 questions. Andie infers everything she can and asks at most 2.
+
+<details>
+<summary>Prefer the terminal install? (advanced)</summary>
+
 ```bash
+# macOS / Linux
 curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | bash
-```
 
-**Windows:**
-```powershell
+# Windows
 iwr https://raw.githubusercontent.com/giggsoinc/raven/main/install.ps1 | iex
 ```
+
+The terminal installer does the same thing the plugin does, plus writes project-level hooks. Most users don't need this.
+</details>
 
 ---
 
@@ -251,4 +256,4 @@ You open Claude Code. Andie detects "production down" signal. War mode fires. No
 
 MIT — [Giggso](https://giggso.com)
 
-[HOW-TO-USE.md](HOW-TO-USE.md) · [CLAUDE.md](CLAUDE.md) · [plugin/README.md](plugin/README.md)
+[docs/HOW-TO-USE.md](docs/HOW-TO-USE.md) · [CLAUDE.md](CLAUDE.md) · [plugin/README.md](plugin/README.md)

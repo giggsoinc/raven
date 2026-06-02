@@ -424,9 +424,15 @@ def format_context(project: dict, providers: list[dict], routing: dict, model_en
         lines.append("━━━ RAVEN BOOT PROTOCOL ━━━")
         lines.append("On the FIRST user message of this session, BEFORE responding:")
         if not has_manifest:
-            lines.append("  1. .raven/manifest.json is MISSING — run /raven-init immediately.")
+            lines.append("  1. .raven/manifest.json is MISSING.")
+            lines.append("     AUTO-INVOKE the `andie` skill. Andie's Branch A onboarding fires.")
+            lines.append("     Andie shows the exact greeting:")
+            lines.append('       "👋 Hey, I\'m Andie. I\'m the mind of your installed Raven.')
+            lines.append('        Good — you have a keen ask for responsible and resilient AI.')
+            lines.append('        I noticed you don\'t have a manifest yet — to get Raven working,')
+            lines.append('        I need to scan your project and build one. OK to proceed?"')
+            lines.append("     On YES → Andie scans, asks ≤2 questions, hands off to raven-init.")
             lines.append("     Do NOT give generic Raven install instructions — Raven IS installed.")
-            lines.append("     /raven-init will ask a few questions and create the manifest.")
         else:
             lines.append("  1. manifest.json ✅ — load it, trust declared stack.")
 

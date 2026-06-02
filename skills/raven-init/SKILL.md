@@ -1,12 +1,21 @@
 ---
 name: raven-init
-description: Initialize Raven for a new project. Generates manifest.json interactively, validates against schema, commits with audit trail.
+description: Initialize Raven for a new project. Andie-conversational — auto-scans project, asks at most 2 questions, generates manifest.json, validates, and commits with audit trail.
 allowed-tools: Read, Write, Edit, Bash
 ---
 
-# /raven init
+# /raven init — Andie-Conversational Setup
 
-Initializes Raven for a new project. Asks questions one at a time, generates manifest.json, validates, and commits.
+Replaces the legacy 7-step interactive wizard with an Andie-driven conversation. Auto-detects everything possible, asks only what cannot be inferred.
+
+---
+
+## Entry Points
+
+This skill is invoked by:
+1. **Andie Branch A onboarding** — fires automatically when no manifest exists and user confirms "OK to proceed".
+2. **Explicit `/raven init`** — user runs the command directly.
+3. **`andie init`** — user invokes Andie for setup.
 
 ---
 
@@ -14,189 +23,164 @@ Initializes Raven for a new project. Asks questions one at a time, generates man
 
 1. Is `.raven/manifest.json` already present?
    - **YES** → Load it. Trust it. Proceed with the declared stack. Do not reinitialize. Do not modify unless user explicitly requests it.
-   - **NO** → Greenfield. Continue below.
+   - **NO** → Run the auto-scan flow below.
 
 2. Is Git initialized?
-   - **NO** → Warn: "Git not initialized. Run `git init` first. Audit trail requires Git."
+   - **NO** → Note silently: "Git not initialized — audit trail will start when you `git init`." Continue.
 
 ---
 
-## First-Run Admin Detection (Enterprise Only)
+## Auto-Scan (Silent, Fast)
 
-Check for `~/.raven/org-admin.json` (global) or `.raven/org-admin.json` (project override).
+Scan the project root for these signals. No prompts. No noise. Just detect.
 
-**No admin config found anywhere → you're the first. Collect admin setup (Question 0) before project questions.**
+| Signal File | Infers |
+|-------------|--------|
+| `package.json` | Node/JS · framework from deps (React/Vue/Next/etc.) · scripts |
+| `pyproject.toml` / `requirements.txt` / `setup.py` | Python · libraries · framework (FastAPI/Django/Flask) |
+| `Cargo.toml` | Rust |
+| `go.mod` | Go |
+| `pom.xml` / `build.gradle` | Java/Kotlin |
+| `Gemfile` | Ruby |
+| `sfdx-project.json` / `force-app/` | Salesforce |
+| `__manifest__.py` | Odoo |
+| `*.tf` files | Terraform |
+| `Dockerfile` / `docker-compose.yml` | Container stack |
+| `helm/` / `charts/` / `k8s/` | Kubernetes |
+| `.env*` / `secrets.json` | Mark as sensitive — do NOT read |
+| `git remote -v` | Owner (from GitHub URL) |
+| `.git/config` | Branch info |
 
-**Admin config exists → joining developer. Skip admin setup. Load org policy from Hub at end of init.**
-
----
-
-## Question 0 — Admin Setup (First-Run Only)
-
-**Q0a — Hub location:**
-```
-Where is your Raven Hub?
-( ) SaaS — hub.raven.giggso.com
-( ) Self-hosted — I'll enter the URL
-( ) No Hub — local-only mode
-```
-
-**Q0b — Org name:** short, no spaces (e.g. acme, giggso)
-
-**Q0c — Admin email:** becomes org admin contact
-
-**Q0d — Initial policy mode:**
-```
-( ) shadow — all MCPs run, ungoverned ones logged (Recommended for day 1)
-( ) soft   — first-use prompt for new MCPs, auto-continues
-( ) hard   — all new MCPs need admin approval
-```
-
-After Q0d — write `~/.raven/org-admin.json` (admin_email, hub_url, org, policy_mode, setup_at, admin_since: "first-install") and `.raven/mcp-policy.json` (mode, default, allowed: [], blocked: []).
-
-Show confirmation, then proceed to project questions.
+Output silently to working memory — NOT to the user.
 
 ---
 
-## Greenfield Rules
+## Inference Rules
 
-```
-NEVER auto-detect or pre-populate from: venv, requirements.txt, pyproject.toml,
-package.json, .env, or any other files on disk.
-Every answer comes from the user. No exceptions.
+From the scan, infer the manifest defaults:
 
-EXCEPTION — project name only:
-  Pre-populate from basename(cwd). Show as default. User confirms or overrides.
-```
-
----
-
-## Interactive Questions — one at a time, wait for each answer
-
-**Q1 — Project name:**
-Default from `basename(cwd)`, sanitized to `^[a-zA-Z0-9_-]+$`. User confirms or types new name.
-
-**Q2 — Work type:**
-```
-( ) code    — application code (Python, TypeScript, Go, etc.)
-( ) infra   — infrastructure only (Terraform, K8s, Helm)
-( ) review  — reviewing code/docs/architecture (no files generated)
-( ) mixed   — code + infrastructure
-```
-- code → full language + library validation
-- infra → no language block on .yaml/.tf/.hcl/.json
-- review → stack validation skipped entirely
-- mixed → code rules for .py/.ts/.go · infra rules for .yaml/.tf/.hcl
-
-**Q3 — Primary language(s):**
-
-If `review` → skip. Set `stack.language: ["review-only"]`.
-
-If `infra` → multi-select: yaml · hcl · json · dockerfile · bicep · shell
-
-If `code` or `mixed` → multi-select: python3.13 · python3.12 · python3.11 · typescript · javascript · go · rust · java · kotlin · swift · csharp · sql+plsql · shell · yaml · hcl
-
-If org manifest has locked languages → show pre-selected, explain they can't be changed.
-
-**Q4 — Frontend framework:** (skip for `infra` or `review`)
-```
-( ) vuejs  ( ) reactjs  ( ) nextjs  ( ) nuxtjs  ( ) none
-```
-
-**Q5 — Cloud:**
-```
-( ) aws  ( ) gcp  ( ) azure  ( ) oci  ( ) on-prem  ( ) multi
-```
-
-**Q6 — Database(s):** multi-select:
-postgresql · oracle-26ai · opensearch · falkordb (GraphDB preferred) · neo4j · dynamodb · kafka · rabbitmq · none
-
-**Q7 — Infrastructure tools:** multi-select:
-terraform · docker-compose · kubernetes · kubespray · helm · ansible
-
-**Q8 — Author email:** basic email format. Becomes first changelog entry author.
-
-**Q9 — Guard enabled?**
-```
-( ) yes — recommended
-( ) no
-```
-If org manifest locks `guard.enabled: true` → skip, show: "Guard is enabled by org policy and cannot be disabled."
+| Manifest field | Inference source |
+|----------------|------------------|
+| `project` | Folder name |
+| `owner` | git remote URL (giggsoinc/foo → "giggsoinc") |
+| `stack.language` | From signal files above |
+| `stack.frontend` | From package.json frameworks |
+| `stack.db` | From requirements (psycopg2 → postgres, etc.) |
+| `stack.infra` | From .tf, Dockerfile, k8s/ presence |
+| `stack.cloud` | "on-prem" default, override if AWS/Azure/GCP detected |
+| `stack.libraries` | From requirements/package.json |
+| `standards` | "raven-v1" default |
+| `approval_mode` | "first_responder" default |
 
 ---
 
-## Generate Manifest
+## Ask AT MOST 2 Questions
 
-1. Merge answers with org defaults (org locked fields win)
-2. Generate `manifest.json` matching schema exactly
-3. Add initial changelog entry: version 1.0 · changed_by from Q8 · ISO timestamp · summary of answers · pr: "pending" · approved_by from Q8
-4. Show generated manifest → ask "Looks good? (yes / no — let me change something)"
+Only ask what cannot be inferred. Typically:
 
----
-
-## Save + Git (automatic — user does nothing)
-
-On confirmation:
-
-1. Create `.raven/` directory if needed
-2. Write `.raven/manifest.json`
-3. Write `.raven/.gitignore` containing: `manifest.secrets.json` and `.cache/`
-4. Update root `.gitignore` silently — append if not present:
-   ```
-   # Raven
-   .raven/manifest.secrets.json
-   .raven/.cache/
-   .model.env
-   ```
-5. Commit silently:
-   ```bash
-   git add .raven/manifest.json .raven/.gitignore .gitignore
-   git commit -m "chore: init raven v3.0 [RAVEN:INIT]"
-   ```
-   Do NOT show git commands. Do NOT ask user to run them.
-
-5b. **Secrets detection — mode-dependent:**
-- **Solo mode** (no Hub URL in Q0) → skip entirely. Never mention secrets.
-- **Team / Enterprise mode** → run `python3 .claude/scripts/secrets-init.py` silently. It handles its own output.
-
-6. Write `.claude/CLAUDE.md` if not already present. Create `.claude/` if needed. Never overwrite existing.
-
-7. Show only:
+**Q1 — Owner confirmation (only if not detectable from git remote):**
 ```
-─────────────────────────────────────────
-  Raven ✅  {project}  initialized
-─────────────────────────────────────────
-  Stack:   {stack summary}
-  Policy:  {mode}
-  Guards:  active
-
-  You're ready. What are we building?
-─────────────────────────────────────────
+I detected this is a {{language}} project at {{folder_name}}.
+Who owns it? (defaults to your git username if blank)
 ```
 
-No warnings. No manual steps. No git commands. Never mention manifest.secrets.json to solo users.
+**Q2 — Primary use (only if ambiguous):**
+```
+What's the primary use? — (a) production app · (b) internal tool · (c) library · (d) research/experiment
+```
+
+NEVER ask 8 questions. NEVER show "Question 0" / "Question 1" headers like the legacy flow.
 
 ---
 
-## Validation
+## Propose Manifest as PROPOSAL
 
-Run after saving:
-1. Validate against `manifest.schema.json`
-2. Check required fields present
-3. Check locked fields match org manifest (if present)
-4. Check changelog has at least one entry
+Show the resolved manifest as a PROPOSAL block. User accepts / modifies / rejects.
 
-Show: ✅ for each check passed. On failure: `❌ {field}: {reason}` → "Fix and re-run /raven init"
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PROPOSED MANIFEST — .raven/manifest.json
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+project:    {{name}}
+owner:      {{owner}}
+language:   {{langs}}
+framework:  {{frameworks}}
+db:         {{db}}
+infra:      {{infra}}
+cloud:      {{cloud}}
+libs:       {{count}} libraries detected
+
+Guards enabled: bash-ban-raw-tools · cbm-code-discovery-gate ·
+                cve-prompt-guard · secret-scan · audit-log
+
+→ Accept · Modify · Reject
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+On accept → write `.raven/manifest.json` → validate → commit with audit trail.
 
 ---
 
-## Audit Trail
+## Validate
 
-Every init creates:
-- `changelog` entry in `manifest.json` (in Git)
-- Commit tagged `[RAVEN:INIT]` (in Git history)
-- Timestamp + author on changelog entry
+After writing, run schema validation:
+
+```bash
+python3 .claude/scripts/validate-manifest.py 2>/dev/null
+```
+
+If invalid → show the error, offer to re-prompt that specific field. Never erase user input on validation failure.
 
 ---
 
-*Raven v3.0 — github.com/giggsoinc/raven*
+## Commit
+
+```bash
+git add .raven/manifest.json
+git commit -m "chore: raven-init — manifest created via Andie
+
+Manifest fields:
+- Language: {{langs}}
+- Cloud: {{cloud}}
+- Approval mode: {{mode}}
+
+[raven-init]
+"
+```
+
+If Git is not initialized → write file only, skip commit, note: "Manifest saved. Initialize Git when ready — `git init && git add .raven/`."
+
+---
+
+## Smoke Test (Replaces /raven-debug for First-Run)
+
+After commit, Andie returns one final line:
+
+```
+✅ Raven is loaded. Manifest committed.
+   Ask me anything — I'll route to the right specialist automatically.
+```
+
+That's the proof of life. No separate `/raven-debug` needed.
+
+---
+
+## Migration Note
+
+The legacy `sr-00-preflight.sh` through `sr-06-verify.sh` setup scripts are NO LONGER the install path. They remain in the repo for advanced users but are not invoked by default. The Claude Desktop plugin install + Andie Branch A is the canonical flow.
+
+---
+
+## RULES — what raven-init never does
+
+- No 7-step question wizard.
+- No "Question 0a / Q0b / Q0c" labels.
+- No Hub configuration prompts (Enterprise path only — kept private).
+- No interactive yes/no for every field — propose ALL at once.
+- No "did it work?" ambiguity — final smoke line is mandatory.
+- No bash setup scripts called from this skill — pure Andie + Read/Write/Edit/Bash.
+
+---
+
+*raven-init v3.4.0 — Andie-conversational. Auto-scan first. ≤2 questions. PROPOSAL gate. Smoke test at end.*
