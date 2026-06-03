@@ -89,6 +89,10 @@ def classify(prompt: str) -> bool:
 
 
 def main():
+    # RAVEN_DISABLED opt-out — auditable session-level kill switch
+    if os.environ.get("RAVEN_DISABLED") == "1":
+        _log_overhead("raven-disabled", "RAVEN_DISABLED=1 — triage-router skipped")
+        return
     # Claude Code passes the prompt via $PROMPT env or stdin
     prompt = os.environ.get("PROMPT", "")
     if not prompt:

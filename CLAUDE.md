@@ -203,7 +203,35 @@ Priority 4 → architecture-guard  (no diagram = warn, block after 24h)
 | UserPromptSubmit | Before any user request is processed | Andie pre-flight → route to specialist (automated) |
 | PreToolUse | Before any tool use | tool-guard.py — blocks restricted actions |
 | PostEdit | After every file save | secret-scan.py + audit-log.py |
-| PreCommit | Before git commit | Full gate: manifest + secrets + CVE + style |
+| PreCommit | Before git commit | Full gate: manifest + secrets + CVE + style + notify.py (SMTP + Slack) |
+
+---
+
+## Notifications — SMTP + Slack (Wired)
+
+**Script:** `scripts/notify.py` — fires on every pre-commit pass or block.
+
+**Config:** `.raven/manifest.secrets.json` (gitignored). Copy from `.raven/manifest.secrets.json.template`.
+
+**Events:**
+| Event | Fires when |
+|---|---|
+| `commit` | Pre-commit gate passes — confirmation email + Slack |
+| `block` | Pre-commit gate blocks — alert email + Slack with violation count |
+| `override` | Guard override used (`[GUARD:ALLOW-DELETE]` etc.) |
+| `token-warning` | Token threshold crossed (75% / 90%) |
+| `incident` | P1/P2 escalation |
+
+**Recipients per event** are configurable in `manifest.secrets.json` → `recipients.{event}` array.
+
+**Fail-soft:** If secrets file is missing, `notify.py` runs in dry-run mode (logs intent to `.raven/audit/`, does not block the commit).
+
+**Audit:** Every send attempt — success or failure — appends to `.raven/audit/YYYY-MM-DD.log` (JSONL).
+
+**Test it:**
+```bash
+python3 scripts/notify.py --event=commit --test --detail="Verifying SMTP"
+```
 
 ---
 

@@ -14,3 +14,11 @@ codex/.raven/
 # Do-not-share working documents
 *.dns
 .model.env
+
+# Raven secrets — NEVER commit
+.raven/manifest.secrets.json
+**/manifest.secrets.json
+*.secrets.json
+
+# Raven runtime audit logs — local-only, not source
+.raven/audit/
