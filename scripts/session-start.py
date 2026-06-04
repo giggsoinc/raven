@@ -415,10 +415,26 @@ def format_context(project: dict, providers: list[dict], routing: dict, model_en
         lines.append("   Claude (current session) is your active model.")
         lines.append("   To add: set ANTHROPIC_API_KEY, GROQ_API_KEY, or start Ollama.")
 
-    # Brownfield advisory + domain skill trigger
+    # ── 🔎 Transparency banner — make Raven VISIBLE (T4.4) ────────────────────
+    # Fresh grads can't trust what they can't see. Show what's active, plainly.
     cwd = Path(".")
     has_manifest  = (cwd / ".raven" / "manifest.json").exists()
     has_claude_md = (cwd / ".claude" / "CLAUDE.md").exists() or (cwd / "CLAUDE.md").exists()
+    try:
+        lines.append("")
+        lines.append("🔎 What's active right now:")
+        lines.append("   🛡️  Guards: secret-scan + CVE check run at every commit (block on hit)")
+        lines.append("   🧠  Helpers on call: /andie (plan) · /andie-jr (debug) — ask anytime")
+        # memory status
+        sessions_dir = Path.home() / "RavenVault" / "sessions"
+        n_sessions = len(list(sessions_dir.glob("*.md"))) if sessions_dir.exists() else 0
+        if n_sessions:
+            lines.append(f"   💾  Memory: {n_sessions} prior session note(s) available for carry-forward")
+        else:
+            lines.append("   💾  Memory: will start logging session notes to ~/RavenVault/")
+        lines.append("   (Nothing here is silent — guards announce themselves when they fire.)")
+    except Exception:
+        pass  # transparency banner is best-effort, never blocks session start
 
     # ── MANDATORY GREETING — fires for BOTH greenfield and brownfield ──────────
     # First message after install ALWAYS shows the Welcome greeting before any routing.
@@ -434,20 +450,20 @@ def format_context(project: dict, providers: list[dict], routing: dict, model_en
     lines.append("")
     lines.append("After user responds:")
     lines.append("  ├─ If user asks 'what can you do' / curious / capabilities:")
-    lines.append("  │     → Brief 50-word capability summary covering:")
-    lines.append("  │       Andie (planning) · Andie-jr (debug) · 60+ specialists ·")
-    lines.append("  │       cost-aware routing · CVE + secret guards · Obsidian memory.")
+    lines.append("  │     → Use PROGRESSIVE DISCLOSURE — do NOT dump all 61 skills.")
+    lines.append("  │       Present three tiers, plain English:")
+    lines.append("  │       • Always on:  secret + CVE guards at commit · cost-aware routing")
+    lines.append("  │       • Just ask:   /andie (plan/design) · /andie-jr (debug a bug)")
+    lines.append("  │       • Deep bench: 61 domain specialists load only when your work matches")
     lines.append("  │     → End with: 'Ready? Say Let\\'s Go.'")
     lines.append("  │")
     lines.append("  └─ If user says 'Let\\'s Go' / 'go' / states a task:")
     if not has_manifest:
-        lines.append("       → GREENFIELD path: AUTO-INVOKE `andie` skill.")
-        lines.append("         Andie's Branch A onboarding fires with this exact greeting:")
-        lines.append("           '👋 Hey, I\\'m Andie. I\\'m the mind of your installed Raven.")
-        lines.append("            Good — you have a keen ask for responsible and resilient AI.")
-        lines.append("            I noticed you don\\'t have a manifest yet — to get Raven working,")
-        lines.append("            I need to scan your project and build one. OK to proceed?'")
-        lines.append("         On YES → Andie scans, asks ≤2 questions, hands off to raven-init.")
+        lines.append("       → AUTO-INVOKE `andie` skill — its Branch A onboarding fork fires:")
+        lines.append("         Andie offers: 1) 2-min tour  2) just set me up  3) explain (Guru).")
+        lines.append("         Then Setup Flow: brownfield self-discovers (≤2 Qs), greenfield")
+        lines.append("         asks 5-7 Qs, proposes manifest, hands off to raven-init.")
+        lines.append("         (Exact text lives in skills/andie/SKILL.md Branch A — follow it.)")
     else:
         lines.append("       → BROWNFIELD path: manifest.json ✅ present. Load it, trust stack.")
         lines.append("         Then route by prompt class:")
