@@ -183,4 +183,4 @@ The legacy `sr-00-preflight.sh` through `sr-06-verify.sh` setup scripts are NO L
 
 ---
 
-*raven-init v3.4.0 — Andie-conversational. Auto-scan first. ≤2 questions. PROPOSAL gate. Smoke test at end.*
+*raven-init v4.0.0 — Andie-conversational. Auto-scan first. ≤2 questions. PROPOSAL gate. Smoke test at end.*

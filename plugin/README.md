@@ -1,4 +1,4 @@
-# Raven Plugin — v3.4.0
+# Raven Plugin — v4.0.0
 
 Upload this folder via Claude Desktop to install Raven as a plugin.
 
@@ -6,7 +6,7 @@ Upload this folder via Claude Desktop to install Raven as a plugin.
 
 1. Clone or download [giggsoinc/raven](https://github.com/giggsoinc/raven)
 2. Open **Claude Desktop → Settings → Extensions → Add plugin**
-3. Upload `raven-plugin-v3.4.0.zip` — or select the `raven/plugin/` folder directly
+3. Upload `raven-plugin-v4.0.0.zip` — or select the `raven/plugin/` folder directly
 4. Done — 61 skills and 10 guard agents load automatically
 
 ## What's included
@@ -16,12 +16,17 @@ Upload this folder via Claude Desktop to install Raven as a plugin.
 - **10 slash commands** — /raven-debug, /raven-review, /raven-approve, /raven-harden, /raven-incident, and more
 - **Scripts** — CVE check, secret scan, audit log, work-mode detection
 
-## What's new in v3.4.0
+## What's new in v4.0.0 (major)
 
-- Plugin manifest bumped to v3.4.0
-- Description cleanup across `plugin.json` and `.claude-plugin/plugin.json`
-- 61 skills, 10 guard agents — unchanged from v3.3.0
-- Backwards-compatible
+- **Honesty pass** — docs now match code: event-driven guards (not "always-on"),
+  previous-session token meter, cross-session memory (not "token reduction"),
+  verified **61 skills** (was mislabelled 60/46/55).
+- **Onboarding fork** — Andie greets with Tour / Setup / Guru on first install.
+- **Force-path commands** — `/andie` + `/andie-jr`; the plugin now bundles **12 commands**
+  (previous versions shipped none).
+- **Notifications** — `notify.py` SMTP + Slack at commit; `install-claudemd.py` safe installer.
+- **Plain-English guards** — help-toned messages with remediation, not "VIOLATION".
+- 61 skills · 10 guard agents · 15 scripts.
 
 ## Previously — v3.3.0
 
@@ -33,4 +38,4 @@ Upload this folder via Claude Desktop to install Raven as a plugin.
 
 ## Update
 
-Re-download the repo and re-upload `raven-plugin-v3.4.0.zip` — or pull latest and re-select the folder.
+Re-download the repo and re-upload `raven-plugin-v4.0.0.zip` — or pull latest and re-select the folder.

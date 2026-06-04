@@ -2,7 +2,7 @@
   <img src="./assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
 </p>
 
-<h1 align="center">Raven v3.4</h1>
+<h1 align="center">Raven v4.0</h1>
 
 <p align="center">
   <strong>AI-native engineering discipline for Claude Code · GitHub Copilot · OpenAI Codex</strong><br/>
@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/giggsoinc/raven/releases/tag/v3.4.0">v3.4.0</a> ·
+  <a href="https://github.com/giggsoinc/raven/releases/tag/v4.0.0">v4.0.0</a> ·
   <a href="docs/HOW-TO-USE.md">Full Documentation</a> ·
   MIT License ·
   Built by <a href="https://giggso.com">Giggso</a>
@@ -221,7 +221,7 @@ Unknown or mixed domains trigger `dynamic-specialist` — on-demand expert const
 
 ## Install — 90 seconds
 
-1. Download [`raven-plugin-v3.4.0.zip`](plugin/raven-plugin-v3.4.0.zip)
+1. Download [`raven-plugin-v4.0.0.zip`](plugin/raven-plugin-v4.0.0.zip)
 2. Claude Desktop → Settings → Extensions → Add plugin → drop the zip
 3. Open your project. Type anything.
 
