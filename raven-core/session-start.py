@@ -393,65 +393,105 @@ def format_context(project: dict, providers: list[dict], routing: dict, model_en
 
         if model_env_written:
             lines.append("  .model.env written ✓")
+
+        # ── 💰 Cost meter — show prior session spend if available ──────────────
+        try:
+            session_file = Path(".raven/.model-session.json")
+            if session_file.exists():
+                session_data = json.loads(session_file.read_text())
+                tok = session_data.get("session_tokens", 0)
+                cost = session_data.get("session_cost_usd", 0.0)
+                tier_breakdown = session_data.get("tier_counts", {})
+                if tok > 0:
+                    lines.append("")
+                    lines.append(f"💰 Last session: ~{tok:,} tok · ~${cost:.3f}")
+                    if tier_breakdown:
+                        breakdown = " · ".join(f"{k}:{v}" for k, v in tier_breakdown.items() if v > 0)
+                        lines.append(f"   Tiers used: {breakdown}")
+        except Exception:
+            pass  # Cost meter is best-effort, never blocks session start
     else:
         lines.append("☁️  No additional model providers detected.")
         lines.append("   Claude (current session) is your active model.")
         lines.append("   To add: set ANTHROPIC_API_KEY, GROQ_API_KEY, or start Ollama.")
 
-    # Brownfield advisory + domain skill trigger
+    # ── 🔎 Transparency banner — make Raven VISIBLE (T4.4) ────────────────────
+    # Fresh grads can't trust what they can't see. Show what's active, plainly.
     cwd = Path(".")
     has_manifest  = (cwd / ".raven" / "manifest.json").exists()
     has_claude_md = (cwd / ".claude" / "CLAUDE.md").exists() or (cwd / "CLAUDE.md").exists()
-
-    if project["type"] == "brownfield":
+    try:
         lines.append("")
+        lines.append("🔎 What's active right now:")
+        lines.append("   🛡️  Guards: secret-scan + CVE check run at every commit (block on hit)")
+        lines.append("   🧠  Helpers on call: /andie (plan) · /andie-jr (debug) — ask anytime")
+        # memory status
+        sessions_dir = Path.home() / "RavenVault" / "sessions"
+        n_sessions = len(list(sessions_dir.glob("*.md"))) if sessions_dir.exists() else 0
+        if n_sessions:
+            lines.append(f"   💾  Memory: {n_sessions} prior session note(s) available for carry-forward")
+        else:
+            lines.append("   💾  Memory: will start logging session notes to ~/RavenVault/")
+        lines.append("   (Nothing here is silent — guards announce themselves when they fire.)")
+    except Exception:
+        pass  # transparency banner is best-effort, never blocks session start
+
+    # ── MANDATORY GREETING — fires for BOTH greenfield and brownfield ──────────
+    # First message after install ALWAYS shows the Welcome greeting before any routing.
+    # This is hook-enforced, not description-based. Claude cannot skip.
+    lines.append("")
+    lines.append("━━━ [GREETING REQUIRED] — MANDATORY FIRST RESPONSE ━━━")
+    lines.append("On the FIRST user message of this session, Claude MUST respond")
+    lines.append("with the EXACT greeting below — no other text, no analysis, no routing yet:")
+    lines.append("")
+    lines.append('    "Welcome to Raven — your Enterprise Discipline for AI-based Vibe Coding.')
+    lines.append("")
+    lines.append('     Do you want me to tell you what I can do, or just say — Let\'s Go!"')
+    lines.append("")
+    lines.append("After user responds:")
+    lines.append("  ├─ If user asks 'what can you do' / curious / capabilities:")
+    lines.append("  │     → Use PROGRESSIVE DISCLOSURE — do NOT dump all 61 skills.")
+    lines.append("  │       Present three tiers, plain English:")
+    lines.append("  │       • Always on:  secret + CVE guards at commit · cost-aware routing")
+    lines.append("  │       • Just ask:   /andie (plan/design) · /andie-jr (debug a bug)")
+    lines.append("  │       • Deep bench: 61 domain specialists load only when your work matches")
+    lines.append("  │     → End with: 'Ready? Say Let\\'s Go.'")
+    lines.append("  │")
+    lines.append("  └─ If user says 'Let\\'s Go' / 'go' / states a task:")
+    if not has_manifest:
+        lines.append("       → AUTO-INVOKE `andie` skill — its Branch A onboarding fork fires:")
+        lines.append("         Andie offers: 1) 2-min tour  2) just set me up  3) explain (Guru).")
+        lines.append("         Then Setup Flow: brownfield self-discovers (≤2 Qs), greenfield")
+        lines.append("         asks 5-7 Qs, proposes manifest, hands off to raven-init.")
+        lines.append("         (Exact text lives in skills/andie/SKILL.md Branch A — follow it.)")
+    else:
+        lines.append("       → BROWNFIELD path: manifest.json ✅ present. Load it, trust stack.")
+        lines.append("         Then route by prompt class:")
+        lines.append("           [symptom]      → triage-router → andie-jr")
+        lines.append("           [architecture] → architect-router → andie")
+        skill, domain_label = domain_skill
+        if skill:
+            lines.append(f"           [domain task]  → {skill} ({domain_label})")
+        else:
+            lines.append("           [domain task]  → matching specialist (see manifest.stack)")
+    lines.append("")
+    lines.append("DO NOT skip the greeting. DO NOT route before greeting. DO NOT give")
+    lines.append("install instructions — Raven IS installed.")
+    lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    lines.append("")
+
+    # ── Brownfield-specific advisory (after greeting context) ─────────────────
+    if project["type"] == "brownfield":
         lines.append("📋 Existing project — Raven IS installed and active.")
         if project["langs"]:
             lines.append(f"   Stack: {', '.join(project['langs'])}")
-        # Domain-specific skill trigger
         skill, domain_label = domain_skill
         if skill:
             lines.append("")
             lines.append(f"⚡ DOMAIN DETECTED: {domain_label}")
-            lines.append(f"   MANDATORY: invoke `{skill}` BEFORE any file read, bash command, or code response.")
-            lines.append(f"   Do not answer code questions directly — invoke the skill first.")
-        else:
-            lines.append("")
-            lines.append("   MANDATORY: Before coding or file reads, invoke the matching Raven domain skill.")
-
-        # ── BOOT PROTOCOL (inline — does not require CLAUDE.md to exist) ──────
-        lines.append("")
-        lines.append("━━━ RAVEN BOOT PROTOCOL ━━━")
-        lines.append("On the FIRST user message of this session, BEFORE responding:")
-        if not has_manifest:
-            lines.append("  1. .raven/manifest.json is MISSING — run /raven-init immediately.")
-            lines.append("     Do NOT give generic Raven install instructions — Raven IS installed.")
-            lines.append("     /raven-init will ask a few questions and create the manifest.")
-        else:
-            lines.append("  1. manifest.json ✅ — load it, trust declared stack.")
-
-        if not has_claude_md:
-            lines.append("  2. No project CLAUDE.md — Raven is running from plugin context only.")
-            lines.append("     Ask the user: 'Run /raven-init to write project-level instructions? (y/n)'")
-        else:
-            lines.append("  2. CLAUDE.md ✅")
-
-        lines.append("  3. Output the session banner:")
-        lines.append('     "Raven ✅  | {project} | {stack} — guards active. What are we building?"')
-        lines.append("  4. Then respond to their actual request.")
-        lines.append("")
-        lines.append("DO NOT: give install instructions. DO NOT: say 'install raven-codex'.")
-        lines.append("Raven IS installed — the plugin loaded these instructions. Just boot it.")
-        lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━")
-
+            lines.append(f"   After greeting + Let's Go: invoke `{skill}` for domain tasks.")
     else:
-        lines.append("")
-        lines.append("🚀 New project — Raven will scaffold with your stack conventions.")
-        lines.append("")
-        lines.append("━━━ RAVEN BOOT PROTOCOL ━━━")
-        lines.append("On the FIRST user message: run /raven-init to set up this project,")
-        lines.append("then output the Raven session banner before responding.")
-        lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        lines.append("🚀 New project — manifest will be created via Andie's Branch A on Let's Go.")
 
     return "\n".join(lines)
 

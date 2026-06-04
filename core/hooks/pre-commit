@@ -28,11 +28,17 @@ echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 
 # =============================================================================
-# FRAMEWORK REPO DETECTION — skip all checks if this is a Raven framework repo
+# FRAMEWORK REPO DETECTION
+# A framework repo has no app manifest of its own, so the manifest check (CHECK 1)
+# is skipped. ALL other guards — publisher, secrets, CVE, style, deletions,
+# DB-guard, and truth-guard — STILL RUN. The framework repo ships to every
+# customer; it must hold itself to the same bar (or higher).
 # =============================================================================
+FRAMEWORK_REPO=0
 if [ -f ".raven-framework" ]; then
-    echo -e "${GREEN}✅ Framework repo detected — skipping manifest check${NC}"
-    exit 0
+    FRAMEWORK_REPO=1
+    echo -e "${GREEN}✅ Framework repo — manifest check skipped; all other guards active${NC}"
+    echo ""
 fi
 
 # =============================================================================
@@ -84,15 +90,19 @@ echo ""
 # =============================================================================
 
 echo -e "${BLUE}[1/5] Manifest check...${NC}"
-if [ ! -f "$MANIFEST" ]; then
-    echo -e "  ${RED}❌ HARD BLOCK: manifest.json missing.${NC}"
-    exit 1
+if [ "$FRAMEWORK_REPO" -eq 1 ]; then
+    echo -e "  ${GREEN}✅ Framework repo — no app manifest required${NC}"
+else
+    if [ ! -f "$MANIFEST" ]; then
+        echo -e "  ${RED}❌ HARD BLOCK: manifest.json missing.${NC}"
+        exit 1
+    fi
+    if ! python3 -c "import json; json.load(open('$MANIFEST'))" 2>/dev/null; then
+        echo -e "  ${RED}❌ HARD BLOCK: manifest.json invalid JSON.${NC}"
+        exit 1
+    fi
+    echo -e "  ${GREEN}✅ Manifest valid${NC}"
 fi
-if ! python3 -c "import json; json.load(open('$MANIFEST'))" 2>/dev/null; then
-    echo -e "  ${RED}❌ HARD BLOCK: manifest.json invalid JSON.${NC}"
-    exit 1
-fi
-echo -e "  ${GREEN}✅ Manifest valid${NC}"
 echo ""
 
 # =============================================================================
@@ -195,6 +205,13 @@ else
         CONTENT=$(git show ":$FILE" 2>/dev/null)
         LINE_COUNT=$(echo "$CONTENT" | wc -l | tr -d ' ')
 
+        # Skip all style checks for Raven framework files — not project source code.
+        # Hook/guard scripts legitimately use print() (stdout is the hook protocol)
+        # and carry detailed help-text, so app-code rules (150 lines, no-print) don't apply.
+        if echo "$FILE" | grep -qE "^(\.claude/(scripts|skills|agents)|raven-core|scripts|core/(scripts|hooks))/"; then
+          continue
+        fi
+
         # Line count
         if [ "$LINE_COUNT" -gt 150 ]; then
             echo -e "  ${RED}❌ $FILE: $LINE_COUNT lines (max 150)${NC}"
@@ -202,7 +219,7 @@ else
         fi
 
         # Skip print() check for CLI scripts — they legitimately use print for output
-        if echo "$FILE" | grep -qE "\.claude/scripts/|scripts/.*\.py$"; then
+        if echo "$FILE" | grep -qE "scripts/.*\.py$"; then
           continue
         fi
 
@@ -331,8 +348,38 @@ fi
 echo ""
 
 # =============================================================================
+# CHECK 7 — Truth Guard: no unverified marketing claims in docs (T1.5)
+# Enforces the realstory truth-policy: a claim ships only if it's verifiably true.
+# =============================================================================
+
+echo -e "${BLUE}[7/7] Truth Guard — doc claim check...${NC}"
+if [ -f "$SCRIPT_DIR/truth-guard.py" ]; then
+    if ! python3 "$SCRIPT_DIR/truth-guard.py"; then
+        ((VIOLATIONS++))
+    fi
+else
+    echo -e "  ${GREEN}✅ truth-guard not installed in this repo — skipping${NC}"
+fi
+echo ""
+
+# =============================================================================
 # RESULT
 # =============================================================================
+
+echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+# =============================================================================
+# NOTIFY — fire SMTP + Slack notification (fail-soft, never blocks)
+# Tries scripts/notify.py (framework repo) then .claude/scripts/notify.py (installed plugin)
+# =============================================================================
+NOTIFY_SCRIPT=""
+if [ -f "$PROJECT_ROOT/scripts/notify.py" ]; then
+    NOTIFY_SCRIPT="$PROJECT_ROOT/scripts/notify.py"
+elif [ -f "$PROJECT_ROOT/.claude/scripts/notify.py" ]; then
+    NOTIFY_SCRIPT="$PROJECT_ROOT/.claude/scripts/notify.py"
+fi
+
+STAGED_FILES=$(git diff --cached --name-only | head -20 | tr '\n' ',' | sed 's/,$//')
 
 echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
@@ -343,11 +390,21 @@ if [ "$VIOLATIONS" -gt 0 ]; then
     echo -e "  Fix violations above then commit again."
     echo -e "  Library approvals → email sent to Prism7 automatically."
     echo ""
+    if [ -n "$NOTIFY_SCRIPT" ]; then
+        python3 "$NOTIFY_SCRIPT" --event=block \
+            --detail="$VIOLATIONS violation(s) blocked commit" \
+            --files="$STAGED_FILES" 2>/dev/null || true
+    fi
     exit 1
 else
     echo -e "${BOLD}  ✅ CLEARED — Commit allowed${NC}"
     [ "$WARNINGS" -gt 0 ] && echo -e "  ${YELLOW}⚠️  $WARNINGS warning(s) — fix before PR/merge${NC}"
     echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
+    if [ -n "$NOTIFY_SCRIPT" ]; then
+        python3 "$NOTIFY_SCRIPT" --event=commit \
+            --detail="Pre-commit gate passed ($WARNINGS warning(s))" \
+            --files="$STAGED_FILES" 2>/dev/null || true
+    fi
     exit 0
 fi
