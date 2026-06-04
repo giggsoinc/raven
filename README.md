@@ -219,28 +219,38 @@ Unknown or mixed domains trigger `dynamic-specialist` — on-demand expert const
 
 ---
 
-## Install — 90 seconds
+## Install — Start Here
 
-1. Download [`raven-plugin-v4.0.0.zip`](plugin/raven-plugin-v4.0.0.zip)
-2. Claude Desktop → Settings → Extensions → Add plugin → drop the zip
-3. Open your project. Type anything.
+**Pick the one row that's you. Most people are the first row.**
 
-Andie greets you, scans your project, builds the manifest — at most 2 questions.
+| You are… | Do this | Time |
+|---|---|---|
+| 🟢 **Using Claude Desktop** (most people) | Download [`raven-plugin-v4.0.0.zip`](plugin/raven-plugin-v4.0.0.zip) → Settings → Extensions → Add plugin → drop the zip | ~90 sec |
+| 🔵 **On the terminal / a team repo** | `curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh \| bash` | ~2 min |
+| 🟣 **Setting up for an enterprise/org** | See [Enterprise Install](docs/raven-enterprise-install.md) | ~10 min |
+
+Then **open your project and type anything.** Andie greets you, scans the project,
+and builds the manifest — at most 2 questions.
 
 > 👋 *"Hey, I'm Andie. I noticed you don't have a manifest yet — to get Raven working, I need to scan your project and build one. OK to proceed?"*
 
+That's the whole install. Everything below is reference — you don't need it to start.
+
 <details>
-<summary>Prefer the terminal install? (advanced)</summary>
+<summary>Windows terminal · what the script does · other docs</summary>
 
-```bash
-# macOS / Linux
-curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | bash
-
+```powershell
 # Windows
 iwr https://raw.githubusercontent.com/giggsoinc/raven/main/install.ps1 | iex
 ```
 
-The terminal installer does the same thing the plugin does, plus writes project-level hooks.
+- The terminal installer does the same thing the plugin does, **plus** writes
+  project-level git hooks (pre-commit secret/CVE gate).
+- Deeper references: [How to Use](docs/HOW-TO-USE.md) ·
+  [Plugin Install detail](docs/raven-plugin-install.md) ·
+  [Enterprise](docs/raven-enterprise-install.md)
+- You should not need to read those to get started. If you do, that's a docs bug —
+  tell us.
 </details>
 
 ---

@@ -178,7 +178,7 @@ Check Raven status
 
 Should respond with:
 ```
-✅ Raven v3.0
+✅ Raven v4.0
 Project: [name] | Mode: [solo/team/enterprise]
 Stack: [languages] | Cloud: [provider]
 ```

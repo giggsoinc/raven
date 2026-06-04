@@ -2,7 +2,7 @@
   <img src="./assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
 </p>
 
-# How to Use Raven — v3.0
+# How to Use Raven — v4.0
 
 > Claude Code · GitHub Copilot · OpenAI Codex · MIT License · [Giggso](https://giggso.com)
 
@@ -666,4 +666,4 @@ YourProject/
 
 ---
 
-*Raven v3.0 — MIT — [github.com/giggsoinc/raven](https://github.com/giggsoinc/raven)*
+*Raven v4.0.0 — MIT — [github.com/giggsoinc/raven](https://github.com/giggsoinc/raven)*

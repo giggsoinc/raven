@@ -1,6 +1,6 @@
 # Raven — GitHub Copilot Instructions
 
-This project operates under **Raven v3.0** discipline. Follow these rules on every action.
+This project operates under **Raven v4.0** discipline. Follow these rules on every action.
 
 ---
 
