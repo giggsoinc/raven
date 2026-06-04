@@ -15,7 +15,18 @@ mkdir -p "$PROJECT_DIR/.claude/skills/raven-core/rules"
 mkdir -p "$PROJECT_DIR/.raven/ci"
 
 # ─── CORE FILES ──────────────────────────────────────────────────────────────
-cp "$SR_REPO_DIR/CLAUDE.md"                   "$PROJECT_DIR/CLAUDE.md"
+# CLAUDE.md — marker-aware merge (preserves user edits above BEGIN and below END)
+# Falls back to blind copy ONLY if the installer script is missing.
+if [ -f "$SR_REPO_DIR/scripts/install-claudemd.py" ]; then
+    python3 "$SR_REPO_DIR/scripts/install-claudemd.py" \
+        --source "$SR_REPO_DIR/CLAUDE.md" \
+        --target "$PROJECT_DIR/CLAUDE.md" \
+        --quiet
+    echo -e "  ${G}✅ CLAUDE.md installed (marker-aware)${N}"
+else
+    cp "$SR_REPO_DIR/CLAUDE.md" "$PROJECT_DIR/CLAUDE.md"
+    echo -e "  ${G}✅ CLAUDE.md installed (legacy copy)${N}"
+fi
 cp "$SR_REPO_DIR/core/hooks/settings.json"    "$PROJECT_DIR/.claude/settings.json"
 
 # Agents — all 10
