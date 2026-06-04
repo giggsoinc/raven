@@ -1,6 +1,6 @@
 {
   "name": "raven",
-  "description": "Raven v3.4 — discipline layer for AI coding. Andie-jr finds brownfield bugs fast (2-round triage); Andie brings 3 expert angles to architecture decisions; commit-time guards block secrets & CVEs before they ship. 54 skills, 10 guard agents, CVE scanning, secret detection, audit logs.",
+  "description": "Raven v3.4 — discipline layer for AI coding. Andie-jr finds brownfield bugs fast (2-round triage); Andie brings 3 expert angles to architecture decisions; commit-time guards block secrets & CVEs before they ship. 61 skills, 10 guard agents, CVE scanning, secret detection, audit logs.",
   "version": "3.4.0",
   "author": {
     "name": "Giggso / AntiGravity Projects",

@@ -62,6 +62,8 @@ for script in \
     secret-scan.py \
     audit-log.py \
     emit-violation.py \
+    notify.py \
+    install-claudemd.py \
     db-guard.py; do
     src="$REPO_DIR/scripts/$script"
     if [[ -f "$src" ]]; then

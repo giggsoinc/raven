@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>AI-native engineering discipline for Claude Code · GitHub Copilot · OpenAI Codex</strong><br/>
-  54 domain skills · 10 guard agents · CVE scanning · secret detection · audit logs · cross-session memory<br/>
+  61 domain skills · 10 guard agents · CVE scanning · secret detection · audit logs · cross-session memory<br/>
   Andie greets you on install. ≤2 questions. No bash. No 8-question wizard.
 </p>
 
@@ -137,9 +137,9 @@ On session end, `obsidian-log.py` writes a summary — AI recap, files touched, 
 
 ---
 
-## 54 Domain Skills
+## 61 Domain Skills
 
-Skills load when your work matches their domain — not all at once. A skill stays in context once invoked, so a 5+ message session accumulates the skills you've used; the benefit is **not loading all 54**, not zero-cost skills.
+Skills load when your work matches their domain — not all at once. A skill stays in context once invoked, so a 5+ message session accumulates the skills you've used; the benefit is **not loading all 61**, not zero-cost skills.
 
 **Orchestration** · `andie` · `andie-jr` · `andie-guru` (plain-English explainer)
 **Database router** · `db-router` → Postgres · MySQL · MongoDB · Qdrant · Databricks · Snowflake
