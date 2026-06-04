@@ -82,8 +82,11 @@ def file_content(path):
 
 # ── Check 1: .gitignore exists ─────────────────────────────────────────────────
 if not os.path.exists(".gitignore"):
-    violations.append("❌ .gitignore missing at project root — create one immediately")
-    violations.append("   Run: curl -fsSL https://www.gitignore.io/api/python,node,macos > .gitignore")
+    violations.append(
+        "No .gitignore yet — without one, it's easy to commit secrets or junk by accident.\n"
+        "     What to do: create a starter with —\n"
+        "     curl -fsSL https://www.gitignore.io/api/python,node,macos > .gitignore"
+    )
 else:
     gitignore_content = open(".gitignore").read()
 
@@ -92,7 +95,7 @@ else:
         # Check if entry or equivalent is covered
         base = entry.replace("*","").replace(".","").strip("/")
         if entry not in gitignore_content and base not in gitignore_content:
-            warnings.append(f"⚠️  .gitignore missing: {entry}")
+            warnings.append(f".gitignore doesn't cover '{entry}' yet — consider adding it")
 
 # ── Check 3: .env file exists but not gitignored ──────────────────────────────
 for env_file in [".env", ".env.local", ".env.production", ".env.staging"]:
@@ -102,13 +105,20 @@ for env_file in [".env", ".env.local", ".env.production", ".env.staging"]:
             ".env" in open(".gitignore").read()
         )
         if not gitignore_ok:
-            violations.append(f"❌ {env_file} exists but is NOT in .gitignore — exposure risk")
+            violations.append(
+                f"{env_file} exists but isn't in .gitignore — it could get committed by accident.\n"
+                f"     Why this matters: .env files usually hold keys and passwords.\n"
+                f"     What to do:  echo '{env_file}' >> .gitignore"
+            )
 
 # ── Check 4: manifest.secrets.json not staged ─────────────────────────────────
 files = staged_files()
 if ".raven/manifest.secrets.json" in files or "manifest.secrets.json" in files:
-    violations.append("❌ manifest.secrets.json staged — NEVER commit this file")
-    violations.append("   Run: git reset HEAD .raven/manifest.secrets.json")
+    violations.append(
+        "manifest.secrets.json is staged — this file holds your SMTP/Slack credentials "
+        "and must never be committed.\n"
+        "     What to do:  git reset HEAD .raven/manifest.secrets.json"
+    )
 
 # ── Check 5: Secret patterns in staged files ──────────────────────────────────
 for path in files:
@@ -118,27 +128,38 @@ for path in files:
     for pattern, label in PATTERNS:
         for i, line in enumerate(content.splitlines(), 1):
             if re.search(pattern, line) and not line.strip().startswith("#"):
-                violations.append(f"❌ {label} detected: {path}:{i}")
+                violations.append(
+                    f"Looks like a {label} on line {i} of {path}.\n"
+                    f"     Why this matters: committed secrets get scraped from git history within minutes — "
+                    f"rotating a leaked key is far more painful than fixing this now.\n"
+                    f"     What to do: move it to an environment variable or .env file (which is gitignored), "
+                    f"then unstage this file with:  git reset HEAD {path}"
+                )
 
 # ── Check 6: .pem / .key files staged ─────────────────────────────────────────
 for path in files:
     if any(path.endswith(ext) for ext in [".pem",".key",".p12",".pfx",".cer"]):
-        violations.append(f"❌ Certificate/key file staged: {path} — never commit keys")
+        violations.append(
+            f"{path} looks like a certificate or private key — these should never be committed.\n"
+            f"     What to do: store it outside the repo (or in a secrets manager), then:  "
+            f"git reset HEAD {path}"
+        )
 
 # ── Output ─────────────────────────────────────────────────────────────────────
 if warnings:
-    print("\n⚠️  Raven Secret Scan — Warnings:")
+    print("\n💡 Raven noticed a few things worth tidying up (not blocking):")
     for w in warnings:
-        print(f"  {w}")
+        print(f"  • {w}")
 
 if violations:
-    print("\n❌ Raven Secret Scan — VIOLATIONS (commit blocked):")
+    print("\n🛡️  Raven stopped this commit to protect you — here's what to fix:\n")
     for v in violations:
-        print(f"  {v}")
-    print()
+        print(f"  • {v}\n")
+    print("  Once you've fixed the above, just commit again. Nothing else is needed.")
+    print("  (If a match is a false positive, say so and we'll tune the pattern.)\n")
     sys.exit(1)
 
 if not warnings:
-    print("✅ Secret scan passed")
+    print("✅ Secret scan passed — no secrets in your staged files. Safe to commit.")
 
 sys.exit(0)

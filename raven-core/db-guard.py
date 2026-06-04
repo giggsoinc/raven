@@ -87,14 +87,17 @@ def main() -> None:
     loader = LOADER_PATTERNS.get(ext, 'read your_query.sql from disk')
 
     msg_lines = [
-        "❌ DB GUARD — Inline SQL detected",
-        f"   File: {file_path}",
-        "   Violations:",
-    ] + violations + [
+        f"💡 Raven spotted inline SQL in {file_path}.",
         "",
-        "   Raven rule: SQL must live in .sql files only — never inline in source.",
-        f"   Extract to: queries/<name>.sql",
-        f"   Load in {ext}: {loader}",
+        "   What I found:",
+    ] + [f"     • {v}" for v in violations] + [
+        "",
+        "   Why it's worth moving: SQL kept in .sql files is easier to review, reuse, and",
+        "   test — and it keeps your source code readable. (This is advice, not a block.)",
+        "",
+        "   How to fix:",
+        f"     1. Move the query into  queries/<name>.sql",
+        f"     2. Load it in your {ext} file like:  {loader}",
     ]
 
     out = {"additionalContext": "\n".join(msg_lines)}

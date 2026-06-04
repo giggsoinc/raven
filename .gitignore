@@ -24,3 +24,7 @@ local/
 
 # Raven runtime audit logs — local-only, not source
 .raven/audit/
+
+# Python bytecode
+__pycache__/
+*.pyc
