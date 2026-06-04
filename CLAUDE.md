@@ -224,20 +224,19 @@ If **missing** → run `python3 .claude/scripts/sr-detect-workmode.py .` then of
 
 ## 🔧 Install / Upgrade Behavior
 
-CLAUDE.md is **marker-aware**. Raven manages content between:
-
-```
-<!-- RAVEN PROJECT CONFIG BEGIN -->
-... Raven-managed content ...
-<!-- RAVEN PROJECT CONFIG END -->
-```
-
-**You can add your own instructions BELOW the END marker. Raven will not touch them on upgrade.**
+CLAUDE.md install is **append-only — Raven NEVER deletes your content.**
 
 Upgrades use `scripts/install-claudemd.py` which:
-- Detects markers and replaces only the managed section
-- Backs up existing content to `CLAUDE.md.bak.{timestamp}` before any write
-- Preserves user content above BEGIN and below END
+- **Prepends** the new Raven block at the TOP of the file, wrapped in versioned markers:
+  ```
+  <!-- RAVEN PROJECT CONFIG vX.Y.Z BEGIN -->
+  ... Raven-managed content ...
+  <!-- RAVEN PROJECT CONFIG vX.Y.Z END -->
+  ```
+- **Preserves everything already in the file** below the new block — your edits and any
+  older Raven version blocks stay intact (you remove old blocks manually if you want)
+- Is **idempotent**: re-running with the same version is a no-op
+- **Backs up** to `CLAUDE.md.bak.{timestamp}` before any write
 
 To upgrade manually:
 ```bash

@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>AI-native engineering discipline for Claude Code · GitHub Copilot · OpenAI Codex</strong><br/>
-  60 domain skills · 10 always-on guard agents · CVE scanning · secret detection · audit logs · Obsidian session memory<br/>
+  46 domain skills · 10 guard agents · CVE scanning · secret detection · audit logs · cross-session memory<br/>
   Andie greets you on install. ≤2 questions. No bash. No 8-question wizard.
 </p>
 
@@ -19,90 +19,37 @@
 
 ---
 
-## Performance
+## What Raven Is — In One Line
 
-Token cost is a first-class design constraint. Skills load once on invocation and remain in the context window for the entire session — smaller skills mean every subsequent message is cheaper.
-
-| Optimisation | Before | After | Saving |
-|---|---|---|---|
-| Andie (v5.2 → v6.3) | ~9,955 tok | ~3,103 tok | **−6,852 tok** |
-| db-router (pure routing table) | ~3,034 tok | ~474 tok | **−2,560 tok** |
-| ui-router | ~2,987 tok | ~1,424 tok | **−1,564 tok** |
-| agent-chaining | ~3,046 tok | ~1,361 tok | **−1,686 tok** |
-| **Total skill footprint** | **~22,321 tok** | **~9,523 tok** | **−57%** |
-| `raven-skill-reminder` hook | ~71 tok × every message | ~10 tok × first message only | **−61 tok/msg** |
-| Obsidian → `session-start` continuity | cold start each session | last session summary injected | **context carry** |
-
-In a 20-message session using Andie + 1 specialist: **~53% fewer context-tokens** compared to v3.0.
+Raven is a **routing + security-gate + decision-documentation layer** for AI coding assistants. It is not a universal reasoning engine. It earns its keep in three specific places: **brownfield debugging, regulated-domain governance, and commit-time security.**
 
 ---
 
-## The Problem Raven Solves
+## The Three Things Raven Does Well
 
-AI coding assistants are powerful — but left unchecked, they ship secrets in commits, add CVE-laden libraries, skip tests, ignore your stack conventions, and produce code that the next developer can't follow.
+### 🔧 1. Brownfield Debugging — `andie-jr`
 
-**Raven is the discipline layer between your AI assistant and your codebase.** It doesn't slow you down. It makes sure what ships is actually good.
+When something is broken, `andie-jr` runs a focused 2-round triage: asks the few questions that matter, then returns **problem → root cause → fix → why → audit note**. In practice this is meaningfully faster than open-ended back-and-forth, because it forces the root-cause question before the fix.
+
+> Try it: *"Why is my auth timing out?"* — it asks 2 clarifying questions, then pinpoints the cause.
+
+### 🧠 2. Architecture Decisions — `andie`
+
+For design and tradeoff decisions, Andie loads a **Specialist Triad** — Functional, Technical, Data — so you see the problem from three angles instead of one. Every recommendation is a **proposal you approve, modify, or reject** (HITL). It plans and hands off; it does not write the code itself.
+
+> Best for multi-team or regulated decisions where a missed angle is expensive. For routine feature work, plain Claude is faster — see [Honest ROI](#honest-roi--when-to-use-raven-and-when-not-to).
+
+### 🛡️ 3. Commit-Time Security — Guards
+
+Before a commit lands, Raven scans staged files for **secrets** (API keys, tokens, private keys) and added libraries for **CVEs** (CVSS > 7 = hard block). This is the layer that prevents the expensive mistakes.
 
 ---
 
-## What Raven Does
+## How Guards & Hooks Actually Fire
 
-### 💰 Cost-Aware Routing — Built In
+> **Honesty note:** Guards and hooks are **event-driven, not "always on."** They fire when their trigger condition matches. Detection is pattern-based and can miss edge cases — they reduce risk, they do not guarantee catching everything.
 
-Raven classifies every prompt and routes it to the cheapest adequate model:
-
-| Tier | Triggers | Model | Approx cost |
-|------|----------|-------|-------------|
-| **SIMPLE** | "fix typo", "rename var", single-file edits | Haiku | ~$0.25 / 1M tok |
-| **MEDIUM** | tests, docs, debug, refactor scope | Sonnet | ~$3 / 1M tok |
-| **COMPLEX** | architecture, security audit, multi-file reasoning | Opus | ~$15 / 1M tok |
-| **LOCAL_ONLY** | secrets detected in prompt, offline mode | Ollama | free, on-machine |
-
-- **Session token counter + cost shown in banner** every session start.
-- **Stop event writes session summary** to `~/RavenVault/sessions/` (Obsidian-compatible).
-- **Secrets in your prompt** → automatically forced to local Ollama. Cloud never sees them.
-- **No telemetry. No Hub. Local-only.** All cost data stays on your machine.
-
-Configure via `.raven/.model.env` — raven-init writes it for you.
-
-### 🧠 Andie — Your AI Architect (v6.3)
-
-Every session starts with **Andie**, Raven's orchestration layer. Andie isn't a chatbot — it's a structured expert system that:
-
-- **Detects your domain automatically** — Oracle ERP, Salesforce, AWS GenAI, Agentic AI, SAP, Kubernetes, Data Engineering, Security, and more
-- **Loads a Specialist Triad for that domain** — every problem gets three experts: 🏢 Functional (business/process) · ⚙️ Technical (implementation/code) · 📊 Data (flows/schema/pipelines). Each one surfaces their domain's corner cases
-- **Generates domain-specific questions** — not generic prompts. An Oracle O2C engagement gets O2C questions. An AWS ML project gets ML questions. Shown to you before asking, adjustable, one at a time
-- **Proposes before proceeding** — every tech recommendation, framework pick, and team suggestion is a PROPOSAL (accept / modify / reject). Nothing proceeds without your explicit confirmation. This is HITL as a first-class design principle, not an afterthought
-- **Runs OODA continuously** — Observe / Orient / Decide / Act fires after every round in every mode. When orientation shifts the picture, a PROPOSAL is issued before anything changes direction
-- **Picks the right thinking mode** — Deep (expert explanation), Kaizen (improvement cycles), War (crisis triage), Drama (multi-stakeholder debate). Shows you what each mode would produce *for your specific problem* before you commit to one
-- **200-word cap per generation** — Andie moves at human pace. One idea per round, fully absorbed before the next
-- **Feynman recap after every round** — "📌 Here is what we learnt:" — 100–150 word summary combining domain, technical, and data insights
-
-### 🛡️ 10 Guard Agents — Always On
-
-Guard agents run silently in the background. They don't interrupt typing. They fire at the right moments — before a commit, after a file save, before a tool executes.
-
-| Guard Agent | What it protects |
-|---|---|
-| **manifest-checker** | Verifies Raven is properly configured before any work starts |
-| **stack-validator** | Catches wrong-stack libraries before they get merged. Warns during coding, hard blocks at commit |
-| **style-enforcer** | Enforces your team's code style. Advises during coding, blocks at commit |
-| **architecture-guard** | Ensures architecture decisions are documented. No diagram = warn now, block in 24h |
-| **db-guard** | Catches inline SQL in non-SQL files, missing ERDs, broken migration numbering |
-| **skill-guard** | Prevents skills from reading secrets, modifying settings, or acting outside their scope |
-| **claude-mem** | Writes structured session memory to `.raven/memory/`. Surfaces open questions at next session start |
-| **guard-git-watch** | Hard blocks any unexpected read of `.env`, SSH keys, or secrets files |
-| **odoo-guard** | Odoo-specific: catches hardcoded DB IDs, raw SQL in ORM context, broken module structure |
-| **salesforce-guard** | Salesforce-specific: catches SOQL/DML inside loops, missing bulk patterns, hardcoded IDs |
-
-### 🔒 Commit-Time Gates
-
-Before any `git commit` lands, Raven runs a full gate:
-
-- **Secret scan** — checks every staged file for API keys, tokens, passwords, private keys. Hard blocks if found. No exceptions.
-- **CVE scan** — checks every library you've added against known vulnerabilities. CVSS > 7 = hard block. Unknown libraries go through an approval flow.
-- **Style check** — enforces your configured style rules across changed files
-- **Architecture check** — ensures any significant changes are reflected in architecture docs
+### Commit-time gate
 
 ```
 Secrets in staged files    → hard block commit
@@ -113,119 +60,174 @@ Schema drop detected       → hard block + escalate
 Port 0.0.0.0 opened        → hard block + escalate
 ```
 
-### 📦 46 Domain Skills
+### Guard agents (fire on matching conditions)
 
-Skills activate only when your work matches their domain — ~100 tokens each, never loaded all at once.
+| Guard | Fires when | Action |
+|---|---|---|
+| **manifest-checker** | Before work starts | Verifies Raven config present |
+| **stack-validator** | Wrong-stack library detected | Warn coding / block commit |
+| **style-enforcer** | Style rule violated | Advise coding / block commit |
+| **architecture-guard** | Structural change, no diagram | Warn now / block in 24h |
+| **db-guard** | Inline SQL, missing ERD, bad migration order | Warn |
+| **skill-guard** | Skill tries to read secrets / change settings | Block |
+| **guard-git-watch** | Unexpected read of `.env` / SSH keys | Block |
+| **claude-mem** | Session end | Write memory to `.raven/memory/` |
+| **odoo-guard** | Odoo anti-patterns (hardcoded IDs, raw SQL) | Warn |
+| **salesforce-guard** | SOQL/DML in loops, hardcoded IDs | Warn |
 
-**Orchestration**
-> `andie` — multi-modal architect (Deep · Kaizen · War · Drama)
-> `andie-jr` — fast-burn debug assistant for brownfield + bug fixes (2 rounds, 150 words max, Obsidian-aware)
-
-**Database Thin Router** *(auto-detects DB type, loads one specialist)*
-> `db-router` — Postgres/pgvector · MySQL/MariaDB · MongoDB · Qdrant · Databricks · Snowflake
-
-**Frontend & Design Thin Router** *(auto-detects framework, design tool default: claude-design/stitch)*
-> `ui-router` — React/Next.js · Vue/Nuxt · Angular · Vanilla JS · UI/UX Design
-
-**Cloud Platforms**
-> `aws` · `gcp` · `azure` · `oci`
-
-**Data & Streaming**
-> `kafka` · `postgres` · `redis` · `bigdata` · `dataeng` · `vector-db`
-
-**Infrastructure & DevOps**
-> `k8s` · `terraform` · `devops` · `vault`
-
-**Frameworks & APIs**
-> `fastapi` · `nicegui`
-
-**AI & ML**
-> `aiml` · `dynamic` (on-demand expert for any unknown domain)
-
-**Enterprise Platforms**
-> `odoo` · `salesforce`
-
-**Oracle**
-> `oracle-apex` · `oracle-apexlang` · `oracle-db` · `oracle-fusion` · `oracle-graal` · `oracle-oci`
-
-**Engineering Practice**
-> `raven-core` · `raven-plan` · `raven-review` · `raven-refactor` · `raven-test` · `raven-security` · `raven-document` · `raven-expert`
-
-**Tooling**
-> `security` · `log-management` · `agent-chaining` · `tools-landscape` · `task-observer`
-
-### 🪝 9 Always-On Hooks — Fire Without Being Asked
-
-Unlike skills (which activate on domain match), hooks fire automatically at specific lifecycle events. You cannot forget to run them.
+### Lifecycle hooks (fire on Claude Code events)
 
 | Event | Hook | Type | What it does |
 |---|---|---|---|
-| `SessionStart` | `session-start.py` | Context | Detects brownfield/greenfield · discovers available models · writes `.model.env` if missing |
-| `PreToolUse` any tool | `tool-guard.py` | **BLOCK** | Blocks restricted actions (rm -rf, sudo, etc.) |
-| `PreToolUse` Bash | `schema-guard.py` | **BLOCK** | Stops DROP TABLE / TRUNCATE / DELETE without WHERE before execution |
-| `UserPromptSubmit` | `cve-prompt-guard.py` | Warn | Detects install intent (`pip install`, `npm install`, etc.) — injects CVE reminder before Claude responds |
-| `PostToolUse` Write/Edit | `secret-scan.py` | Async warn | Scans every written file for secrets immediately — not just at commit |
-| `PostToolUse` any tool | `audit-log.py` | Async | Encrypted audit entry for every tool use |
-| `PreCompact` | `token-guard.py` | Warn | Token budget warnings at 25/50/75/90% |
-| `Stop` | `session-gate.py` | Async | Git status + recent commits + open observations at session end |
-| `Stop` | `obsidian-log.py` | Async | Three-layer session log → Obsidian vault: AI summary + files touched + git state |
+| `SessionStart` | `session-start.py` | Context | Brownfield/greenfield + model detection |
+| `UserPromptSubmit` | `triage-router.py` | Route | Detects brownfield symptoms → suggests `andie-jr` |
+| `UserPromptSubmit` | `architect-router.py` | Route | Detects design decisions → suggests `andie` |
+| `UserPromptSubmit` | `model-router.py` | Route | Classifies complexity tier |
+| `UserPromptSubmit` | `cve-prompt-guard.py` | Warn | Flags `pip/npm install` intent |
+| `PostToolUse` Write/Edit | `secret-scan.py` | Async warn | Scans written files for secrets |
+| `PreToolUse` Bash | `schema-guard.py` | **Block** | Stops DROP/TRUNCATE/DELETE-without-WHERE |
+| `Stop` | `obsidian-log.py` | Async | Writes session summary to vault |
+| `Stop` | `token-guard.py` | Async | Records session token usage |
 
-**INTEGRITY hooks** (BLOCK type) fire before execution and stop dangerous actions.
-**CONTEXT hooks** (Warn/Async) inform without blocking — so they never kill adoption.
-
-### 🔄 Version Check — Every Session
-
-Raven checks its own version against the latest release every time a session opens:
-
-- **Up to date** → silent, no interruption
-- **1–2 releases behind** → version banner in session opener: "Update available — say 'update raven' to sync"
-- **3+ releases behind** → **auto-syncs automatically**, no action needed. You see a banner and it's done.
-
-This means teams on shared codebases never silently drift onto old versions.
+**The git pre-commit gate is a separate mechanism** (`.git/hooks/pre-commit`), not a Claude Code hook. It runs the secret + CVE + style gate and fires `notify.py` (SMTP + Slack) on pass/block.
 
 ---
 
-## Who It's For
+## Andie — Auto-Triggered, Conditionally
 
-**Individual developers** — install once, works across all your projects. Raven detects the project type and loads the right skills automatically. No per-project configuration required.
+Andie does **not** load on every prompt. Routers on `UserPromptSubmit` decide via pattern match:
 
-**Engineering teams** — shared manifest in the repo means every developer on the team has the same guards, the same skills, the same commit gates. Consistent quality without a style guide nobody reads.
+| Your prompt | What loads |
+|---|---|
+| "design a multi-tenant API" / "should I use X or Y?" | ✅ `andie` (architecture) |
+| "why is auth timing out?" / "this is broken" | ✅ `andie-jr` (debug) |
+| "write a helper function" | ❌ neither — plain Claude (or invoke a skill directly) |
+| "add this feature" | ⚠️ only if it reads as multi-component |
 
-**Tech leads and architects** — architecture-guard ensures decisions are documented. HITL gates in Andie mean recommendations are proposals, not auto-actions. The session memory in `.raven/memory/` gives you an audit trail of what was decided and why.
+Routing is **regex-based**, so it can miss edge cases. If a router doesn't fire, you can invoke any skill by name. (A `/andie` force-path is on the roadmap.)
+
+Andie's modes — **Deep** (explain), **Kaizen** (improve), **War** (incident), **Drama** (debate) — are **selected by you**, not auto-detected. Each generation is capped at 200 words to keep a human pace, and ends with a Feynman-style recap. OODA runs as structured checkpoints (Observe → Orient → Decide → Act) per round — it is a linear framework, not an adaptive loop that restarts on new information.
 
 ---
 
-## Specialist Triads — How Andie Handles Any Domain
+## Cost-Aware Model Routing
 
-For each domain, Andie loads three specialists instead of one generalist. This surfaces blind spots that a single expert would miss.
+Raven classifies each prompt and routes to the cheapest adequate model:
+
+| Tier | Triggers | Model |
+|------|----------|-------|
+| **SIMPLE** | typo, rename, single-file edit | Haiku |
+| **MEDIUM** | tests, docs, debug, refactor | Sonnet |
+| **COMPLEX** | architecture, security audit, multi-file | Opus |
+| **LOCAL_ONLY** | secrets in prompt, offline | Ollama (on-machine) |
+
+- **Token usage from your *previous* session** is shown in the session-start banner (not a live in-session meter — a live meter is on the roadmap).
+- **Secrets in your prompt** → forced to local Ollama. Cloud never sees them.
+- **No telemetry. Local-only.** All cost data stays on your machine.
+
+Configure via `.raven/.model.env` — raven-init writes it for you.
+
+---
+
+## Cross-Session Memory (Obsidian-Compatible)
+
+On session end, `obsidian-log.py` writes a summary — AI recap, files touched, git state — to `~/RavenVault/sessions/`. The **next** session can read it for carry-forward context.
+
+> This is **session continuity / audit trail**, not a current-session token optimisation. It helps the next session start warm and gives teams a searchable decision log. It does not reduce tokens in the session that's running.
+
+---
+
+## 46 Domain Skills
+
+Skills load when your work matches their domain — not all at once. A skill stays in context once invoked, so a 5+ message session accumulates the skills you've used; the benefit is **not loading all 46**, not zero-cost skills.
+
+**Orchestration** · `andie` · `andie-jr` · `andie-guru` (plain-English explainer)
+**Database router** · `db-router` → Postgres · MySQL · MongoDB · Qdrant · Databricks · Snowflake
+**Frontend router** · `ui-router` → React · Vue · Angular · Vanilla JS · UI/UX
+**Cloud** · `aws` · `gcp` · `azure` · `oci`
+**Data & Streaming** · `kafka` · `postgres` · `redis` · `bigdata` · `dataeng` · `vector-db`
+**Infra & DevOps** · `k8s` · `terraform` · `devops` · `vault`
+**Frameworks** · `fastapi` · `nicegui`
+**AI & ML** · `aiml` · `dynamic` (on-demand expert for unknown domains)
+**Enterprise** · `odoo` · `salesforce`
+**Oracle** · `oracle-apex` · `oracle-apexlang` · `oracle-db` · `oracle-fusion` · `oracle-graal` · `oracle-oci`
+**Engineering Practice** · `raven-core` · `raven-plan` · `raven-review` · `raven-refactor` · `raven-test` · `raven-security` · `raven-document` · `raven-expert`
+**Tooling** · `security` · `log-management` · `agent-chaining` · `tools-landscape` · `task-observer`
+
+---
+
+## Honest ROI — When To Use Raven (and When Not To)
+
+### ✅ Worth it
+
+| You are… | Why |
+|---|---|
+| Debugging a brownfield codebase | `andie-jr` finds root cause fast |
+| A team of 10–50 with governance needs | Shared guards + audit trail across everyone |
+| In a regulated domain (finance/health/gov) | Decision documentation pays for itself |
+| Making a high-risk decision | Three expert angles catch blind spots |
+| New to a domain | Forced structure catches gaps you can't see yet |
+
+### ❌ Not worth it
+
+| You are… | Use instead |
+|---|---|
+| A solo dev moving fast | Plain Claude + good prompting (~4× faster on routine work) |
+| A <5-person startup optimising for velocity | HITL gates add friction you don't need yet |
+| A mature team with strong code review | You already have the discipline |
+| Doing 99% routine feature work | Plain Claude wins |
+
+### Per-task reality
+
+| Task | Best tool |
+|---|---|
+| Production incident triage | **andie-jr** |
+| Brownfield bug | **andie-jr** |
+| Design an integration | Plain Claude (faster) or Andie (if multi-team) |
+| Add a feature | **Plain Claude** |
+| Multi-team architecture decision | **Andie** (replaces an alignment meeting) |
+| Compliance audit trail | **Andie** (decision log built in) |
+
+---
+
+## Who It's For — Plain English
+
+- **Fresh grads / juniors:** *"I ask clarifying questions before diving in, and I check your code for secrets and known-vulnerable libraries before you commit."*
+- **Teams 10–50:** *"Everyone gets the same guardrails and the same reasoning framework, with an audit trail for compliance."*
+- **Enterprises:** *"A governance layer with decision documentation and commit-time security scanning."*
+- **Solo devs:** *"Honestly? Plain Claude with good habits is faster. Use Raven for the security gates if you want them."*
+
+---
+
+## Specialist Triads — How Andie Handles a Domain
+
+For each domain, Andie loads three specialists instead of one generalist — so a single expert's blind spot doesn't become yours.
 
 | Domain | 🏢 Functional | ⚙️ Technical | 📊 Data |
 |---|---|---|---|
-| Oracle ERP Fusion (O2C/P2P/R2R) | Functional Consultant — process, compliance, org rules | Fusion Dev — FBDI, BIP, REST, OIC integrations | Data Specialist — OTBI, FRS, ADW, lineage |
-| Salesforce | Domain Expert / BA — process, GTM, revenue ops | Dev — LWC, APEX, Flow, Platform Events | Agentforce + Data Cloud Architect |
-| AWS GenAI / ML | Use Case Strategist — product, ROI, adoption | GenAI Engineer — Bedrock, SageMaker, Agents | Data Engineer — Glue, Athena, Lake Formation |
-| Agentic AI / MoE / GraphRAG | AI Product Strategist — agent design, use cases | AI Engineer — LangGraph, CrewAI, A2A, MoE routing | AI Data Engineer — vector DBs, graph, ontology |
-| SAP S/4HANA | Functional Consultant — FI/CO/MM/SD | ABAP / BTP / CAP Developer | BW / Analytics Cloud / Datasphere |
-| Data Engineering | Data Product Owner — requirements, SLAs | Pipeline Engineer — streaming, orchestration | Data Architect — schema, lineage, governance |
-| Security | CISO Advisor — threats, compliance, posture | Security Engineer — AppSec, CloudSec, SIEM | Security Analyst — logs, threat intel |
-| Kubernetes / DevOps | Platform Product Owner | SRE Engineer — k8s, CI/CD, GitOps | Observability Specialist — metrics, tracing |
-| Odoo ERP | Functional Consultant — modules, flows | Developer — Python, OWL, XML | Reporting / BI / OCA Specialist |
+| Oracle ERP Fusion | Functional Consultant | Fusion Dev (FBDI, BIP, OIC) | OTBI / FRS / ADW |
+| Salesforce | Domain Expert / BA | Dev (LWC, APEX, Flow) | Agentforce + Data Cloud |
+| AWS GenAI / ML | Use Case Strategist | GenAI Engineer (Bedrock, SageMaker) | Data Engineer (Glue, Athena) |
+| Agentic AI / GraphRAG | AI Product Strategist | AI Engineer (LangGraph, CrewAI) | AI Data Engineer (vector/graph) |
+| SAP S/4HANA | Functional (FI/CO/MM/SD) | ABAP / BTP / CAP Dev | BW / Analytics Cloud |
+| Data Engineering | Data Product Owner | Pipeline Engineer | Data Architect |
+| Security | CISO Advisor | Security Engineer | Security Analyst |
+| Kubernetes / DevOps | Platform Product Owner | SRE Engineer | Observability Specialist |
+| Odoo ERP | Functional Consultant | Developer (Python, OWL, XML) | Reporting / BI / OCA |
 
-Unknown or mixed domains trigger `dynamic-specialist` — a 9-step on-demand expert construction with confidence assessment (HIGH / MEDIUM / VERIFY), live search when VERIFY, and profile caching after first use.
+Unknown or mixed domains trigger `dynamic-specialist` — on-demand expert construction with a confidence rating (HIGH / MEDIUM / VERIFY) and live search when VERIFY.
 
 ---
 
-## Install — 90 seconds, zero questions
+## Install — 90 seconds
 
 1. Download [`raven-plugin-v3.4.0.zip`](plugin/raven-plugin-v3.4.0.zip)
-2. Open Claude Desktop → Settings → Extensions → Add plugin → drop the zip
+2. Claude Desktop → Settings → Extensions → Add plugin → drop the zip
 3. Open your project. Type anything.
 
-Andie greets you, scans your project, builds the manifest — done.
+Andie greets you, scans your project, builds the manifest — at most 2 questions.
 
-> 👋 *"Hey, I'm Andie. I'm the mind of your installed Raven. Good — you have a keen ask for responsible and resilient AI. I noticed you don't have a manifest yet — to get Raven working, I need to scan your project and build one. OK to proceed?"*
-
-That's it. No bash. No setup script. No 8 questions. Andie infers everything she can and asks at most 2.
+> 👋 *"Hey, I'm Andie. I noticed you don't have a manifest yet — to get Raven working, I need to scan your project and build one. OK to proceed?"*
 
 <details>
 <summary>Prefer the terminal install? (advanced)</summary>
@@ -238,35 +240,31 @@ curl -fsSL https://raw.githubusercontent.com/giggsoinc/raven/main/install.sh | b
 iwr https://raw.githubusercontent.com/giggsoinc/raven/main/install.ps1 | iex
 ```
 
-The terminal installer does the same thing the plugin does, plus writes project-level hooks. Most users don't need this.
+The terminal installer does the same thing the plugin does, plus writes project-level hooks.
 </details>
 
 ---
 
 ## How It Feels in Practice
 
-**You're adding a new AWS Lambda function:**
-Raven detects AWS. `aws-specialist` loads. When you `import requests`, the CVE check runs. At commit, secret scan checks your staged files. Style enforcer validates naming. Architecture guard checks if this is a significant new component that needs a decision record.
+**Adding an AWS Lambda:** Raven detects AWS, `aws-specialist` loads on a matching prompt. `import requests` triggers a CVE reminder. At commit, the secret scan checks staged files and the CVE scan checks added libraries.
 
-**You ask Andie to help design a Salesforce order management flow:**
-Andie detects Salesforce domain. Loads: SF Domain Expert + SF Dev (LWC/APEX/Flow) + SF Agentforce + Data Cloud Architect. Generates 8 Salesforce-specific questions. Shows them to you before asking. After your answers, proposes the architecture as a PROPOSAL — you accept, modify, or push back before anything is designed. OODA runs after each round and flags if the approach needs to shift.
+**Designing a Salesforce flow:** Andie detects the domain, loads the SF triad, asks domain-specific questions, and proposes the architecture as a PROPOSAL you approve or modify.
 
-**A CVE is found in a library you just added:**
-Pre-commit hook fires. CVSS score shown. If > 7, commit hard-blocked. You see the alternative. If it's a known false positive or approved dependency, the approval flow is triggered with one command: `git commit -m "feat: X [GUARD:ALLOW-CVE]"`.
+**A CVE in a library you added:** Pre-commit hook fires, CVSS shown, > 7 hard-blocks. Approved dependency? `git commit -m "feat: X [GUARD:ALLOW-CVE]"`.
 
-**It's 2am and production is down:**
-You open Claude Code. Andie detects "production down" signal. War mode fires. No framework discussion, no diagram selection. Triage block in 10 seconds. OODA at T+0 gives you the first action. Incident log builds automatically. One command transitions to Kaizen when you're stable.
+**2am, production down:** You invoke War mode. No ceremony — a triage block and a first action fast, with an incident log building as you go.
 
 ---
 
 ## Companion Repos
 
-| Repo | For | Does |
-|---|---|---|
-| [giggsoinc/raven](https://github.com/giggsoinc/raven) | Claude Code · Codex · Copilot | This repo — full install, plugin ZIP, all skills |
-| [giggsoinc/raven-codex](https://github.com/giggsoinc/raven-codex) | Codex / Copilot users | Plugin-only version |
-| [giggsoinc/raven-guard](https://github.com/giggsoinc/raven-guard) | DevOps / architects | Production-grade guard layer |
-| [giggsoinc/andie](https://github.com/giggsoinc/andie) | All AI platforms | Andie v6.3 standalone — works on ChatGPT, Gemini, Manus, Perplexity too |
+| Repo | For |
+|---|---|
+| [giggsoinc/raven](https://github.com/giggsoinc/raven) | This repo — full install, plugin ZIP, all skills |
+| [giggsoinc/raven-codex](https://github.com/giggsoinc/raven-codex) | Codex / Copilot — plugin-only version |
+| [giggsoinc/raven-guard](https://github.com/giggsoinc/raven-guard) | DevOps / architects — production guard layer |
+| [giggsoinc/andie](https://github.com/giggsoinc/andie) | Andie v6.3 standalone — ChatGPT, Gemini, Perplexity |
 
 ---
 
