@@ -1,7 +1,7 @@
 {
   "project": "raven",
   "owner": "giggso",
-  "version": "3.1.0",
+  "version": "4.0.0",
   "stack": {
     "language": [
       "python3.13",
@@ -56,6 +56,14 @@
     }
   },
   "changelog": [
+    {
+      "version": "4.0.0",
+      "date": "2026-06-04T20:26:48.325083Z",
+      "changed_by": "giggso.ravi@gmail.com",
+      "summary": "Major release: Symlinks fixed, CVE check clarity (human-in-loop tier 3), secure .env handling",
+      "pr": "merged",
+      "approved_by": "giggso.ravi@gmail.com"
+    },
     {
       "version": "3.3.0",
       "date": "2026-05-27T00:00:00Z",
