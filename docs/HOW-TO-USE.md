@@ -523,7 +523,7 @@ The pre-commit hook (separate from Claude Code hooks) adds: manifest check · se
 
 | Feature | Claude Code | Codex / Copilot |
 |---|---|---|
-| All 46 skills | ✅ | ✅ (55 in plugin) |
+| All 54 skills | ✅ | ✅ |
 | Andie orchestration | ✅ | ✅ — mandatory first step |
 | Pre-commit hook | ✅ | ❌ — no hook system |
 | Secret detection at save | ✅ | Conversational only |
@@ -561,7 +561,7 @@ When you open Claude Code in a project for the first time after installing:
   Raven ✅  |  MyProject  |  infra
 ─────────────────────────────────────────────────
   I'm Andie — your AI discipline layer.
-  Guards active. 46 skills loaded.
+  Guards active. 54 skills loaded.
 
   What are you working on today?
 
