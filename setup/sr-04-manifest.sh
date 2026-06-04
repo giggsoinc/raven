@@ -57,7 +57,7 @@ manifest = {
     "apps":      jl(os.environ["APPS_VAL"]),
     "libraries": []
   },
-  "standards":     "raven-v3.0",
+  "standards":     "raven-v1",
   "approval_mode": "auto" if mode == "solo" else "first_responder",
   "guard": {
     "enabled":  True,

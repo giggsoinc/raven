@@ -298,8 +298,11 @@ fi
 # All other deletions require [GUARD:ALLOW-DELETE] in commit message
 NON_CORE_DELETED=$(echo "$DELETED_FILES" | grep -v "^raven-core/" || true)
 if [ -n "$NON_CORE_DELETED" ]; then
+    # Read the commit message from every source a pre-commit hook can see.
+    # NOTE: `git commit -m MSG` writes COMMIT_EDITMSG only AFTER pre-commit runs,
+    # so the file alone is unreliable. The env var is the dependable override.
     COMMIT_MSG=$(cat "$PROJECT_ROOT/.git/COMMIT_EDITMSG" 2>/dev/null || echo "")
-    if echo "$COMMIT_MSG" | grep -q "GUARD:ALLOW-DELETE"; then
+    if [ "${RAVEN_ALLOW_DELETE:-0}" = "1" ] || echo "$COMMIT_MSG" | grep -q "GUARD:ALLOW-DELETE"; then
         echo -e "  ${YELLOW}⚠️  Deletion flagged for approval flow:${NC}"
         echo "$NON_CORE_DELETED" | sed 's/^/     /'
         ((WARNINGS++))
@@ -307,7 +310,9 @@ if [ -n "$NON_CORE_DELETED" ]; then
         echo -e "  ${RED}❌ HARD BLOCK: File deletion without [GUARD:ALLOW-DELETE] flag${NC}"
         echo -e "     Files:"
         echo "$NON_CORE_DELETED" | sed 's/^/       /'
-        echo -e "     Add [GUARD:ALLOW-DELETE] to commit message to start approval flow"
+        echo -e "     To allow this deletion, EITHER:"
+        echo -e "       • RAVEN_ALLOW_DELETE=1 git commit -m \"... [GUARD:ALLOW-DELETE]\"   (reliable)"
+        echo -e "       • or pre-write the message: printf '...[GUARD:ALLOW-DELETE]' > .git/COMMIT_EDITMSG"
         ((VIOLATIONS++))
     fi
 else

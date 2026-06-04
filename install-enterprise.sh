@@ -187,7 +187,7 @@ org_manifest = {
   ],
   "project":       org_name,
   "version":       "1.0",
-  "standards":     "raven-v3.0",
+  "standards":     "raven-v1",
   "approval_mode": approval_mode,
   "guard": {
     "enabled": True,

@@ -316,7 +316,7 @@ claude .           # Raven greets them immediately
 {
   "_layer": "org",
   "_locked": ["standards", "approval_mode", "guard.enabled", "tokens.control"],
-  "standards": "raven-v3.0",
+  "standards": "raven-v1",
   "approval_mode": "majority_vote",
   "guard": { "enabled": true },
   "tokens": { "control": "per_developer" }
