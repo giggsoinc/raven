@@ -104,7 +104,7 @@ Andie does **not** load on every prompt. Routers on `UserPromptSubmit` decide vi
 | "write a helper function" | ❌ neither — plain Claude (or invoke a skill directly) |
 | "add this feature" | ⚠️ only if it reads as multi-component |
 
-Routing is **regex-based**, so it can miss edge cases. If a router doesn't fire, you can invoke any skill by name. (A `/andie` force-path is on the roadmap.)
+Routing is **regex-based**, so it can miss edge cases. When a router doesn't fire but you want Andie anyway, use the **force-path commands**: `/andie` (planning/architecture) and `/andie-jr` (bugs/debugging) load them unconditionally. You can also invoke any skill by name.
 
 Andie's modes — **Deep** (explain), **Kaizen** (improve), **War** (incident), **Drama** (debate) — are **selected by you**, not auto-detected. Each generation is capped at 200 words to keep a human pace, and ends with a Feynman-style recap. OODA runs as structured checkpoints (Observe → Orient → Decide → Act) per round — it is a linear framework, not an adaptive loop that restarts on new information.
 

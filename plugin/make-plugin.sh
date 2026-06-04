@@ -46,6 +46,13 @@ cp "$REPO_DIR/agents/"*.md "$TMP_DIR/agents/" 2>/dev/null || true
 AGENT_COUNT=$(find "$TMP_DIR/agents" -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
 echo "  ✅ $AGENT_COUNT agents"
 
+# ── Slash commands (at ZIP root) ──
+# Source of truth is core/commands/. Includes /andie + /andie-jr force-paths.
+mkdir -p "$TMP_DIR/commands"
+cp "$REPO_DIR/core/commands/"*.md "$TMP_DIR/commands/" 2>/dev/null || true
+COMMAND_COUNT=$(find "$TMP_DIR/commands" -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+echo "  ✅ $COMMAND_COUNT slash commands"
+
 # ── OSS Hook scripts (at ZIP root) ──
 # Cost-aware routing + guards. NO Hub. NO MCP governance. NO telemetry.
 mkdir -p "$TMP_DIR/scripts"
@@ -128,6 +135,7 @@ python3 -c "import json; json.load(open('$TMP_DIR/.claude-plugin/plugin.json'))"
 python3 -c "import json; json.load(open('$TMP_DIR/settings.json'))" && echo "  ✅ settings.json valid JSON"
 echo "  ✅ $SKILL_COUNT skills at ZIP root"
 echo "  ✅ $AGENT_COUNT agents at ZIP root"
+echo "  ✅ $COMMAND_COUNT commands at ZIP root"
 SCRIPT_COUNT=$(find "$TMP_DIR/scripts" -name "*.py" | wc -l | tr -d ' ')
 echo "  ✅ $SCRIPT_COUNT OSS scripts bundled"
 
