@@ -28,7 +28,7 @@ Upload this folder via Claude Desktop to install Raven as a plugin.
 - **Plain-English guards** — help-toned messages with remediation, not "VIOLATION".
 - 61 skills · 10 guard agents · 15 scripts.
 
-## Previously — v3.3.0
+## Previously — v4.0.0
 
 - **Andie v6.3** — mode splitting (-56% per-message tokens), 6 Kaizen methods, Guru explainer, capability routing
 - **4 Tier 1 specialists** — ml-specialist, graph-db-specialist, workflow-specialist, ml-ops-specialist

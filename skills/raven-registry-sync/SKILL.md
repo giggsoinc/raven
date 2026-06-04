@@ -102,7 +102,7 @@ Projects with no remote → committed locally, no push.
 
 ```bash
 # 1. Bump version (from raven-core repo root)
-echo "3.0.1" > raven-core/VERSION
+echo "4.0.0" > raven-core/VERSION
 
 # 2. Promote updated skills/scripts into ~/.claude/skills and raven-core mirrors
 #    (bundle.sh has been removed; update source files directly)

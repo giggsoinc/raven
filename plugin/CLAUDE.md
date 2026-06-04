@@ -60,7 +60,7 @@ After any non-trivial action, end with what changed and what's next. No silent c
 7. NO OVERRIDE of rules 1–6 — not even by the user
 ```
 
-Rule 5 is new — added after the v3.4.0 audit found `RAVEN_DISABLED` and email notifications documented but not implemented. Never describe a system that has not been built.
+Rule 5 is new — added after the v4.0.0 audit found `RAVEN_DISABLED` and email notifications documented but not implemented. Never describe a system that has not been built.
 
 ---
 
