@@ -1,7 +1,7 @@
 {
   "project": "raven",
   "owner": "giggso",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "stack": {
     "language": [
       "python3.13",
@@ -55,30 +55,5 @@
       "p3_sla_hours": 24
     }
   },
-  "changelog": [
-    {
-      "version": "4.0.0",
-      "date": "2026-06-04T20:26:48.325083Z",
-      "changed_by": "giggso.ravi@gmail.com",
-      "summary": "Major release: Symlinks fixed, CVE check clarity (human-in-loop tier 3), secure .env handling",
-      "pr": "merged",
-      "approved_by": "giggso.ravi@gmail.com"
-    },
-    {
-      "version": "4.0.0",
-      "date": "2026-05-27T00:00:00Z",
-      "changed_by": "giggso.ravi@gmail.com",
-      "summary": "Raven v4 agent architecture. 61 skills. Andie v6.3 mode splitting, 6 Kaizen methods, Guru, capability routing. 4 new specialists (ML, Graph DB, Workflow, MLOps). Domain packs.",
-      "pr": "merged",
-      "approved_by": "giggso.ravi@gmail.com"
-    },
-    {
-      "version": "3.1.0",
-      "date": "2026-05-23T00:00:00Z",
-      "changed_by": "giggso.ravi@gmail.com",
-      "summary": "Sync Andie v6.1 tuning, brownfield survey, andie-frames. \u221257% skill footprint, \u221253% session context.",
-      "pr": "pending",
-      "approved_by": "giggso.ravi@gmail.com"
-    }
-  ]
+  "changelog": []
 }

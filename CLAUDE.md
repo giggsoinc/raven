@@ -1,4 +1,4 @@
-# CLAUDE.md — Raven Discipline Engine v4.0.0
+# CLAUDE.md — Raven Discipline Engine v4.1.0
 
 > **This file is the contract.** Claude reads this on every turn. The rules below are not aspirational — they are how Claude must behave in this project.
 

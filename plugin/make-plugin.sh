@@ -17,7 +17,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
-VERSION="4.0.0"
+VERSION="4.1.0"
 ZIP_NAME="raven-plugin-v${VERSION}.zip"
 ZIP_PATH="$SCRIPT_DIR/$ZIP_NAME"
 TMP_DIR="$(mktemp -d)"

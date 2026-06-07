@@ -1,4 +1,4 @@
-# Raven Plugin — v4.0.0
+# Raven Plugin — v4.1.0
 
 Upload this folder via Claude Desktop to install Raven as a plugin.
 
@@ -6,7 +6,7 @@ Upload this folder via Claude Desktop to install Raven as a plugin.
 
 1. Clone or download [giggsoinc/raven](https://github.com/giggsoinc/raven)
 2. Open **Claude Desktop → Settings → Extensions → Add plugin**
-3. Upload `raven-plugin-v4.0.0.zip` — or select the `raven/plugin/` folder directly
+3. Upload `raven-plugin-v4.1.0.zip` — or select the `raven/plugin/` folder directly
 4. Done — 61 skills and 10 guard agents load automatically
 
 ## What's included
@@ -38,4 +38,4 @@ Upload this folder via Claude Desktop to install Raven as a plugin.
 
 ## Update
 
-Re-download the repo and re-upload `raven-plugin-v4.0.0.zip` — or pull latest and re-select the folder.
+Re-download the repo and re-upload `raven-plugin-v4.1.0.zip` — or pull latest and re-select the folder.

@@ -5,6 +5,25 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [4.1.0] — 2026-06-06
+
+### Patch: Privacy hardening + routing fix
+
+**Privacy hardening:**
+- Removed changelog array from `.raven/manifest.json` entirely — cleared historical email exposure.
+- Replaced all personal emails (giggso.ravi@gmail.com) with org email (rv@giggso.com) in all JSON registries.
+
+**Critical routing fix (triage-router.py rewrite):**
+- **REMOVED** regex-based classification (DEVIATION, EXISTING_SYSTEM, NEW_WORK patterns) — was brittle.
+- **IMPLEMENTED** deterministic repo-state routing:
+  - Brownfield (>1 commit) → andie-jr for fast triage
+  - Greenfield (≤1 commit) → Andie for architecture
+  - Data questions (read/explain/show/list) → direct, no skill
+  - Force paths (/andie, /andie-jr) always win
+- This fixes misclassification of debug prompts as new-work and architectural decisions as bugs.
+
+---
+
 ## [4.0.0] — 2026-06-04
 
 ### Major: Honesty pass + onboarding + force-paths
