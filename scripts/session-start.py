@@ -432,6 +432,31 @@ def format_context(project: dict, providers: list[dict], routing: dict, model_en
             lines.append(f"   💾  Memory: {n_sessions} prior session note(s) available for carry-forward")
         else:
             lines.append("   💾  Memory: will start logging session notes to ~/RavenVault/")
+        # dashboard status
+        dashboard_path = Path.home() / "RavenVault" / "dashboard.html"
+        if dashboard_path.exists():
+            try:
+                # Try to read last 30 days metrics
+                metrics_dir = Path.home() / "RavenVault" / ".metrics"
+                total_sessions = 0
+                total_tokens = 0
+                total_cost = 0
+                if metrics_dir.exists():
+                    for mf in sorted(metrics_dir.glob("*.json"))[-1:]:  # Last month file
+                        try:
+                            m = json.loads(mf.read_text())
+                            total_sessions = m.get("sessions", 0)
+                            total_tokens = m.get("total", {}).get("tokens", 0)
+                            total_cost = m.get("total", {}).get("cost_usd", 0)
+                        except:
+                            pass
+                if total_sessions > 0:
+                    lines.append(f"   📊  Dashboard: {total_sessions} sessions · {total_tokens:,} tok · ${total_cost:.2f}")
+                    lines.append(f"       View: open ~/RavenVault/dashboard.html or run `raven dashboard`")
+                else:
+                    lines.append(f"   📊  Dashboard: ready at ~/RavenVault/dashboard.html")
+            except:
+                pass
         lines.append("   (Nothing here is silent — guards announce themselves when they fire.)")
     except Exception:
         pass  # transparency banner is best-effort, never blocks session start

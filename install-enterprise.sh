@@ -267,6 +267,8 @@ if [[ "$PROVISION" == "1" ]]; then
         cp "$RAVEN_SYSTEM/raven-core/"*.py "$user_claude/scripts/" 2>/dev/null || true
         cp "$RAVEN_SYSTEM/core/scripts/"*.py "$user_claude/scripts/" 2>/dev/null || true
         cp "$RAVEN_SYSTEM/setup/sr-detect-workmode.py" "$user_claude/scripts/" 2>/dev/null || true
+        # Config files
+        cp "$RAVEN_SYSTEM/raven-core/"*.json "$user_claude/scripts/" 2>/dev/null || true
 
         # CLAUDE.md
         RAVEN_MARKER="# RAVEN GLOBAL CONFIG"
