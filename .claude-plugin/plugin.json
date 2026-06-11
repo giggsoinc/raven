@@ -1,7 +1,7 @@
 {
   "name": "raven",
   "version": "4.1.0",
-  "description": "AI codes fast. Raven makes it think first. A plan before any edit, challenged from three angles, approved by you; root-cause triage for bugs; local hooks that block secrets, vulnerable libraries, and edits until the thinking happened. All on your machine. Zero telemetry. MIT.",
+  "description": "AI codes fast. Raven keeps it disciplined — think, structure, secure. Think: a plan before any edit, challenged from three angles, approved by you. Structure: the right specialist for every prompt — 61, routed deterministically, never silently. Secure: local hooks block secrets, vulnerable libraries, and edits until the thinking happened. Scales from one repo to a whole team. All on your machine. Zero telemetry. MIT.",
   "author": {
     "name": "Giggso / AntiGravity Projects",
     "email": "rv@giggso.com",

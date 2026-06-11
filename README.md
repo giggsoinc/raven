@@ -4,11 +4,13 @@
 
 # Raven v4.1.0
 
-**AI codes fast. Raven makes it think first.**
+**AI codes fast. Raven keeps it disciplined — think, structure, secure.**
 
-Before any edit: a plan, challenged from three angles, approved by you. Bugs get root-cause triage (Andie-Jr, 2 rounds), not guess-and-edit. And at the boundary, local hooks do what prompts can't — block secrets, block vulnerable libraries, block edits until the thinking actually happened.
+**Think** — a plan before any edit, challenged from three angles, approved by you. Bugs get root-cause triage (Andie-Jr, 2 rounds), not guess-and-edit.
+**Structure** — the right specialist for every prompt: 61 of them, routed deterministically, never silently.
+**Secure** — local hooks block secrets, vulnerable libraries, and edits until the thinking happened.
 
-All on your machine. Zero telemetry. MIT.
+Scales from one repo to a whole team. All on your machine. Zero telemetry. MIT.
 
 ## Install (Claude Code plugin marketplace)
 
