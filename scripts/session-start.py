@@ -15,6 +15,11 @@ from pathlib import Path
 # Maps detected project domain to the Raven specialist skill to invoke.
 # Order matters — first match wins.
 
+# Signal strength contract (precision fix):
+#   STRONG — proprietary marker file, domain-proprietary file extension
+#            ("strong_globs": True), or a dependency/content keyword hit.
+#   WEAK   — generic directory names. One weak signal alone → advisory hint
+#            only; two agreeing weak signals → treated as strong.
 DOMAIN_SKILL_MAP = [
     # Salesforce — unambiguous marker files
     {
@@ -31,6 +36,7 @@ DOMAIN_SKILL_MAP = [
         "markers": ["odoo.conf", ".odoo_upgrade.json"],
         "dirs":    [],
         "globs":   ["**/__manifest__.py"],  # checked with limit
+        "strong_globs": True,  # __manifest__.py is Odoo-proprietary
     },
     # Terraform
     {
@@ -39,13 +45,15 @@ DOMAIN_SKILL_MAP = [
         "markers": [],
         "dirs":    [],
         "globs":   ["*.tf", "**/*.tf"],
+        "strong_globs": True,  # .tf is Terraform-proprietary
     },
-    # Kubernetes / Helm
+    # Kubernetes / Helm — Chart.yaml is canonical; bare dir names are weak.
+    # "charts" dir removed: it matched JS charting/asset folders.
     {
         "name":    "Kubernetes",
         "skill":   "raven:k8s-specialist",
-        "markers": [],
-        "dirs":    ["k8s", "kubernetes", "helm", "charts"],
+        "markers": ["Chart.yaml"],
+        "dirs":    ["k8s", "kubernetes", "helm"],
         "globs":   [],
     },
     # Kafka — check requirements or docker-compose
@@ -56,25 +64,32 @@ DOMAIN_SKILL_MAP = [
         "dirs":    [],
         "globs":   [],
         "keyword_files": ["requirements.txt", "docker-compose.yml", "pyproject.toml"],
-        "keyword":       "kafka",
+        "keywords":      ["kafka"],
     },
-    # Oracle — APEX / DB
+    # Oracle — APEX / DB. "**/*.sql" REMOVED: it branded any repo containing a
+    # single .sql file (migrations, SQLite schemas, test fixtures) as Oracle and
+    # shadowed later entries like FastAPI — observed false positive in the Rex
+    # project. .pkb/.pks (PL/SQL packages) are genuinely Oracle-proprietary.
     {
         "name":    "Oracle",
         "skill":   "raven:oracle-db-specialist",
-        "markers": [],
+        "markers": ["tnsnames.ora"],
         "dirs":    [],
-        "globs":   ["**/*.pkb", "**/*.pks", "**/*.sql"],
-        "keyword_files": ["requirements.txt"],
-        "keyword":       "cx_Oracle",
+        "globs":   ["**/*.pkb", "**/*.pks"],
+        "strong_globs": True,
+        "keyword_files": ["requirements.txt", "pyproject.toml"],
+        "keywords":      ["cx_Oracle", "oracledb"],  # legacy + modern drivers
     },
-    # AWS / Cloud
+    # AWS / Cloud — template.yaml demoted from marker (generic filename):
+    # it only counts when its content is actually CloudFormation/SAM.
     {
         "name":    "AWS",
         "skill":   "raven:aws-specialist",
-        "markers": ["cdk.json", "serverless.yml", "serverless.yaml", "sam.yaml", "template.yaml"],
+        "markers": ["cdk.json", "serverless.yml", "serverless.yaml", "sam.yaml"],
         "dirs":    [],
         "globs":   [],
+        "keyword_files": ["template.yaml", "template.yml"],
+        "keywords":      ["AWS::"],
     },
     # FastAPI / Python web
     {
@@ -84,42 +99,59 @@ DOMAIN_SKILL_MAP = [
         "dirs":    [],
         "globs":   [],
         "keyword_files": ["requirements.txt", "pyproject.toml"],
-        "keyword":       "fastapi",
+        "keywords":      ["fastapi"],
     },
 ]
 
 
-def detect_domain(cwd: Path) -> tuple[str | None, str | None]:
-    """Detect the project's primary domain. Returns (skill, label) or (None, None)."""
+def _entry_signals(cwd: Path, entry: dict) -> tuple[int, int]:
+    """Count (strong, weak) signal hits for one DOMAIN_SKILL_MAP entry."""
+    strong = weak = 0
+    for marker in entry.get("markers", []):
+        if (cwd / marker).exists():
+            strong += 1
+    for d in entry.get("dirs", []):
+        if (cwd / d).is_dir():
+            weak += 1
+    glob_strong = entry.get("strong_globs", False)
+    for pattern in entry.get("globs", []):
+        try:
+            if next(iter(cwd.glob(pattern)), None):
+                strong += 1 if glob_strong else 0
+                weak += 0 if glob_strong else 1
+        except Exception:
+            pass
+    keywords = entry.get("keywords") or ([entry["keyword"]] if entry.get("keyword") else [])
+    if keywords:
+        for kf in entry.get("keyword_files", []):
+            kf_path = cwd / kf
+            if kf_path.exists():
+                try:
+                    text = kf_path.read_text(errors="ignore").lower()
+                    if any(k.lower() in text for k in keywords):
+                        strong += 1
+                        break
+                except Exception:
+                    pass
+    return strong, weak
+
+
+def detect_domain(cwd: Path) -> tuple[str | None, str | None, str | None]:
+    """Detect the project's primary domain. Returns (skill, label, strength).
+
+    strength is "strong" (marker file / proprietary extension / dependency
+    keyword, or two agreeing weak signals) or "weak" (a single generic-dir
+    signal — advisory only). Strong matches win over earlier weak ones so a
+    loose entry cannot shadow a precise later one.
+    """
+    weak_hit: tuple[str, str, str] | None = None
     for entry in DOMAIN_SKILL_MAP:
-        # Check marker files
-        for marker in entry.get("markers", []):
-            if (cwd / marker).exists():
-                return entry["skill"], entry["name"]
-        # Check marker directories
-        for d in entry.get("dirs", []):
-            if (cwd / d).is_dir():
-                return entry["skill"], entry["name"]
-        # Check glob patterns (with a hard limit to stay fast)
-        for pattern in entry.get("globs", []):
-            try:
-                found = next(iter(cwd.glob(pattern)), None)
-                if found:
-                    return entry["skill"], entry["name"]
-            except Exception:
-                pass
-        # Check keyword in specific files
-        keyword = entry.get("keyword", "")
-        if keyword:
-            for kf in entry.get("keyword_files", []):
-                kf_path = cwd / kf
-                if kf_path.exists():
-                    try:
-                        if keyword.lower() in kf_path.read_text(errors="ignore").lower():
-                            return entry["skill"], entry["name"]
-                    except Exception:
-                        pass
-    return None, None
+        strong, weak = _entry_signals(cwd, entry)
+        if strong or weak >= 2:
+            return entry["skill"], entry["name"], "strong"
+        if weak and weak_hit is None:
+            weak_hit = (entry["skill"], entry["name"], "weak")
+    return weak_hit if weak_hit else (None, None, None)
 
 
 # ── Brownfield / Greenfield Detection ─────────────────────────────────────────
@@ -494,9 +526,11 @@ def format_context(project: dict, providers: list[dict], routing: dict, model_en
         lines.append("         Then route by prompt class:")
         lines.append("           [symptom]      → triage-router → andie-jr")
         lines.append("           [architecture] → architect-router → andie")
-        skill, domain_label = domain_skill
-        if skill:
+        skill, domain_label, strength = domain_skill
+        if skill and strength == "strong":
             lines.append(f"           [domain task]  → {skill} ({domain_label})")
+        elif skill:
+            lines.append(f"           [domain task]  → matching specialist (weak {domain_label} hint: consider {skill})")
         else:
             lines.append("           [domain task]  → matching specialist (see manifest.stack)")
     lines.append("")
@@ -510,11 +544,15 @@ def format_context(project: dict, providers: list[dict], routing: dict, model_en
         lines.append("📋 Existing project — Raven IS installed and active.")
         if project["langs"]:
             lines.append(f"   Stack: {', '.join(project['langs'])}")
-        skill, domain_label = domain_skill
-        if skill:
+        skill, domain_label, strength = domain_skill
+        if skill and strength == "strong":
             lines.append("")
             lines.append(f"⚡ DOMAIN DETECTED: {domain_label}")
             lines.append(f"   After greeting + Let's Go: invoke `{skill}` for domain tasks.")
+        elif skill:
+            lines.append("")
+            lines.append(f"💡 DOMAIN HINT: {domain_label} (weak signal — directory name only)")
+            lines.append(f"   Consider `{skill}` only if the task is {domain_label}-related. Not mandatory.")
     else:
         lines.append("🚀 New project — manifest will be created via Andie's Branch A on Let's Go.")
 
@@ -559,8 +597,13 @@ def main():
 
     # 6. Build compact system notification (always shown in Claude Code UI)
     badge_short = "BROWNFIELD" if project["type"] == "brownfield" else "GREENFIELD"
-    skill, domain_label = domain_skill
-    skill_line = f" · {domain_label} → {skill}" if skill else ""
+    skill, domain_label, strength = domain_skill
+    if skill and strength == "strong":
+        skill_line = f" · {domain_label} → {skill}"
+    elif skill:
+        skill_line = f" · {domain_label}? (weak) → {skill}"
+    else:
+        skill_line = ""
     lang_short = ", ".join(project["langs"][:2]) if project["langs"] else ""
     stack_line = f" · {lang_short}" if lang_short else ""
 
