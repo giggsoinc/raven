@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raven — Agent Token Architecture (Technical View)</title>
+<style>
+  :root{
+    --ink:#e6e9f0; --muted:#9aa3b5; --line:#323a4d;
+    --free:#4cc38a; --free-bg:#10271c;
+    --paid:#f0a05a; --paid-bg:#2b2013;
+    --block:#e5727a; --block-bg:#2b161a;
+    --card:#1a2030; --bg:#11151f; --code:#0d1117;
+  }
+  *{box-sizing:border-box}
+  body{font-family:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+       background:var(--bg); color:var(--ink); margin:0; padding:32px; line-height:1.55; font-size:14px}
+  .wrap{max-width:1020px;margin:0 auto}
+  h1{font-size:1.5rem;margin:0 0 4px;font-weight:700}
+  .sub{color:var(--muted);margin:0 0 28px}
+  h2{font-size:1.05rem;margin:34px 0 12px;color:#c7cede}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:18px}
+  table{width:100%;border-collapse:collapse;font-size:.88rem}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em}
+  code{background:var(--code);padding:1px 6px;border-radius:5px;font-size:.85em;border:1px solid var(--line)}
+  .tag{display:inline-block;padding:1px 9px;border-radius:999px;font-size:.75rem;font-weight:700}
+  .tag.free{background:var(--free-bg);color:var(--free);border:1px solid var(--free)}
+  .tag.paid{background:var(--paid-bg);color:var(--paid);border:1px solid var(--paid)}
+  .tag.block{background:var(--block-bg);color:var(--block);border:1px solid var(--block)}
+  svg{width:100%;height:auto;display:block}
+  .legend{display:flex;gap:18px;margin-top:10px;font-size:.8rem;color:var(--muted);flex-wrap:wrap}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+  .footnote{color:var(--muted);font-size:.8rem;margin-top:26px;border-top:1px solid var(--line);padding-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>🪶 Raven — Agent Token Architecture <span style="color:var(--muted)">// technical view</span></h1>
+<p class="sub">Hook lifecycle, token boundary, and the marker-file enforcement invariant · Raven v4.1.0</p>
+
+<h2>Component diagram — hook lifecycle with the token boundary</h2>
+<div class="card">
+<svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Raven hook lifecycle and token boundary">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5b6478"/>
+    </marker>
+    <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#e5727a"/>
+    </marker>
+  </defs>
+
+  <!-- token boundary -->
+  <rect x="350" y="20" width="640" height="180" rx="12" fill="#2b2013" opacity="0.5"/>
+  <text x="970" y="42" text-anchor="end" font-size="12" fill="#f0a05a" font-weight="700">MODEL CONTEXT — tokens charged</text>
+  <rect x="10" y="220" width="980" height="320" rx="12" fill="#10271c" opacity="0.45"/>
+  <text x="970" y="244" text-anchor="end" font-size="12" fill="#4cc38a" font-weight="700">LOCAL HOOKS — 0 tokens</text>
+
+  <!-- model context boxes -->
+  <g font-size="11.5" fill="#e6e9f0">
+    <rect x="370" y="60" width="180" height="56" rx="8" fill="#1a2030" stroke="#f0a05a"/>
+    <text x="460" y="82" text-anchor="middle" font-weight="700">additionalContext</text>
+    <text x="460" y="99" text-anchor="middle" fill="#f0a05a">reminder + toasters · ~100/msg</text>
+
+    <rect x="590" y="60" width="170" height="56" rx="8" fill="#1a2030" stroke="#f0a05a"/>
+    <text x="675" y="82" text-anchor="middle" font-weight="700">SKILL.md load</text>
+    <text x="675" y="99" text-anchor="middle" fill="#f0a05a">~1–2k · once/session</text>
+
+    <rect x="800" y="60" width="170" height="56" rx="8" fill="#1a2030" stroke="#f0a05a"/>
+    <text x="885" y="82" text-anchor="middle" font-weight="700">Claude (model)</text>
+    <text x="885" y="99" text-anchor="middle" fill="#f0a05a">emits tool calls</text>
+
+    <rect x="590" y="140" width="170" height="44" rx="8" fill="#1a2030" stroke="#e5727a"/>
+    <text x="675" y="159" text-anchor="middle" font-weight="700" fill="#e5727a">block/warn message</text>
+    <text x="675" y="175" text-anchor="middle" fill="#e5727a">~50 tok · violations only</text>
+  </g>
+
+  <!-- hook lane: lifecycle -->
+  <g font-size="11.5" fill="#e6e9f0">
+    <rect x="30" y="260" width="150" height="58" rx="8" fill="#1a2030" stroke="#4cc38a"/>
+    <text x="105" y="282" text-anchor="middle" font-weight="700">SessionStart</text>
+    <text x="105" y="299" text-anchor="middle" fill="#9aa3b5">session-start.py</text>
+
+    <rect x="30" y="350" width="150" height="74" rx="8" fill="#1a2030" stroke="#4cc38a"/>
+    <text x="105" y="371" text-anchor="middle" font-weight="700">UserPromptSubmit</text>
+    <text x="105" y="388" text-anchor="middle" fill="#9aa3b5">triage · architect</text>
+    <text x="105" y="404" text-anchor="middle" fill="#9aa3b5">model-router --hook</text>
+
+    <rect x="30" y="456" width="150" height="58" rx="8" fill="#1a2030" stroke="#4cc38a"/>
+    <text x="105" y="478" text-anchor="middle" font-weight="700">skill-reminder</text>
+    <text x="105" y="495" text-anchor="middle" fill="#9aa3b5">detect_domain()</text>
+
+    <rect x="320" y="260" width="190" height="74" rx="8" fill="#1a2030" stroke="#4cc38a" stroke-width="2"/>
+    <text x="415" y="281" text-anchor="middle" font-weight="700">PreToolUse  ⛩</text>
+    <text x="415" y="298" text-anchor="middle" fill="#9aa3b5">raven-skill-gate.py</text>
+    <text x="415" y="315" text-anchor="middle" fill="#9aa3b5">Edit|Write|NotebookEdit</text>
+
+    <rect x="320" y="370" width="190" height="90" rx="8" fill="#0d1117" stroke="#5b6478"/>
+    <text x="415" y="390" text-anchor="middle" font-weight="700">.raven/state/</text>
+    <text x="415" y="407" text-anchor="middle" fill="#9aa3b5">routing-policy.json</text>
+    <text x="415" y="423" text-anchor="middle" fill="#9aa3b5">skill-invocations.jsonl</text>
+    <text x="415" y="439" text-anchor="middle" fill="#9aa3b5">.session-start · gate-override</text>
+
+    <rect x="560" y="260" width="170" height="74" rx="8" fill="#1a2030" stroke="#4cc38a"/>
+    <text x="645" y="281" text-anchor="middle" font-weight="700">raven-mark-skill.py</text>
+    <text x="645" y="298" text-anchor="middle" fill="#9aa3b5">run by gated skill</text>
+    <text x="645" y="315" text-anchor="middle" fill="#9aa3b5">stamps {ts, skill, session}</text>
+
+    <rect x="560" y="370" width="170" height="58" rx="8" fill="#1a2030" stroke="#4cc38a"/>
+    <text x="645" y="392" text-anchor="middle" font-weight="700">PostToolUse</text>
+    <text x="645" y="409" text-anchor="middle" fill="#9aa3b5">secret-scan · db-guard</text>
+
+    <rect x="780" y="260" width="190" height="74" rx="8" fill="#1a2030" stroke="#4cc38a"/>
+    <text x="875" y="281" text-anchor="middle" font-weight="700">git pre-commit</text>
+    <text x="875" y="298" text-anchor="middle" fill="#9aa3b5">secrets · CVE · style</text>
+    <text x="875" y="315" text-anchor="middle" fill="#9aa3b5">notify.py (SMTP/Slack)</text>
+
+    <rect x="780" y="370" width="190" height="58" rx="8" fill="#1a2030" stroke="#4cc38a"/>
+    <text x="875" y="392" text-anchor="middle" font-weight="700">Stop</text>
+    <text x="875" y="409" text-anchor="middle" fill="#9aa3b5">token-guard · obsidian-log</text>
+
+    <rect x="780" y="456" width="190" height="58" rx="8" fill="#0d1117" stroke="#5b6478"/>
+    <text x="875" y="478" text-anchor="middle" font-weight="700">.raven/audit/*.log</text>
+    <text x="875" y="495" text-anchor="middle" fill="#9aa3b5">blocks · overrides · violations</text>
+  </g>
+
+  <!-- arrows -->
+  <!-- hooks inject upward into context -->
+  <line x1="180" y1="289" x2="366" y2="100" stroke="#5b6478" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="180" y1="387" x2="366" y2="105" stroke="#5b6478" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="180" y1="485" x2="366" y2="112" stroke="#5b6478" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="205" y="240" font-size="10.5" fill="#9aa3b5">inject context (the only paid path)</text>
+
+  <!-- model emits tool call into gate -->
+  <line x1="885" y1="116" x2="490" y2="256" stroke="#5b6478" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="660" y="216" font-size="10.5" fill="#9aa3b5">Edit/Write tool call</text>
+
+  <!-- gate reads state -->
+  <line x1="415" y1="334" x2="415" y2="366" stroke="#5b6478" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="425" y="354" font-size="10.5" fill="#9aa3b5">read policy + markers</text>
+
+  <!-- gate blocks back to model -->
+  <line x1="510" y1="286" x2="640" y2="188" stroke="#e5727a" stroke-width="1.6" marker-end="url(#ab)"/>
+  <text x="520" y="225" font-size="10.5" fill="#e5727a">exit 2 → BLOCKED</text>
+
+  <!-- skill load triggers marker -->
+  <line x1="675" y1="116" x2="660" y2="256" stroke="#5b6478" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="690" y="200" font-size="10.5" fill="#9aa3b5">skill's first step</text>
+
+  <!-- marker writes state -->
+  <line x1="560" y1="310" x2="514" y2="390" stroke="#4cc38a" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="540" y="356" font-size="10.5" fill="#4cc38a">append marker</text>
+
+  <!-- post-tool / commit / stop feed audit -->
+  <line x1="730" y1="404" x2="776" y2="478" stroke="#5b6478" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="875" y1="334" x2="875" y2="366" stroke="#5b6478" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="875" y1="428" x2="875" y2="452" stroke="#5b6478" stroke-width="1.5" marker-end="url(#a)"/>
+</svg>
+<div class="legend">
+  <span><span class="dot" style="background:#f0a05a"></span>token-bearing (enters context)</span>
+  <span><span class="dot" style="background:#4cc38a"></span>zero-token hook script</span>
+  <span><span class="dot" style="background:#e5727a"></span>block path (exit 2)</span>
+  <span><span class="dot" style="background:#5b6478"></span>state / audit files</span>
+</div>
+</div>
+
+<h2>Component inventory</h2>
+<div class="card">
+<table>
+  <tr><th>Component</th><th>Hook event</th><th>Function</th><th>Token cost</th></tr>
+  <tr><td><code>session-start.py</code></td><td>SessionStart</td><td>brownfield/greenfield detect, <code>detect_domain()</code> (strong/weak), touches <code>.session-start</code> stamp, boot banner</td><td><span class="tag paid">~500 once</span></td></tr>
+  <tr><td><code>triage-router.py</code> v4.2</td><td>UserPromptSubmit</td><td>repo-state routing → andie-jr/andie; mutually exclusive with architect-router; toaster via <code>systemMessage</code></td><td><span class="tag paid">~40/msg</span></td></tr>
+  <tr><td><code>architect-router.py</code></td><td>UserPromptSubmit</td><td>DECISION-intent classifier (shared with triage via importlib) → andie</td><td><span class="tag paid">(incl. above)</span></td></tr>
+  <tr><td><code>model-router.py --hook</code></td><td>UserPromptSubmit</td><td>tier classify SIMPLE/MEDIUM/COMPLEX/LOCAL_ONLY; secrets → local model only</td><td><span class="tag paid">~40/msg</span></td></tr>
+  <tr><td><code>raven-skill-reminder.py</code></td><td>UserPromptSubmit</td><td>domain-skill nudge; honest contract text when gate active</td><td><span class="tag paid">~50/msg</span></td></tr>
+  <tr><td><code>raven-skill-gate.py</code></td><td><strong>PreToolUse</strong> Edit|Write|MultiEdit|NotebookEdit</td><td>enforce "specialist ran this session" invariant; shadow/soft/hard; &lt;100ms (tested), &lt;5ms with no policy</td><td><span class="tag free">0</span> <span class="tag block">~50 on block</span></td></tr>
+  <tr><td><code>raven-mark-skill.py</code></td><td>(run by skill via Bash)</td><td>appends <code>{ts, skill, session_id}</code> to <code>skill-invocations.jsonl</code>; script stamps time, not the model; 200-line rotation</td><td><span class="tag paid">~100 once/skill</span></td></tr>
+  <tr><td><code>secret-scan.py</code> · <code>db-guard.py</code></td><td>PostToolUse (async)</td><td>credential patterns / SQL discipline on every write</td><td><span class="tag free">0</span></td></tr>
+  <tr><td>pre-commit pipeline</td><td>git hook (not Claude)</td><td>secrets, CVE (CVSS&gt;7), style, notify.py SMTP/Slack</td><td><span class="tag free">0</span></td></tr>
+  <tr><td><code>token-guard.py</code> · <code>obsidian-log.py</code></td><td>Stop</td><td>threshold checks (25/50/75/90%), session memory write</td><td><span class="tag free">0</span></td></tr>
+</table>
+</div>
+
+<h2>The enforcement invariant (skill gate)</h2>
+<div class="card">
+<table>
+  <tr><th>Step</th><th>Mechanism</th></tr>
+  <tr><td>1. Skill invoked</td><td>SKILL.md first step: <code>python3 .claude/scripts/raven-mark-skill.py andie-jr</code> — marker appended with script-stamped <code>ts</code></td></tr>
+  <tr><td>2. Model attempts Edit/Write</td><td>PreToolUse fires <code>raven-skill-gate.py</code> with tool JSON on stdin</td></tr>
+  <tr><td>3. Policy check</td><td><code>routing-policy.json</code>: mode (<code>shadow|soft|hard|off</code>), <code>required_skills</code>, <code>scope</code>/<code>exclude</code> globs, <code>freshness_hours</code></td></tr>
+  <tr><td>4. Freshness</td><td>marker <code>session_id</code> matches, OR marker newer than <code>.session-start</code> mtime, OR within 4h fallback window</td></tr>
+  <tr><td>5a. Fresh marker / out of scope</td><td>exit 0 — allowed</td></tr>
+  <tr><td>5b. No marker, mode=hard</td><td>exit 2 — <code>BLOCKED by raven-skill-gate</code> to stderr; model must invoke the specialist</td></tr>
+  <tr><td>5c. No marker, shadow/soft</td><td>exit 0 + violation logged to <code>.raven/audit/</code> and <code>docs/observations/security_log.md</code>; soft also warns</td></tr>
+  <tr><td>Escape hatch</td><td><code>touch .raven/state/gate-override</code> → next N calls allowed, every use audited — never silent</td></tr>
+</table>
+<p style="color:var(--muted);font-size:.85rem;margin:12px 0 0">
+Design rule: <strong>gate the action, not the intent.</strong> No prompt classification in the hook — it enforces a workflow invariant via marker files.
+Honest contract: guarantees the skill <em>ran</em>, not that its output was used well.</p>
+</div>
+
+<h2>Token boundary — the only three paid paths</h2>
+<div class="card">
+<table>
+  <tr><th>#</th><th>Path</th><th>Cost</th><th>Bound by</th></tr>
+  <tr><td>1</td><td>Hook stdout/<code>additionalContext</code> injected per message</td><td>~100 tok/msg</td><td>kept terse by design; review bar: must earn back 60 tok × every message</td></tr>
+  <tr><td>2</td><td>SKILL.md content when a skill loads</td><td>~1–2k/session</td><td>mode-split files — load only the selected mode, never all four</td></tr>
+  <tr><td>3</td><td>Violation/block messages</td><td>~50 each</td><td>only on violations; zero on compliant sessions</td></tr>
+</table>
+<p style="color:var(--muted);font-size:.85rem;margin:12px 0 0">
+Everything else — gate checks, scans, audits, metrics, notifications — executes in Python on the developer machine and never enters model context. Steady-state governance overhead: ~2% of session tokens.</p>
+</div>
+
+<p class="footnote">
+Source of truth: <code>scripts/</code> in github.com/giggsoinc/raven · deployed copies in <code>~/.claude/scripts/</code> (sync via <code>raven-registry-sync</code>, don't hand-edit) ·
+tests: <code>tests/test_skill_gate.py</code> (9 cases incl. latency budget), <code>tests/test_domain_detection.py</code> (10 fixtures) ·
+business companion: <code>Agent_token_architecture_business.html</code> · full note: <code>docs/TOKENOMICS.md</code> · Raven v4.1.0, MIT.
+</p>
+
+</div>
+</body>
+</html>

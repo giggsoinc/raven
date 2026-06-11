@@ -113,6 +113,29 @@ Fires from pre-commit hook on success or block:
 
 ---
 
+## Tokenomics — What Raven Costs Per Message
+
+**Rule: enforcement runs in Python hooks, outside the model — it costs zero
+tokens.** Gates, guards, scanners, audit logs, and the pre-commit pipeline
+never enter Claude's context. Only the thin advisory layer does:
+
+| Layer | Frequency | Tokens |
+|---|---|---|
+| Hooks: skill gate, secret scan, CVE, pre-commit, token guard | every tool call / commit | **0** |
+| Skill-reminder + router toasters (context injection) | per message | ~100 |
+| Session boot (greeting + transparency banner) | once per session | ~500 |
+| Specialist SKILL.md load (when a skill actually runs) | once per session | ~1–2k |
+| Violation messages (block/warn) | only on violation | ~50 |
+
+Steady-state: **~2% overhead** on a typical session — and the model router
+(0-token hook) claws that back by tiering simple prompts to cheaper models and
+routing secret-laden context to a free local model. Full breakdown, including
+where Raven saves tokens: [docs/TOKENOMICS.md](docs/TOKENOMICS.md) ·
+diagrams: [business view](docs/Agent_token_architecture_business.html) ·
+[technical view](docs/Agent_token_architecture_tech.html).
+
+---
+
 ## Features by Version
 
 ### **Raven v4.1.0** (Current) — Privacy + Routing Hardening
