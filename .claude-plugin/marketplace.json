@@ -6,14 +6,14 @@
     "url": "https://giggso.com"
   },
   "metadata": {
-    "description": "Strategic Thinking. Structure at Scale. Security from Start. AI codes fast — Raven keeps it disciplined: a plan before any edit, challenged from three angles, approved by you; the right specialist for every prompt, 61 routed deterministically, never silently; local hooks that block secrets, vulnerable libraries, and edits until the thinking happened — from the first commit. All on your machine. Zero telemetry. MIT.",
+    "description": "AI codes fast. Raven enforces Discipline — Strategic Thinking, Scalable Structure, Security at Source. A plan attacked from three angles before any edit, approved by you; every prompt routed to the right one of 61 specialists, never silently; and local guards that block secrets, vulnerable libraries, and edits until the thinking happened — at the source, not after the damage. All local. Zero telemetry. MIT.",
     "version": "4.1.0"
   },
   "plugins": [
     {
       "name": "raven",
       "source": "./",
-      "description": "Strategic Thinking. Structure at Scale. Security from Start. AI codes fast — Raven keeps it disciplined: a plan before any edit, challenged from three angles, approved by you; the right specialist for every prompt, 61 routed deterministically, never silently; local hooks that block secrets, vulnerable libraries, and edits until the thinking happened — from the first commit. All on your machine. Zero telemetry. MIT.",
+      "description": "AI codes fast. Raven enforces Discipline — Strategic Thinking, Scalable Structure, Security at Source. A plan attacked from three angles before any edit, approved by you; every prompt routed to the right one of 61 specialists, never silently; and local guards that block secrets, vulnerable libraries, and edits until the thinking happened — at the source, not after the damage. All local. Zero telemetry. MIT.",
       "version": "4.1.0",
       "author": {
         "name": "Giggso Inc.",

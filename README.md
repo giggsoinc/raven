@@ -4,15 +4,15 @@
 
 # Raven v4.1.0
 
-**Strategic Thinking. Structure at Scale. Security from Start.**
+**AI codes fast. Raven enforces Discipline — Strategic Thinking, Scalable Structure, Security at Source.**
 
-AI codes fast. Raven keeps it disciplined:
+How, in simple terms:
 
-**Strategic Thinking** — a plan before any edit, challenged from three angles, approved by you. Bugs get root-cause triage (Andie-Jr, 2 rounds), not guess-and-edit.
-**Structure at Scale** — the right specialist for every prompt: 61 of them, routed deterministically, never silently — from one repo to a whole team.
-**Security from Start** — local hooks block secrets, vulnerable libraries, and edits until the thinking happened, from the first commit.
+- **Strategic Thinking** — before Raven lets the AI touch your code, it makes a plan, attacks that plan from three angles (business, technical, data — plus a critic), and waits for your go. Bugs aren't guessed at: a 2-round triage finds the root cause first.
+- **Scalable Structure** — every prompt is routed to the right expert automatically. 61 specialists, one per domain, picked by deterministic rules — and you always see a one-line note saying who's handling it and why. Works the same on one repo or a hundred.
+- **Security at Source** — guards run on your machine, at the moment code is written and committed: secrets are blocked, vulnerable libraries are blocked, and edits are blocked until the thinking actually happened. Not a report after the damage — a gate before it.
 
-All on your machine. Zero telemetry. MIT.
+All local. Zero telemetry. MIT.
 
 ## Install (Claude Code plugin marketplace)
 
