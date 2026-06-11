@@ -963,6 +963,12 @@ def render_html(metrics: dict, metadata: dict, recs: list) -> str:
   <button class="download" onclick="downloadJSON()">⬇ Download JSON</button>
   <button class="download" onclick="downloadCSV()">⬇ Download CSV</button>
   <button class="download" onclick="window.print()">🖨 Print / Save PDF</button>
+  <button class="download" id="refreshBtn" onclick="refreshDashboard()" style="background: #10b981;">🔄 Refresh</button>
+  <label style="display: inline-block; margin-left: 16px; color: #cbd5e1; cursor: pointer; font-size: 14px;">
+    <input type="checkbox" id="autoRefresh" onchange="toggleAutoRefresh()" style="cursor: pointer; margin-right: 6px;">
+    Auto-refresh every 30s
+  </label>
+  <span id="refreshStatus" style="display: none; color: #94a3b8; margin-left: 8px; font-size: 12px;"></span>
 
   <h2>📋 Project Metadata</h2>
   <div class="meta">
@@ -1105,6 +1111,7 @@ def render_html(metrics: dict, metadata: dict, recs: list) -> str:
 
 <script>
 const DATA = {raw_json};
+let autoRefreshInterval = null;
 
 function downloadJSON() {{
   const blob = new Blob([JSON.stringify(DATA, null, 2)], {{type: 'application/json'}});
@@ -1135,6 +1142,52 @@ function downloadCSV() {{
   a.click();
   URL.revokeObjectURL(url);
 }}
+
+function refreshDashboard() {{
+  const status = document.getElementById('refreshStatus');
+  status.style.display = 'inline';
+  status.textContent = '🔄 Refreshing...';
+
+  // Try local server first
+  fetch('http://127.0.0.1:9787/refresh')
+    .then(r => r.json())
+    .then(data => {{
+      status.textContent = '✅ Refreshed at ' + new Date().toLocaleTimeString();
+      setTimeout(() => {{ status.style.display = 'none'; }}, 3000);
+      location.reload();
+    }})
+    .catch(err => {{
+      status.textContent = '⚠️  Local server not running. Start with: raven dashboard --serve';
+      status.style.color = '#f59e0b';
+    }});
+}}
+
+function toggleAutoRefresh() {{
+  const checkbox = document.getElementById('autoRefresh');
+  const status = document.getElementById('refreshStatus');
+
+  if (checkbox.checked) {{
+    status.style.display = 'inline';
+    status.textContent = '🔄 Auto-refresh: 30s interval';
+    localStorage.setItem('auto-refresh', 'true');
+    autoRefreshInterval = setInterval(() => {{
+      location.reload();
+    }}, 30000);
+  }} else {{
+    if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+    status.style.display = 'none';
+    localStorage.setItem('auto-refresh', 'false');
+  }}
+}}
+
+// Restore auto-refresh checkbox state on page load
+window.addEventListener('load', function() {{
+  const checkbox = document.getElementById('autoRefresh');
+  if (localStorage.getItem('auto-refresh') === 'true') {{
+    checkbox.checked = true;
+    toggleAutoRefresh();
+  }}
+}});
 </script>
 </body>
 </html>

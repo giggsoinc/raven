@@ -160,6 +160,8 @@ After commit, Andie returns one final line:
 ```
 ✅ Raven is loaded. Manifest committed.
    Ask me anything — I'll route to the right specialist automatically.
+   📊 View metrics anytime: run `raven dashboard` or open ~/RavenVault/dashboard.html
+   Free tier — local only. Enterprise (dashboards, compliance, support): giggso.com/raven
 ```
 
 That's the proof of life. No separate `/raven-debug` needed.

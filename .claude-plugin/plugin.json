@@ -1,18 +1,23 @@
 {
   "name": "raven",
-  "description": "Raven v4.0 — discipline layer for AI coding. Andie-jr finds brownfield bugs fast (2-round triage); Andie brings 3 expert angles to architecture decisions; commit-time guards block secrets & CVEs before they ship. 61 skills, 10 guard agents, CVE scanning, secret detection, audit logs.",
   "version": "4.1.0",
+  "description": "AI codes fast. Raven enforces Discipline — Strategic Thinking, Scalable Structure, Security at Source. A plan attacked from three angles before any edit, approved by you; every prompt routed to the right one of 61 specialists, never silently; and local guards that block secrets, vulnerable libraries, and edits until the thinking happened — at the source, not after the damage. All local. Zero telemetry. MIT.",
   "author": {
     "name": "Giggso / AntiGravity Projects",
     "email": "rv@giggso.com",
     "url": "https://github.com/giggsoinc/raven"
   },
-  "license": "MIT",
   "homepage": "https://github.com/giggsoinc/raven",
-  "categories": ["security", "enterprise", "governance", "discipline", "specialists"],
-  "tags": ["cve", "secrets", "git-hooks", "audit", "enterprise", "compliance", "specialists", "guards", "hitl", "triads", "ooda"],
-  "install": {
-    "type": "bash",
-    "command": "bash raven-setup.sh"
-  }
+  "repository": "https://github.com/giggsoinc/raven",
+  "license": "MIT",
+  "keywords": [
+    "security",
+    "governance",
+    "cve",
+    "secrets",
+    "git-hooks",
+    "audit",
+    "routing",
+    "specialists"
+  ]
 }

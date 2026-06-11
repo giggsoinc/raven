@@ -1,0 +1,39 @@
+{
+  "name": "raven",
+  "owner": {
+    "name": "Giggso Inc.",
+    "email": "rv@giggso.com",
+    "url": "https://giggso.com"
+  },
+  "metadata": {
+    "description": "AI codes fast. Raven enforces Discipline — Strategic Thinking, Scalable Structure, Security at Source. A plan attacked from three angles before any edit, approved by you; every prompt routed to the right one of 61 specialists, never silently; and local guards that block secrets, vulnerable libraries, and edits until the thinking happened — at the source, not after the damage. All local. Zero telemetry. MIT.",
+    "version": "4.1.0"
+  },
+  "plugins": [
+    {
+      "name": "raven",
+      "source": "./",
+      "description": "AI codes fast. Raven enforces Discipline — Strategic Thinking, Scalable Structure, Security at Source. A plan attacked from three angles before any edit, approved by you; every prompt routed to the right one of 61 specialists, never silently; and local guards that block secrets, vulnerable libraries, and edits until the thinking happened — at the source, not after the damage. All local. Zero telemetry. MIT.",
+      "version": "4.1.0",
+      "author": {
+        "name": "Giggso Inc.",
+        "email": "rv@giggso.com",
+        "url": "https://github.com/giggsoinc/raven"
+      },
+      "homepage": "https://github.com/giggsoinc/raven",
+      "repository": "https://github.com/giggsoinc/raven",
+      "license": "MIT",
+      "keywords": [
+        "security",
+        "governance",
+        "cve",
+        "secrets",
+        "git-hooks",
+        "audit",
+        "routing",
+        "specialists"
+      ],
+      "category": "security"
+    }
+  ]
+}

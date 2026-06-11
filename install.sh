@@ -108,6 +108,11 @@ for py in "$RAVEN_DIR/core/scripts/"*.py; do
 done
 # Also copy detection script — used by raven-debug
 cp "$RAVEN_DIR/setup/sr-detect-workmode.py" "$CLAUDE_DIR/scripts/" 2>/dev/null || true
+# Copy config files (model-pricing.json etc.)
+for cfg in "$RAVEN_DIR/raven-core/"*.json; do
+    [ -f "$cfg" ] || continue
+    cp "$cfg" "$CLAUDE_DIR/scripts/"
+done
 echo -e "${G}✅ Scripts installed${N}"
 
 # ── CLAUDE.md — global Raven instructions ──

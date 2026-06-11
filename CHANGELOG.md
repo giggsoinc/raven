@@ -5,6 +5,75 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [Unreleased] — 2026-06-10
+
+### Andie v6.4 + routing visibility + LOCAL_ONLY hard floor
+
+**Andie v6.4 (ported into the compact structure — token efficiency kept):**
+- One hard gate: mode card + pre-flight assembly arrive in ONE message with ONE GO.
+- Implicit GO: a file upload, pasted document, or an answer at any gate counts as
+  consent. Ask-once: no gate is ever re-asked; ambiguity → state default and move on.
+- GATES ledger: every OODA block carries a `GATES: passed | open` line.
+- Critic voice on every team (Devil's Advocate / Critic / Red Team / Saboteur) +
+  the user holds a named seat with the casting vote.
+- Invocation toaster: Andie's (and Andie Jr v1.1's) first line always announces
+  what is running, what triggered it, and what happens next. Never "background".
+
+**Routing (triage-router v4.2 — no double-fire):**
+- Precedence made mutually exclusive: decision/architecture prompts → andie
+  (architect-router); triage-router stays silent instead of also firing andie-jr.
+  triage loads architect's classifier dynamically — one source of truth, fail-soft.
+- Symptom language now overrides the data-question check ("why is auth failing"
+  → andie-jr, matching the documented trigger table).
+- Both routers + model-router (`--hook`, now wired in plugin settings.json) emit
+  a user-visible one-line `systemMessage` toaster on every route. Raven never
+  routes silently. `router_common.py` added and packaged with the plugin.
+
+**LOCAL_ONLY visibility (privacy):**
+- model-router `--hook` mode: secrets-detected prompts show a
+  `🔒 … LOCAL_ONLY · cloud subagents blocked` toaster and inject explicit
+  do-not-spawn-cloud guidance for subagents.
+
+**Skill-routing gate (deterministic enforcement — new):**
+- `raven-skill-gate.py` (PreToolUse on Edit/Write/MultiEdit/NotebookEdit):
+  edits are blocked (mode: hard) until a gated specialist skill has actually
+  run this session — same two-tier model as commits (advise while coding,
+  block at the boundary). Gates the ACTION via marker files; never tries to
+  classify prompts in the hook.
+- `raven-mark-skill.py`: enforced skills (andie, andie-jr) run it as their
+  first step; the script — not the model — stamps `{ts, skill, session_id}`
+  into `.raven/state/skill-invocations.jsonl`.
+- Modes shadow/soft/hard/off via `.raven/state/routing-policy.json`
+  (template shipped); soft is the default grace mode. Override touch-file
+  allows N calls, always audited — never silent. No policy file → gate off.
+- Banners rewritten to the honest contract: when the gate is active they say
+  "enforced at edit time by raven-skill-gate (mode: X)" instead of
+  unenforceable "MANDATORY: invoke X before any file read".
+- Zero-token design: gate + marker run outside the model (~130 tokens total
+  per session for the visible messages, none per tool call). Latency budget
+  <100ms covered by tests (`tests/test_skill_gate.py`, 9 cases).
+- Docs: `docs/SKILL-GATE.md` — including the stated residual gap (the gate
+  proves the skill ran, not that its output was used well).
+
+**Domain detection precision (false-positive Oracle fix):**
+- `DOMAIN_SKILL_MAP` (session-start.py + raven-skill-reminder.py): removed the
+  `**/*.sql` Oracle glob — it branded any repo containing a single .sql file
+  (migrations, SQLite schemas, fixtures) as Oracle and shadowed later entries
+  like FastAPI (observed in the Rex project). Oracle now requires `.pkb`/`.pks`,
+  `tnsnames.ora`, or `cx_Oracle`/`oracledb` in dependencies.
+- Same audit applied map-wide: `charts/` dir removed from Kubernetes (matched
+  JS charting folders; `Chart.yaml` marker added); AWS `template.yaml` demoted
+  to a content check (`AWS::`).
+- `detect_domain` now returns signal strength: strong (marker / proprietary
+  extension / dependency keyword, or two agreeing weak signals) → mandatory
+  banner; weak (single generic dir) → advisory "consider invoking" hint only.
+  Strong matches win over earlier weak ones — no more shadowing.
+- Regression suite: `tests/test_domain_detection.py` (10 fixtures, both hook
+  copies tested). All script copies (scripts/, plugin/scripts/, raven-core/)
+  synced checksum-identical.
+
+---
+
 ## [4.1.0] — 2026-06-06
 
 ### Patch: Privacy hardening + routing fix

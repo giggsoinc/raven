@@ -54,12 +54,15 @@ COMMAND_COUNT=$(find "$TMP_DIR/commands" -name "*.md" 2>/dev/null | wc -l | tr -
 echo "  ✅ $COMMAND_COUNT slash commands"
 
 # ── OSS Hook scripts (at ZIP root) ──
-# Cost-aware routing + guards. NO Hub. NO MCP governance. NO telemetry.
+# Cost-aware routing + guards + dashboard metrics. NO Hub. NO MCP governance. NO telemetry.
 mkdir -p "$TMP_DIR/scripts"
 for script in \
     session-start.py \
     triage-router.py \
     architect-router.py \
+    router_common.py \
+    raven-skill-gate.py \
+    raven-mark-skill.py \
     log-overhead.py \
     model-router.py \
     token-guard.py \
@@ -71,7 +74,11 @@ for script in \
     emit-violation.py \
     notify.py \
     install-claudemd.py \
-    db-guard.py; do
+    db-guard.py \
+    token-meter-write.py \
+    session-gate.py \
+    dashboard-server.py \
+    raven-dashboard.py; do
     src="$REPO_DIR/scripts/$script"
     if [[ -f "$src" ]]; then
         cp "$src" "$TMP_DIR/scripts/$script"
@@ -86,8 +93,10 @@ done
 cp "$SCRIPT_DIR/settings.json" "$TMP_DIR/settings.json"
 echo "  ✅ settings.json (hook wiring)"
 
-# ── .model.env.template (cost routing config) ──
+# ── Config files (cost routing + model pricing) ──
 cp "$REPO_DIR/.model.env.template" "$TMP_DIR/.model.env.template" 2>/dev/null && echo "  ✅ .model.env.template"
+cp "$REPO_DIR/scripts/model-pricing.json" "$TMP_DIR/scripts/model-pricing.json" 2>/dev/null && echo "  ✅ scripts/model-pricing.json"
+cp "$REPO_DIR/templates/routing-policy.example.json" "$TMP_DIR/routing-policy.example.json" 2>/dev/null && echo "  ✅ routing-policy.example.json"
 
 # ── Pre-flight validation ──
 echo ""
@@ -110,7 +119,7 @@ fi
 
 # ── Check for accidentally-included enterprise scripts ──
 for marker in mcp-guard.py model-discover.py model-router-hook.py raven_agent.py \
-              stream-signal.py policy-sync.py approval-request.py session-gate.py \
+              stream-signal.py policy-sync.py approval-request.py \
               tool-guard.py raven-skill-reminder.py; do
     if [[ -f "$TMP_DIR/scripts/$marker" ]]; then
         echo "  ❌ ENTERPRISE LEAK: scripts/$marker is in the OSS zip — abort"
