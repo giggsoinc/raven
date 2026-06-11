@@ -4,20 +4,42 @@
 
 # Raven v4.1.0
 
-**AI-native engineering discipline for Claude Code · GitHub Copilot · OpenAI Codex**
+**A local discipline layer for AI coding — Claude Code plugin, MIT, free tier of Raven Enterprise**
 
-Raven is a **governance + orchestration layer** for AI-assisted coding. It routes prompts to the right specialist, documents decisions with a Triad panel, and gates commits with security scanning (secrets + CVEs). Built for teams shipping fast *and* safely.
+Raven routes each prompt to the right specialist (a 2-round debugger for brownfield bugs, a 3-angle planning panel for architecture decisions), then enforces the boundary with local hooks: secrets and high-CVSS libraries are blocked at commit, and code edits can be gated until a specialist skill has actually run. Everything executes on your machine — no telemetry, no cloud calls, and the enforcement runs in Python hooks so it costs zero tokens; review happens as a checkpoint after each round, not as an always-on monitor. It is honest about limits: pattern-based guards reduce risk rather than eliminate it, and routing adds ~2% token overhead that pays for itself by preventing wrong-direction edit cycles.
 
----
+## Install (Claude Code plugin marketplace)
 
-## TL;DR — What Raven Does
+```
+/plugin marketplace add giggsoinc/raven
+/plugin install raven@raven
+```
 
-- **Brownfield Fast-Triage** (andie-jr): 2-round debug flow for broken systems — problem → root cause → fix → why → audit.
-- **Architecture Panel** (Andie): Functional + Technical + Data perspectives on design decisions. Every rec is a proposal you approve/modify/reject.
-- **Commit-time Security**: Hard-block secrets (API keys, tokens) and critical CVEs (CVSS >7) before they land in Git.
-- **61 Domain Skills** + **7 Guard Agents** + **cross-session memory**: Routing, style enforcement, DB patterns, infrastructure rules, secrets management.
+Then restart your session. You should see the Raven greeting:
 
----
+```
+🪶 Raven ✅  |  {your-project}  |  {stack}
+   Andie is your discipline layer. What are you working on?
+```
+
+## Quick start
+
+| You type | What happens |
+|---|---|
+| `why is auth failing since yesterday?` | routed to **andie-jr** — 2-round triage: root cause → fix → audit note |
+| `should we use Postgres or Mongo here?` | routed to **andie** — one mode card, 3-angle review, you approve each step |
+| `/andie` or `/andie-jr` | force the route explicitly |
+| `git commit` with a staged API key | **hard block** at the pre-commit gate, with the line that triggered it |
+| `rename this variable` | routed nowhere — trivial edits skip the ceremony |
+
+## What's included
+
+- **2 orchestrators** — Andie (plan-first, one hard gate, critic voice) and Andie-Jr (brownfield debug, max 2 rounds)
+- **Deterministic routers** — repo-state + intent routing with visible one-line toasters; never routes silently
+- **61 domain skills** — FastAPI, Postgres, K8s, Terraform, Salesforce, Odoo, Oracle, AWS/GCP/Azure, and more, loaded only when your work matches
+- **Local guards** — secret scan + CVE check (CVSS >7 blocks) at every commit; optional edit gate (`raven-skill-gate`, shadow/soft/hard modes); style and architecture checks
+- **Cost-aware model routing** — prompts classified to the cheapest adequate tier; secret-laden context forced to a local model
+- **Audit + memory** — JSONL audit logs, session notes, token dashboard — all on local disk
 
 ## When to Use Raven — Use Case Table
 
@@ -174,35 +196,16 @@ See [CHANGELOG.md](CHANGELOG.md) for v3.x and earlier.
 
 ---
 
-## Installation
+## Other Install Paths
 
-### 🖥️ **Claude Desktop** (most people)
+**Claude Desktop (ZIP):** download [`raven-plugin-v4.1.0.zip`](plugin/raven-plugin-v4.1.0.zip) → Settings → Extensions → Add plugin → drop the ZIP → restart.
 
-1. Download [`raven-plugin-v4.1.0.zip`](plugin/raven-plugin-v4.1.0.zip)
-2. Open Claude Desktop → Settings → Extensions → Add plugin
-3. Drop the ZIP file
-4. Restart Claude Desktop (~90 sec)
-
-### 🔧 **Development / Local Setup**
+**From source:**
 
 ```bash
 git clone https://github.com/giggsoinc/raven.git
-cd raven
-bash plugin/make-plugin.sh
-# → produces `plugin/raven-plugin-v4.1.0.zip`
-# Upload this ZIP to Claude Desktop via Settings → Extensions
+cd raven && bash plugin/make-plugin.sh   # builds plugin/raven-plugin-v4.1.0.zip
 ```
-
-### ✅ Verify Install
-
-After install, start a new Claude Code session and you should see:
-
-```
-🪶 Raven ✅  |  raven  |  python3.13
-Andie is your discipline layer. What are you working on?
-```
-
-If you see Raven greeting → install worked. If no greeting → check plugin path in Claude Desktop settings.
 
 ---
 
@@ -213,6 +216,16 @@ Raven is MIT licensed. Contributions welcome. See [CONTRIBUTING.md](CONTRIBUTING
 - How to write a guard agent
 - Style standards (Giggso code style — type hints, docstrings, logging, ≤200 LOC per file)
 - Pre-commit hook requirements
+
+---
+
+## Raven Enterprise
+
+This repo is the **free tier — everything runs local**, MIT-licensed, complete as-is.
+
+**Raven Enterprise** (paid, sold separately) adds what teams and compliance departments need on top: Hub dashboards across developers and repos, per-developer token attribution and chargeback, compliance/audit reporting, centralized policy sync, and commercial support.
+
+→ [giggso.com](https://giggso.com)
 
 ---
 

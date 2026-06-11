@@ -1,58 +1,53 @@
 {
-  "comment": "Model pricing per 1M tokens. cache_read = 0.1x input; cache_creation = 1.25x input",
+  "comment": "Model pricing per 1M tokens (Anthropic rates, verified 2026-06-10). cache_read = 0.1x input; cache_creation = 1.25x input",
   "models": {
-    "claude-opus-4-7": {
-      "input_per_1m": 15,
-      "output_per_1m": 75,
+    "claude-fable-5": {
+      "input_per_1m": 10,
+      "output_per_1m": 50,
       "category": "highest"
+    },
+    "claude-opus-4-8": {
+      "input_per_1m": 5,
+      "output_per_1m": 25,
+      "category": "high"
+    },
+    "claude-opus-4-7": {
+      "input_per_1m": 5,
+      "output_per_1m": 25,
+      "category": "high"
     },
     "claude-opus-4-6": {
-      "input_per_1m": 15,
-      "output_per_1m": 75,
-      "category": "highest"
+      "input_per_1m": 5,
+      "output_per_1m": 25,
+      "category": "high"
     },
-    "claude-opus-4": {
-      "input_per_1m": 15,
-      "output_per_1m": 75,
-      "category": "highest"
+    "claude-sonnet-4-6": {
+      "input_per_1m": 3,
+      "output_per_1m": 15,
+      "category": "mid"
     },
     "claude-sonnet-4-5": {
       "input_per_1m": 3,
       "output_per_1m": 15,
       "category": "mid"
     },
-    "claude-sonnet-4": {
-      "input_per_1m": 3,
-      "output_per_1m": 15,
-      "category": "mid"
-    },
     "claude-haiku-4-5": {
-      "input_per_1m": 0.80,
-      "output_per_1m": 4,
-      "category": "low"
-    },
-    "claude-haiku-4-7": {
-      "input_per_1m": 0.80,
-      "output_per_1m": 4,
-      "category": "low"
-    },
-    "claude-haiku-4": {
-      "input_per_1m": 0.80,
-      "output_per_1m": 4,
+      "input_per_1m": 1,
+      "output_per_1m": 5,
       "category": "low"
     },
     "gpt-4o-mini": {
       "input_per_1m": 0.15,
-      "output_per_1m": 0.60,
+      "output_per_1m": 0.6,
       "category": "low"
     },
     "gpt-4o": {
-      "input_per_1m": 2.50,
+      "input_per_1m": 2.5,
       "output_per_1m": 10,
       "category": "mid"
     },
     "gpt-4o-2024-11-20": {
-      "input_per_1m": 2.50,
+      "input_per_1m": 2.5,
       "output_per_1m": 10,
       "category": "mid"
     },

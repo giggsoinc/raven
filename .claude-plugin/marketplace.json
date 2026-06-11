@@ -1,0 +1,30 @@
+{
+  "name": "raven",
+  "owner": {
+    "name": "Giggso Inc.",
+    "email": "rv@giggso.com",
+    "url": "https://giggso.com"
+  },
+  "metadata": {
+    "description": "Raven — local discipline layer for AI coding: deterministic skill routing, commit-time secret/CVE guards, cost-aware model routing, audit logs. MIT, runs entirely on your machine.",
+    "version": "4.1.0"
+  },
+  "plugins": [
+    {
+      "name": "raven",
+      "source": "./",
+      "description": "Discipline layer for AI coding. Andie plans architecture with a 3-angle review; Andie-Jr triages brownfield bugs in 2 rounds; deterministic routers pick the right one per prompt; local hooks block secrets and high-CVSS libraries at commit and gate edits until a specialist skill has run. 61 skills, zero telemetry, everything local.",
+      "version": "4.1.0",
+      "author": {
+        "name": "Giggso Inc.",
+        "email": "rv@giggso.com",
+        "url": "https://github.com/giggsoinc/raven"
+      },
+      "homepage": "https://github.com/giggsoinc/raven",
+      "repository": "https://github.com/giggsoinc/raven",
+      "license": "MIT",
+      "keywords": ["security", "governance", "cve", "secrets", "git-hooks", "audit", "routing", "specialists"],
+      "category": "security"
+    }
+  ]
+}
