@@ -61,6 +61,8 @@ for script in \
     triage-router.py \
     architect-router.py \
     router_common.py \
+    raven-skill-gate.py \
+    raven-mark-skill.py \
     log-overhead.py \
     model-router.py \
     token-guard.py \
@@ -94,6 +96,7 @@ echo "  ✅ settings.json (hook wiring)"
 # ── Config files (cost routing + model pricing) ──
 cp "$REPO_DIR/.model.env.template" "$TMP_DIR/.model.env.template" 2>/dev/null && echo "  ✅ .model.env.template"
 cp "$REPO_DIR/scripts/model-pricing.json" "$TMP_DIR/scripts/model-pricing.json" 2>/dev/null && echo "  ✅ scripts/model-pricing.json"
+cp "$REPO_DIR/templates/routing-policy.example.json" "$TMP_DIR/routing-policy.example.json" 2>/dev/null && echo "  ✅ routing-policy.example.json"
 
 # ── Pre-flight validation ──
 echo ""

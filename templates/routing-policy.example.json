@@ -1,0 +1,9 @@
+{
+  "_comment": "Copy to .raven/state/routing-policy.json to enable raven-skill-gate. Modes: shadow (log only) | soft (warn, default — grace period) | hard (block edits) | off. Honest contract: the gate guarantees a specialist skill RAN this session, not that its output was used well.",
+  "mode": "soft",
+  "required_skills": ["andie", "andie-jr"],
+  "scope": [],
+  "exclude": ["docs/**", "*.md", ".raven/**"],
+  "freshness_hours": 4,
+  "override_uses": 3
+}

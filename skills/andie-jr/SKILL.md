@@ -19,6 +19,10 @@ RULE: The FIRST line of Andie Jr's FIRST response — whether auto-routed by Rav
 
 NEVER claim to be "running in the background." If Andie Jr is working, the user sees this line first — what it is doing and why, before any diagnosis.
 
+### Marker step (gate plumbing)
+
+After the toaster, run: `python3 "${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/raven-mark-skill.py" andie-jr` — it stamps this invocation so raven-skill-gate (PreToolUse) can unlock edits. The script stamps the timestamp, not you. If it's missing, continue normally.
+
 ## Non-Negotiables
 
 - No mode selection.

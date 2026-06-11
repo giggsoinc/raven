@@ -553,6 +553,16 @@ def format_context(project: dict, providers: list[dict], routing: dict, model_en
             lines.append("")
             lines.append(f"💡 DOMAIN HINT: {domain_label} (weak signal — directory name only)")
             lines.append(f"   Consider `{skill}` only if the task is {domain_label}-related. Not mandatory.")
+        gate_policy = Path(".raven/state/routing-policy.json")
+        if gate_policy.exists():
+            try:
+                _mode = json.loads(gate_policy.read_text()).get("mode", "soft")
+                if _mode != "off":
+                    lines.append("")
+                    lines.append(f"🚦 Skill routing is enforced at edit time by raven-skill-gate (mode: {_mode}).")
+                    lines.append("   Edits are gated until a specialist marker exists (skills write it via raven-mark-skill.py).")
+            except Exception:
+                pass
     else:
         lines.append("🚀 New project — manifest will be created via Andie's Branch A on Let's Go.")
 
@@ -562,6 +572,15 @@ def format_context(project: dict, providers: list[dict], routing: dict, model_en
 # ── Main ───────────────────────────────────────────────────────────────────────
 
 def main():
+    # Stamp session start — raven-skill-gate uses this mtime to judge
+    # marker freshness ("newer than the start of the current session").
+    try:
+        _stamp = Path(".raven") / "state" / ".session-start"
+        _stamp.parent.mkdir(parents=True, exist_ok=True)
+        _stamp.touch()
+    except Exception:
+        pass
+
     # SessionStart hook — read stdin (may be empty or contain session info)
     try:
         hook_input = json.load(sys.stdin)

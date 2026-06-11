@@ -34,6 +34,27 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
   `🔒 … LOCAL_ONLY · cloud subagents blocked` toaster and inject explicit
   do-not-spawn-cloud guidance for subagents.
 
+**Skill-routing gate (deterministic enforcement — new):**
+- `raven-skill-gate.py` (PreToolUse on Edit/Write/MultiEdit/NotebookEdit):
+  edits are blocked (mode: hard) until a gated specialist skill has actually
+  run this session — same two-tier model as commits (advise while coding,
+  block at the boundary). Gates the ACTION via marker files; never tries to
+  classify prompts in the hook.
+- `raven-mark-skill.py`: enforced skills (andie, andie-jr) run it as their
+  first step; the script — not the model — stamps `{ts, skill, session_id}`
+  into `.raven/state/skill-invocations.jsonl`.
+- Modes shadow/soft/hard/off via `.raven/state/routing-policy.json`
+  (template shipped); soft is the default grace mode. Override touch-file
+  allows N calls, always audited — never silent. No policy file → gate off.
+- Banners rewritten to the honest contract: when the gate is active they say
+  "enforced at edit time by raven-skill-gate (mode: X)" instead of
+  unenforceable "MANDATORY: invoke X before any file read".
+- Zero-token design: gate + marker run outside the model (~130 tokens total
+  per session for the visible messages, none per tool call). Latency budget
+  <100ms covered by tests (`tests/test_skill_gate.py`, 9 cases).
+- Docs: `docs/SKILL-GATE.md` — including the stated residual gap (the gate
+  proves the skill ran, not that its output was used well).
+
 **Domain detection precision (false-positive Oracle fix):**
 - `DOMAIN_SKILL_MAP` (session-start.py + raven-skill-reminder.py): removed the
   `**/*.sql` Oracle glob — it branded any repo containing a single .sql file

@@ -169,7 +169,26 @@ def main():
 
     skill, domain_name, strength = detect_domain(cwd)
 
-    if skill and strength == "strong":
+    gate_mode = None
+    try:
+        policy_path = cwd / ".raven" / "state" / "routing-policy.json"
+        if policy_path.exists():
+            gate_mode = json.loads(policy_path.read_text()).get("mode", "soft")
+            if gate_mode == "off":
+                gate_mode = None
+    except Exception:
+        gate_mode = None
+
+    if skill and strength == "strong" and gate_mode:
+        # Honest contract: enforcement is real (PreToolUse gate), so say so —
+        # no unenforceable "MANDATORY" theatre.
+        context = (
+            f"Raven: {domain_name} project. Skill routing is enforced at edit "
+            f"time by raven-skill-gate (mode: {gate_mode}) — edits are gated "
+            f"until a specialist marker exists. Invoke `{skill}` first; its "
+            f"first step (raven-mark-skill.py) writes the marker."
+        )
+    elif skill and strength == "strong":
         context = (
             f"RAVEN SKILL ENFORCEMENT: This is a {domain_name} project. "
             f"You MUST invoke `{skill}` before any file read, Bash command, or code response. "

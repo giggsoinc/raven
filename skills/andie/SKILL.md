@@ -21,6 +21,10 @@ RULE: The FIRST line of Andie's FIRST response — whether auto-routed by Raven,
 - NEVER claim to be "running in the background." Andie is front-and-center or it is not running.
 - Same rule applies on every handoff: when Andie hands to `andie-jr` or a specialist, the handoff line names the target and the reason in one sentence.
 
+### Marker step (gate plumbing)
+
+After the toaster, run: `python3 "${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/raven-mark-skill.py" andie` — it stamps this invocation so raven-skill-gate (PreToolUse) can unlock edits. The script stamps the timestamp, not you. If it's missing, continue normally.
+
 ## Gate Discipline (v6.4)
 
 Applies to every gate below:
