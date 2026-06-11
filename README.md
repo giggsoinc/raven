@@ -4,9 +4,11 @@
 
 # Raven v4.1.0
 
-**Discipline for AI engineering: strategic quality-engineered thinking (Andie) + structure + security — Claude Code plugin, MIT**
+**AI codes fast. Raven makes it think first.**
 
-Raven's core is **how it thinks before it codes**. Andie turns every non-trivial task into engineered thinking: a plan first, challenged from functional, technical, data, and critic angles, advancing only through explicit human approval gates — and brownfield bugs go to Andie-Jr's structured 2-round root-cause triage instead of guess-and-edit. Around that thinking layer sit **structure** (deterministic routers pick which of 61 specialists runs, with a visible one-line toaster — never silently) and **security** (local Python hooks hard-block secrets and high-CVSS libraries at commit, gate edits until a specialist actually ran, and audit-log every decision). Everything executes on your machine — zero telemetry, zero cloud calls, and because enforcement lives in hooks rather than context it costs ~2% token overhead; review is a checkpoint after each round, not an always-on monitor, and pattern-based guards reduce risk rather than eliminate it.
+Before any edit: a plan, challenged from three angles, approved by you. Bugs get root-cause triage (Andie-Jr, 2 rounds), not guess-and-edit. And at the boundary, local hooks do what prompts can't — block secrets, block vulnerable libraries, block edits until the thinking actually happened.
+
+All on your machine. Zero telemetry. MIT.
 
 ## Install (Claude Code plugin marketplace)
 

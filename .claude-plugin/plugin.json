@@ -1,7 +1,7 @@
 {
   "name": "raven",
   "version": "4.1.0",
-  "description": "Discipline for AI engineering: strategic quality-engineered thinking (Andie — plan first, multi-angle challenge, human approval gates; Andie-Jr — 2-round root-cause triage), structure (deterministic routing across 61 specialists, never silent), and security (local hooks: secret + CVE hard-blocks at commit, edit gating, audit logs). All local, zero telemetry.",
+  "description": "AI codes fast. Raven makes it think first. A plan before any edit, challenged from three angles, approved by you; root-cause triage for bugs; local hooks that block secrets, vulnerable libraries, and edits until the thinking happened. All on your machine. Zero telemetry. MIT.",
   "author": {
     "name": "Giggso / AntiGravity Projects",
     "email": "rv@giggso.com",

@@ -6,14 +6,14 @@
     "url": "https://giggso.com"
   },
   "metadata": {
-    "description": "Raven — discipline for AI engineering: strategic quality-engineered thinking (Andie's plan-first, multi-angle, human-gated reasoning) plus structure (deterministic specialist routing) and security (local commit guards, edit gating, audit logs). MIT, runs entirely on your machine.",
+    "description": "AI codes fast. Raven makes it think first. A plan before any edit, challenged from three angles, approved by you; root-cause triage for bugs; local hooks that block secrets, vulnerable libraries, and edits until the thinking happened. All on your machine. Zero telemetry. MIT.",
     "version": "4.1.0"
   },
   "plugins": [
     {
       "name": "raven",
       "source": "./",
-      "description": "Discipline for AI engineering. Andie brings strategic quality-engineered thinking: plan first, challenge from functional/technical/data/critic angles, advance only through human approval gates; Andie-Jr runs structured 2-round root-cause triage on brownfield bugs. Structure: deterministic routers pick the right one of 61 specialists, never silently. Security: local hooks hard-block secrets and high-CVSS libraries at commit, gate edits until a specialist ran, and audit-log everything. Zero telemetry, all local.",
+      "description": "AI codes fast. Raven makes it think first. A plan before any edit, challenged from three angles, approved by you; root-cause triage for bugs; local hooks that block secrets, vulnerable libraries, and edits until the thinking happened. All on your machine. Zero telemetry. MIT.",
       "version": "4.1.0",
       "author": {
         "name": "Giggso Inc.",
