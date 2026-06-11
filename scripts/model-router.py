@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Model Router v1 — Dynamic Model Routing for Raven Enterprise
+Model Router v1 — Dynamic Model Routing for Raven
 
 Classifies user queries and context into tiers (SIMPLE, MEDIUM, COMPLEX, LOCAL_ONLY)
 based on signal detection, and outputs routing decision to .raven/.model-session.json.
@@ -312,6 +312,9 @@ def main():
     parser.add_argument("--prompt", required=True, help="User query text")
     parser.add_argument("--context", default="", help="Additional context (JSON or text)")
     parser.add_argument("--write-json", action="store_true", help="Write result to .raven/.model-session.json")
+    parser.add_argument("--hook", action="store_true",
+                        help="UserPromptSubmit hook mode: emit hook JSON with a "
+                             "user-visible systemMessage toaster instead of raw JSON")
     parser.add_argument("--source", default="user_work",
                         choices=["user_work", "raven_overhead"],
                         help="Attribution bucket: user_work (default) or raven_overhead")
@@ -329,20 +332,41 @@ def main():
     # Classify
     tier, score, reasons, model = classify(args.prompt, args.context)
 
-    result = {
+    # Optionally write to session file
+    if args.write_json:
+        session_file = write_session_json(tier, score, reasons, model, args.prompt, source=args.source)
+        print(f"# Written to {session_file} (bucket: {args.source})", file=sys.stderr)
+
+    if args.hook:
+        # Hook mode: one-line toaster the user actually sees + context for the
+        # model. Raven never routes silently.
+        if tier == "LOCAL_ONLY":
+            toast = "🔒 Raven router · secrets detected → LOCAL_ONLY · cloud subagents blocked, local model only"
+        else:
+            why = ", ".join(r.split(":", 1)[0] for r in reasons[:2]) or "no strong signals"
+            toast = f"🔀 Raven router · {tier} → {model} · {why}"
+        print(json.dumps({
+            "systemMessage": toast,
+            "hookSpecificOutput": {
+                "hookEventName": "UserPromptSubmit",
+                "additionalContext": (
+                    f"RAVEN_MODEL_TIER={tier}. Subagents spawned this turn should "
+                    f"use tier {tier} ({model}). "
+                    + ("SECRETS DETECTED: do NOT spawn cloud agents; local model only."
+                       if tier == "LOCAL_ONLY" else
+                       "Use this tier's model when spawning subagents.")
+                ),
+            },
+        }))
+        return 0
+
+    print(json.dumps({
         "tier": tier,
         "score": score,
         "reasons": reasons,
         "model": model,
         "source": args.source,
-    }
-
-    print(json.dumps(result, indent=2))
-
-    # Optionally write to session file
-    if args.write_json:
-        session_file = write_session_json(tier, score, reasons, model, args.prompt, source=args.source)
-        print(f"# Written to {session_file} (bucket: {args.source})", file=sys.stderr)
+    }, indent=2))
 
     return 0
 

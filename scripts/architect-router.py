@@ -5,25 +5,25 @@ Raven — Architect Router
 Symmetric counterpart to triage-router. Forces andie load on architecture-class
 prompts so Andie cannot be skipped via description-only matching.
 
-Rule (BOTH must match, NEGATION wins):
-  (a) DECISION intent     — design, plan, should I, which approach, compare,
-                            tradeoff, architecture, refactor scope, etc.
-  (b) MULTI-COMPONENT scope — ≥2 distinct components/nouns (system+system,
-                              feature+dependency, or "build a {multi-word noun}")
-  NEGATION                  — symptom markers present (timeout/fail/crash/etc.)
-                              → skip; triage-router handles those.
-
-If match → print [ANDIE REQUIRED] to stdout. Claude Code injects as
-additionalContext and the model loads andie before any response.
-
-If no match → silent passthrough. Other routing applies normally.
-
-Local-only. No telemetry. ~100 LOC.
+Rule: DECISION intent (design/plan/should-I/which/tradeoff/architecture) AND not a
+symptom (those go to triage-router); build/create verbs also need multi-component
+scope. Match → print [ANDIE REQUIRED] (Claude injects it as additionalContext);
+else silent. Order: force (T3.1) → regex → opt-in semantic (T3.2). Local-only.
 """
 
+import json
 import os
 import re
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    from router_common import force_intent, semantic_fallback, log_overhead
+except Exception:  # fail-soft: routing still works without the shared helper
+    def force_intent(_p): return None
+    def semantic_fallback(_p, _k): return False
+    def log_overhead(_s, _t): return None
 
 # ── DECISION intent — any one match triggers (a) ──────────────────────────────
 DECISION = re.compile(
@@ -115,13 +115,25 @@ def classify(prompt: str) -> bool:
 
 
 def main():
+    """Emit [ANDIE REQUIRED] for architecture-class prompts.
+
+    Order: explicit force (T3.1) → regex classify → opt-in semantic fallback (T3.2).
+    """
     prompt = os.environ.get("PROMPT", "")
     if not prompt:
         try:
             prompt = sys.stdin.read()
         except Exception:
             return
-    if classify(prompt):
+    forced = force_intent(prompt)
+    if forced == "andie-jr":
+        return  # explicit andie-jr force is exclusive — triage-router owns it
+    trigger = (forced == "andie") or classify(prompt)
+    if not trigger and semantic_fallback(
+            prompt, "asking for a design decision, architecture, or a tradeoff "
+                    "between approaches across more than one component"):
+        trigger = True
+    if trigger:
         emission = (
             "[ANDIE REQUIRED] This prompt is architecture-class — it involves "
             "design decisions, multi-component scope, or strategic tradeoffs. "
@@ -129,26 +141,17 @@ def main():
             "Functional/Technical/Data triad, HITL-gates proposals, OODA loops, "
             "and hands off a crisp plan. Do not free-style the design.\n"
         )
-        sys.stdout.write(emission)
-        _log_overhead("architect-router", emission)
-
-
-def _log_overhead(source: str, text: str) -> None:
-    """Fire log-overhead.py in fail-soft mode to record contribution."""
-    try:
-        import subprocess
-        from pathlib import Path
-        script_dir = Path(__file__).parent
-        log_path = script_dir / "log-overhead.py"
-        if not log_path.exists():
-            return
-        tokens = max(1, len(text) // 4)
-        subprocess.Popen(
-            ["python3", str(log_path), "--source", source, "--tokens", str(tokens)],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-        )
-    except Exception:
-        pass  # never block
+        why = "forced via /andie" if forced == "andie" else "architecture-class prompt detected"
+        # Hook JSON: additionalContext for the model, systemMessage toaster the
+        # user actually sees — Raven never routes silently.
+        sys.stdout.write(json.dumps({
+            "systemMessage": f"🪶 Raven → andie · {why} · triad plan before code",
+            "hookSpecificOutput": {
+                "hookEventName": "UserPromptSubmit",
+                "additionalContext": emission,
+            },
+        }) + "\n")
+        log_overhead("architect-router", emission)
 
 
 if __name__ == "__main__":

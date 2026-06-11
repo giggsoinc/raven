@@ -28,7 +28,7 @@
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/model-router.py\" --prompt \"$PROMPT\" --write-json 2>/dev/null || true",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/model-router.py\" --prompt \"$PROMPT\" --write-json --hook 2>/dev/null || true",
             "timeout": 5
           },
           {

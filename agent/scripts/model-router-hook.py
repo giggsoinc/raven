@@ -167,8 +167,17 @@ def main():
     # Determine if specialist should spawn based on tier
     spawn_specialist = should_spawn_specialist_agent(classification["tier"])
 
+    # User-visible toaster — Raven never routes silently
+    tier = classification["tier"]
+    if tier == "LOCAL_ONLY":
+        toast = "🔒 Raven router · secrets detected → LOCAL_ONLY · cloud subagents blocked, local model only"
+    else:
+        why = ", ".join(r.split(":", 1)[0] for r in classification["reasons"][:2]) or "no strong signals"
+        toast = f"🔀 Raven router · {tier} → {classification['model']} · {why}"
+
     # Output to hook interface
     output = {
+        "systemMessage": toast,
         "hookSpecificOutput": {
             "hookEventName": "UserPromptSubmit",
             "additionalContext": {
