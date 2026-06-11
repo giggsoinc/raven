@@ -4,9 +4,9 @@
 
 # Raven v4.1.0
 
-**A local discipline layer for AI coding — Claude Code plugin, MIT, free tier of Raven Enterprise**
+**Discipline for AI engineering: strategic quality-engineered thinking (Andie) + structure + security — Claude Code plugin, MIT**
 
-Raven routes each prompt to the right specialist (a 2-round debugger for brownfield bugs, a 3-angle planning panel for architecture decisions), then enforces the boundary with local hooks: secrets and high-CVSS libraries are blocked at commit, and code edits can be gated until a specialist skill has actually run. Everything executes on your machine — no telemetry, no cloud calls, and the enforcement runs in Python hooks so it costs zero tokens; review happens as a checkpoint after each round, not as an always-on monitor. It is honest about limits: pattern-based guards reduce risk rather than eliminate it, and routing adds ~2% token overhead that pays for itself by preventing wrong-direction edit cycles.
+Raven's core is **how it thinks before it codes**. Andie turns every non-trivial task into engineered thinking: a plan first, challenged from functional, technical, data, and critic angles, advancing only through explicit human approval gates — and brownfield bugs go to Andie-Jr's structured 2-round root-cause triage instead of guess-and-edit. Around that thinking layer sit **structure** (deterministic routers pick which of 61 specialists runs, with a visible one-line toaster — never silently) and **security** (local Python hooks hard-block secrets and high-CVSS libraries at commit, gate edits until a specialist actually ran, and audit-log every decision). Everything executes on your machine — zero telemetry, zero cloud calls, and because enforcement lives in hooks rather than context it costs ~2% token overhead; review is a checkpoint after each round, not an always-on monitor, and pattern-based guards reduce risk rather than eliminate it.
 
 ## Install (Claude Code plugin marketplace)
 

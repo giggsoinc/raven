@@ -1,7 +1,7 @@
 {
   "name": "raven",
   "version": "4.1.0",
-  "description": "Raven v4.1 — discipline layer for AI coding. Andie-jr finds brownfield bugs fast (2-round triage); Andie brings 3 expert angles to architecture decisions; commit-time guards block secrets & CVEs before they ship. 61 skills, 10 guard agents, CVE scanning, secret detection, audit logs.",
+  "description": "Discipline for AI engineering: strategic quality-engineered thinking (Andie — plan first, multi-angle challenge, human approval gates; Andie-Jr — 2-round root-cause triage), structure (deterministic routing across 61 specialists, never silent), and security (local hooks: secret + CVE hard-blocks at commit, edit gating, audit logs). All local, zero telemetry.",
   "author": {
     "name": "Giggso / AntiGravity Projects",
     "email": "rv@giggso.com",
