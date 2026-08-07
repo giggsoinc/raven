@@ -48,6 +48,41 @@ After any non-trivial action, end with what changed and what's next. No silent c
 
 ---
 
+## ✋ Educated Push Contract — HARD-ENFORCED by hooks
+
+Every change cycle follows this loop. It is **mechanically enforced** by
+`push-gate.py` (PreToolUse) + `push-approve.py` (UserPromptSubmit) — Claude
+physically cannot write files or run mutating Bash without a fresh go-ahead.
+
+**Session modes** — on the FIRST mutating action of a session, the gate makes
+Claude show a 5-line sample of the loop and ask the user to pick:
+- `guided` → full contract below (the default expectation)
+- `auto` → gate stays open all session, no briefings — user owns risk
+The choice lives in `.raven/.push-mode` and is wiped at every SessionStart, so
+each session gets asked exactly once.
+
+The guided loop:
+
+1. **Briefing (max 200 words, bullets)** — before ANY change: WHAT will be
+   done, HOW it works, WHAT will change (files, db, config). Then STOP.
+2. **Go-ahead** — user replies `go ahead` / `approved` / `GO` / `proceed`.
+   This creates `.raven/.push-approved` and opens the write gate.
+3. **Execute** — do exactly what the briefing said. No scope creep.
+4. **Confirmation (max 150 words, bullets)** — what was done + changed files.
+5. **Reset** — any later user message that is not an approval clears the flag,
+   so the next change needs a fresh briefing.
+
+Notes:
+- Read-only Bash (`ls`, `cat`, `grep`, `git status/log/diff`, …) passes the
+  gate without approval — research for briefings is always allowed.
+- `Lucky` keyword also opens the gate (existing opt-out — user owns risk).
+- Approval expires after 1 hour regardless.
+- Flag cleanup lives ONLY in `push-approve.py` — never add a Stop-hook `rm`
+  for `.push-approved`: Stop hooks execute at next-prompt submission and race
+  the approval write (verified 2026-08-07 — it deleted fresh approvals).
+
+---
+
 ## 🚫 Non-Negotiable Rules
 
 ```

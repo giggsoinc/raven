@@ -25,6 +25,23 @@
             "type": "command",
             "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/cve-prompt-guard.py\" 2>/dev/null || python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/cve-prompt-guard.py\" 2>/dev/null || true",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/push-approve.py\" 2>/dev/null || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/push-gate.py\"",
+            "timeout": 5
           }
         ]
       }
@@ -42,6 +59,12 @@
           {
             "type": "command",
             "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/vault-load.py\" --hook 2>/dev/null || python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/vault-load.py\" --hook 2>/dev/null || true",
+            "timeout": 5,
+            "async": false
+          },
+          {
+            "type": "command",
+            "command": "rm -f \"${CLAUDE_PROJECT_DIR:-.}/.raven/.push-mode\" \"${CLAUDE_PROJECT_DIR:-.}/.raven/.push-approved\"",
             "timeout": 5,
             "async": false
           }

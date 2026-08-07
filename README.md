@@ -73,6 +73,7 @@ This is also where **Andie-Jr** earns its keep: once the manifest is in place, a
 - **61 domain skills** — FastAPI, Postgres, K8s, Terraform, Salesforce, Odoo, Oracle, AWS/GCP/Azure, and more, loaded only when your work matches
 - **Local guards** — secret scan + CVE check (CVSS >7 blocks) at every commit; optional edit gate (`raven-skill-gate`, shadow/soft/hard modes); style and architecture checks
 - **Cost-aware model routing** — prompts classified to the cheapest adequate tier; secret-laden context forced to a local model
+- **Educated Push Gate** — hook-enforced human approval loop: Claude must present a ≤200-word briefing (what/how/files affected) and get your `go ahead` before any file write or mutating command; afterwards it confirms in ≤150 words. First change of each session asks you to pick `guided` (the loop) or `auto` (gate open, you own risk). Read-only research always passes; runs in Python hooks — zero tokens
 - **Audit + memory** — JSONL audit logs, session notes, token dashboard ([docs/DASHBOARD.md](docs/DASHBOARD.md)) — all on local disk
 
 ## When to Use Raven — Use Case Table
