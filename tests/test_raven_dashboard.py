@@ -52,7 +52,13 @@ class TestRavenDashboard(unittest.TestCase):
         self.assertIn("Spend (estimated)", text)
         self.assertIn("Spend (actual)", text)
         self.assertIn("Spend (mixed)", text)
+        self.assertIn("Sessions (table)", text)
+        self.assertIn("cache_read×0.1", text)
         self.assertIn("spend_kind", text)
+        self.assertNotIn(
+            'metrics["sessions_count"] = max(int(metrics.get("sessions_count") or 0), log_spend["sessions_count"])',
+            text,
+        )
         self.assertIn("_dedupe_log_rows", text)
         self.assertIn("router_mix", text)
         self.assertIn("get_cost", text)
@@ -70,6 +76,13 @@ class TestRavenDashboard(unittest.TestCase):
         self.assertIn("_with_running_est", text)
         self.assertIn("refreshNow", text)
         self.assertIn("Last refresh:", text)
+        self.assertIn("Open live dashboard", text)
+        self.assertIn("liveDashUrl", text)
+        self.assertIn("http://127.0.0.1:9787", text)
+        self.assertNotIn(
+            "start python3 scripts/ops/dashboard-server.py then click again (file:// cannot rebuild)",
+            text,
+        )
         self.assertIn("_obs_metrics", text)
         self.assertIn("By IDE", text)
         self.assertIn("By repo (cost)", text)

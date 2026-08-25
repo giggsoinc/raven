@@ -132,8 +132,18 @@ def ensure_model(model: str) -> dict:
     return local["models"].get(key) or {"needs_rate": True}
 
 
-def get_cost(model: str, tokens_in: int, tokens_out: int) -> Optional[float]:
-    """USD. None if rates missing (row recorded)."""
+def get_cost(
+    model: str,
+    tokens_in: int,
+    tokens_out: int,
+    cache_read: int = 0,
+    cache_creation: int = 0,
+) -> Optional[float]:
+    """USD. None if rates missing (row recorded).
+
+    cache_read bills at 0.1× input_per_1m; cache_creation at 1.25× input_per_1m
+    (same multipliers token-meter-write uses for Claude Stop rows).
+    """
     row = ensure_model(model)
     inn = row.get("input_per_1m")
     out = row.get("output_per_1m")
@@ -144,7 +154,10 @@ def get_cost(model: str, tokens_in: int, tokens_out: int) -> Optional[float]:
     except (TypeError, ValueError):
         return None
     tin, tout = max(0, int(tokens_in or 0)), max(0, int(tokens_out or 0))
-    return round((tin / 1_000_000.0) * inn_f + (tout / 1_000_000.0) * out_f, 6)
+    cr, cc = max(0, int(cache_read or 0)), max(0, int(cache_creation or 0))
+    base = (tin / 1_000_000.0) * inn_f + (tout / 1_000_000.0) * out_f
+    cache = (cr / 1_000_000.0) * inn_f * 0.1 + (cc / 1_000_000.0) * inn_f * 1.25
+    return round(base + cache, 6)
 
 
 def estimate(model: str, prompt_chars: int, reply_out_guess: int = 500) -> dict[str, Any]:
@@ -209,9 +222,10 @@ def spend_kind(session_id: str = "") -> tuple[str, float]:
 
 
 def calculator_spend() -> dict:
-    """get_cost(model, in, out) per Claude session (max in/out, no cache).
+    """Actual = one snapshot per cost-log session (max out), including cache.
 
-    Grok/Codex: same formula on turn-log recommend + chars/4 + 500 out.
+    Prefer computed_cost_usd on that row (token-meter already applied cache
+    rates). Estimated = turn-log recommend + chars/4 in + 500 out per fire.
     """
     sessions: dict = {}
     if COST_LOG.is_file():
@@ -231,9 +245,24 @@ def calculator_spend() -> dict:
                 sessions[sid] = r
     actual = 0.0
     for r in sessions.values():
-        usd = get_cost(str(r.get("model") or ""), int(r.get("tokens_in") or 0), int(r.get("tokens_out") or 0))
+        raw = r.get("computed_cost_usd")
+        if raw is not None and str(raw) != "":
+            try:
+                usd = float(raw)
+            except (TypeError, ValueError):
+                usd = None
+        else:
+            usd = None
+        if usd is None:
+            usd = get_cost(
+                str(r.get("model") or ""),
+                int(r.get("tokens_in") or 0),
+                int(r.get("tokens_out") or 0),
+                int(r.get("cache_read") or 0),
+                int(r.get("cache_creation") or 0),
+            )
         if usd:
-            actual += usd
+            actual += float(usd)
     covered_ide = {str(r.get("ide") or r.get("host") or "") for r in sessions.values()}
     est = 0.0
     if TURN_LOG.is_file():
@@ -256,7 +285,12 @@ def calculator_spend() -> dict:
         kind = "actual"
     else:
         kind = "estimated"
-    return {"kind": kind, "usd": round(actual + est, 6), "actual": round(actual, 6), "estimated": round(est, 6)}
+    return {
+        "kind": kind,
+        "usd": round(actual + est, 6),
+        "actual": round(actual, 6),
+        "estimated": round(est, 6),
+    }
 
 
 def running_total_usd(session_id: str = "") -> float:

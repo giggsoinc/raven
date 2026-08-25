@@ -2787,7 +2787,9 @@ def _gather_repo_logs(names: list, per: int = 40) -> tuple:
     turns.sort(key=_ts)
     costs.sort(key=_ts)
     audits.sort(key=_ts)
-    return turns[-per:], costs[-per:], audits[-per:]
+    # Keep last `per` lines *per repo* (already tailed). Do not re-trim the
+    # merged list — that dropped older Grok turns when Claude filled the window.
+    return turns, costs, audits
 
 
 def _usd(v) -> float:
@@ -2833,12 +2835,52 @@ def _get_cost_fn():
     return _gc
 
 
-def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
-    """Spend = cost_calc.get_cost(router model, tokens_in, tokens_out).
+def _log_session_key(repo: str, ide: str, row: dict) -> tuple:
+    """Stable session grain for spend: real session_id, else calendar day."""
+    sid = str(row.get("session_id") or "").strip()
+    if sid and sid.lower() not in ("none", "null"):
+        return (repo, ide, sid)
+    day = _day_key(row)
+    if day:
+        return (repo, ide, f"day:{day}")
+    return (repo, ide, str(row.get("ts") or row.get("timestamp") or "unknown"))
 
-    Stop cost-log: one row per session (max in/out), no cache_read (that is how
-    $16×3 appeared on 31M cache hits). Turn-log: same calculator on recommend +
-    chars/4 in + 500 out guess when that IDE has no Stop tokens (Grok/Codex).
+
+def _row_actual_usd(row: dict, gc) -> float:
+    """One Stop snapshot: prefer computed_cost_usd (includes cache); else get_cost+cache."""
+    raw = row.get("computed_cost_usd")
+    if raw is not None and str(raw) != "":
+        try:
+            return float(raw)
+        except (TypeError, ValueError):
+            pass
+    model = str(row.get("model") or "")
+    try:
+        usd = gc(
+            model,
+            int(row.get("tokens_in") or 0),
+            int(row.get("tokens_out") or 0),
+            int(row.get("cache_read") or 0),
+            int(row.get("cache_creation") or 0),
+        )
+    except TypeError:
+        # Older get_cost without cache kwargs
+        usd = gc(model, int(row.get("tokens_in") or 0), int(row.get("tokens_out") or 0))
+    return float(usd or 0.0)
+
+
+def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
+    """Spend from cost-log (actual) + turn-log (estimated) with matching grains.
+
+    Actual: one snapshot per (repo, ide, session) — the max tokens_out row —
+    priced once via computed_cost_usd / get_cost including cache_read (0.1×) and
+    cache_creation (1.25×). Taking one snapshot avoids triple-counting when
+    Stop re-parsed a full transcript.
+
+    Estimated (IDEs with no cost-log coverage): per router fire,
+    tokens_in=prompt_chars/4, tokens_out=500, then sum into session keys
+    (session_id or day when Grok/Codex omit session_id). Labeled estimated —
+    not billed.
     """
     turn_log = _dedupe_log_rows(turn_log)
     cost_log = _dedupe_log_rows(cost_log)
@@ -2864,8 +2906,22 @@ def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
     router_mix: dict = {}
 
     def bucket(repo: str, ide: str) -> tuple:
-        b = by_repo.setdefault(repo, {"sessions": 0, "tokens": 0, "cost_usd": 0.0, "by_ide": {}, "kind": "estimated"})
-        ib = b["by_ide"].setdefault(ide, {"sessions": 0, "tokens": 0, "cost_usd": 0.0, "kind": "estimated", "in": 0, "out": 0})
+        b = by_repo.setdefault(
+            repo, {"sessions": 0, "tokens": 0, "cost_usd": 0.0, "by_ide": {}, "kind": "estimated"}
+        )
+        ib = b["by_ide"].setdefault(
+            ide,
+            {
+                "sessions": 0,
+                "tokens": 0,
+                "cost_usd": 0.0,
+                "kind": "estimated",
+                "in": 0,
+                "out": 0,
+                "cache_read": 0,
+                "fires": 0,
+            },
+        )
         return b, ib
 
     best: dict = {}
@@ -2875,32 +2931,34 @@ def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
         if not _ide_fits_model(ide, model):
             continue
         repo = str(r.get("repo") or r.get("project") or "unknown")
-        sid = str(r.get("session_id") or r.get("ts") or "")
-        key = (repo, ide, sid)
+        key = _log_session_key(repo, ide, r)
         prev = best.get(key)
         tout = int(r.get("tokens_out") or 0)
-        if prev is None or tout >= int(prev.get("tokens_out") or 0):
+        prev_out = int(prev.get("tokens_out") or 0) if prev else -1
+        prev_usd = float(prev.get("computed_cost_usd") or 0) if prev else -1.0
+        cur_usd = float(r.get("computed_cost_usd") or 0)
+        if prev is None or tout > prev_out or (tout == prev_out and cur_usd >= prev_usd):
             best[key] = r
 
     covered = set()
-    for (repo, ide, sid), r in best.items():
-        model = str(r.get("model") or "unknown")
+    for key, r in best.items():
+        repo, ide, _sid = key
         tin = int(r.get("tokens_in") or 0)
         tout = int(r.get("tokens_out") or 0)
-        usd = gc(model, tin, tout)
-        if usd is None:
-            usd = 0.0
+        cr = int(r.get("cache_read") or 0)
+        usd = _row_actual_usd(r, gc)
         _b, ib = bucket(repo, ide)
         ib["cost_usd"] += float(usd)
         ib["kind"] = "actual"
         ib["in"] = int(ib.get("in") or 0) + tin
         ib["out"] = int(ib.get("out") or 0) + tout
+        ib["cache_read"] = int(ib.get("cache_read") or 0) + cr
         ib["tokens"] += tin + tout
         tok += tin + tout
         day = _day_key(r)
         if day:
             days[day] = days.get(day, 0.0) + float(usd)
-        sess_keys.add((repo, ide, sid[:13]))
+        sess_keys.add(key)
         covered.add((repo, ide))
 
     for r in turn_log:
@@ -2914,7 +2972,7 @@ def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
             continue
         chars = int(r.get("prompt_chars") or 0)
         tin = max(0, chars // 4)
-        tout = 500
+        tout = 500  # nominal reply guess per router fire
         usd = gc(model, tin, tout) if model else None
         if usd is None:
             usd = _usd(r.get("est_cost_usd"))
@@ -2923,12 +2981,13 @@ def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
         ib["kind"] = "estimated"
         ib["in"] = int(ib.get("in") or 0) + tin
         ib["out"] = int(ib.get("out") or 0) + tout
+        ib["fires"] = int(ib.get("fires") or 0) + 1
         ib["tokens"] += tin + tout
         tok += tin + tout
         day = _day_key(r)
         if day:
             days[day] = days.get(day, 0.0) + float(usd or 0)
-        sess_keys.add((repo, ide, str(r.get("session_id") or day or r.get("ts") or "")[:13]))
+        sess_keys.add(_log_session_key(repo, ide, r))
 
     actual_total = 0.0
     est_total = 0.0
@@ -2939,7 +2998,7 @@ def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
         tokens = 0
         for ide, ib in b["by_ide"].items():
             ib["sessions"] = sum(1 for k in sess_keys if k[0] == repo and k[1] == ide)
-            ib["cost_usd"] = round(ib["cost_usd"], 6)
+            ib["cost_usd"] = round(float(ib["cost_usd"]), 4)
             cost += ib["cost_usd"]
             tokens += int(ib.get("tokens") or 0)
             kinds.add(ib.get("kind") or "estimated")
@@ -2947,23 +3006,33 @@ def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
                 actual_total += ib["cost_usd"]
             else:
                 est_total += ib["cost_usd"]
-        b["cost_usd"] = round(cost, 6)
+        b["cost_usd"] = round(cost, 4)
         b["tokens"] = tokens
-        b["kind"] = "actual" if kinds == {"actual"} else ("estimated" if kinds == {"estimated"} else "mixed")
-    kind = "mixed" if actual_total > 0 and est_total > 0 else ("actual" if actual_total > 0 else "estimated")
+        b["kind"] = (
+            "actual"
+            if kinds == {"actual"}
+            else ("estimated" if kinds == {"estimated"} else "mixed")
+        )
+    kind = (
+        "mixed"
+        if actual_total > 0 and est_total > 0
+        else ("actual" if actual_total > 0 else "estimated")
+    )
+    # Headline spend = sum of repo rows (already 4-dp), not a separate float path.
+    repo_sum = round(sum(float(b.get("cost_usd") or 0) for b in by_repo.values()), 4)
     mix_rows = [
         {"ide": a, "tier": b, "model": c, "fires": n}
         for (a, b, c), n in sorted(router_mix.items(), key=lambda kv: -kv[1])
     ]
     return {
-        "total_cost_usd": round(actual_total + est_total, 6),
+        "total_cost_usd": repo_sum,
         "sessions_count": len(sess_keys),
         "total_tokens": tok,
         "by_project": by_repo,
-        "cost_by_day": {k: round(v, 6) for k, v in days.items()},
+        "cost_by_day": {k: round(v, 4) for k, v in days.items()},
         "spend_kind": kind,
-        "actual_usd": round(actual_total, 6),
-        "estimated_usd": round(est_total, 6),
+        "actual_usd": round(actual_total, 4),
+        "estimated_usd": round(est_total, 4),
         "router_mix": mix_rows,
     }
 
@@ -3089,8 +3158,41 @@ def _tree_files() -> dict[str, str]:
     return out
 
 
+def _okf_baked_head(path: Path) -> str:
+    """git_head from an OKF trees/*.html payload, or empty."""
+    try:
+        raw = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return ""
+    m = re.search(
+        r'<script[^>]*id=["\']okf["\'][^>]*>(.*?)</script>',
+        raw,
+        re.I | re.S,
+    )
+    if not m:
+        return ""
+    try:
+        data = json.loads(m.group(1))
+    except json.JSONDecodeError:
+        return ""
+    return str(data.get("git_head") or "")
+
+
+def _live_git_head(repo: Path) -> str:
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(repo), "rev-parse", "--short", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=8,
+        )
+        return (out.stdout or "").strip() if out.returncode == 0 else ""
+    except Exception:
+        return ""
+
+
 def _ensure_okf_graphs(names: list[str]) -> None:
-    """Synchronously build OKF HTML (xray.render_html) for each local clone."""
+    """Build OKF HTML when missing or when baked git_head ≠ live HEAD."""
     xray = Path(__file__).resolve().parent / "xray.py"
     if not xray.is_file():
         return
@@ -3108,7 +3210,9 @@ def _ensure_okf_graphs(names: list[str]) -> None:
             continue
         seen.add(key)
         dest = trees / f"{Path(lp).name}.html"
-        if dest.is_file() and _is_okf_html(dest):
+        live = _live_git_head(Path(lp))
+        baked = _okf_baked_head(dest) if dest.is_file() and _is_okf_html(dest) else ""
+        if dest.is_file() and _is_okf_html(dest) and live and baked == live:
             continue
         try:
             subprocess.run(
@@ -3268,20 +3372,21 @@ def write_raven_dashboard(metadata: dict, metrics: Optional[dict] = None) -> Pat
     ) or "<option value=''>no graphs yet</option>"
 
     turn_log, cost_log, audit_log = _gather_repo_logs(
-        [project, *list(tree_map.keys()), *list(bp.keys())], per=200
+        [project, *list(tree_map.keys()), *list(bp.keys())], per=5000
     )
     turn_log = _with_running_est(turn_log)
     log_spend = _spend_from_logs(turn_log, cost_log)
     metrics = dict(metrics)
     spend_kind = log_spend.get("spend_kind") or "estimated"
-    metrics["total_cost_usd"] = float(log_spend.get("total_cost_usd") or 0)
+    # Costs pane headline must use the same session set / dollars as the table —
+    # never max() with vault aggregate rollups (those inflated Sessions to 427).
     metrics["cost_by_day"] = log_spend["cost_by_day"] or metrics.get("cost_by_day") or {}
     metrics["spend_kind"] = spend_kind
     metrics["actual_usd"] = float(log_spend.get("actual_usd") or 0)
     metrics["estimated_usd"] = float(log_spend.get("estimated_usd") or 0)
-    metrics["sessions_count"] = max(int(metrics.get("sessions_count") or 0), log_spend["sessions_count"])
-    metrics["total_tokens"] = max(int(metrics.get("total_tokens") or 0), log_spend["total_tokens"])
-    merged_bp = dict(bp)
+    metrics["sessions_count"] = int(log_spend.get("sessions_count") or 0)
+    metrics["total_tokens"] = int(log_spend.get("total_tokens") or 0)
+    merged_bp = {}
     for name, b in log_spend["by_project"].items():
         merged_bp[name] = dict(b)
     for _n, b in merged_bp.items():
@@ -3291,13 +3396,21 @@ def write_raven_dashboard(metadata: dict, metrics: Optional[dict] = None) -> Pat
         if ides:
             b["cost_usd"] = round(
                 sum(float(iv.get("cost_usd") or 0) for iv in ides.values() if isinstance(iv, dict)),
-                6,
+                4,
             )
             b["tokens"] = sum(int(iv.get("tokens") or 0) for iv in ides.values() if isinstance(iv, dict))
+            b["sessions"] = sum(int(iv.get("sessions") or 0) for iv in ides.values() if isinstance(iv, dict))
             kinds = {str(iv.get("kind") or "estimated") for iv in ides.values() if isinstance(iv, dict)}
             b["kind"] = "actual" if kinds == {"actual"} else ("estimated" if kinds == {"estimated"} else "mixed")
     bp = merged_bp
     metrics["by_project"] = bp
+    metrics["total_cost_usd"] = round(
+        sum(float(b.get("cost_usd") or 0) for b in bp.values() if isinstance(b, dict)),
+        4,
+    )
+    metrics["sessions_count"] = sum(
+        int(b.get("sessions") or 0) for b in bp.values() if isinstance(b, dict)
+    )
 
     repo_rows = []
     listed: set[str] = set()
@@ -3472,8 +3585,12 @@ def write_raven_dashboard(metadata: dict, metrics: Optional[dict] = None) -> Pat
                 continue
             ik = iv.get("kind") or "estimated"
             io = ""
-            if iv.get("in") or iv.get("out"):
+            if iv.get("in") or iv.get("out") or iv.get("cache_read"):
                 io = f" in={int(iv.get('in') or 0):,} out={int(iv.get('out') or 0):,}"
+                if int(iv.get("cache_read") or 0):
+                    io += f" cache_read={int(iv.get('cache_read') or 0):,}"
+                if ik == "estimated" and int(iv.get("fires") or 0):
+                    io += f" fires={int(iv.get('fires') or 0)}×500out"
             cost_repo_parts.append(
                 f"<tr><td class='dim' style='padding-left:24px'>IDE · {html_lib.escape(str(ide))} ({html_lib.escape(str(ik))}{io})</td>"
                 f"<td class='num'>{int(iv.get('sessions') or 0)}</td>"
@@ -3497,19 +3614,30 @@ def write_raven_dashboard(metadata: dict, metrics: Optional[dict] = None) -> Pat
     est_u = float(metrics.get("estimated_usd") or log_spend.get("estimated_usd") or 0)
     if spend_kind == "actual":
         spend_label = "Spend (actual)"
-        spend_tip = "Stop-hook computed_cost_usd only (tokens × rates). Per IDE."
-    elif spend_kind == "mixed":
-        spend_label = "Spend (mixed)"
         spend_tip = (
-            f"Calculator: tokens_in/1e6×input_rate + tokens_out/1e6×output_rate. "
-            f"Actual ${act_u:.4f} = get_cost(model, in, out) per Claude session (max in/out, no 31M cache_read). "
-            f"Estimated ${est_u:.4f} = same formula on router recommend + chars/4 in + 500 out "
-            "(Grok/Codex have no Stop tokens — a Grok credit recharge is not in these files)."
+            "Stop cost-log only: one snapshot per session (max tokens_out), "
+            "computed_cost_usd / get_cost including cache_read×0.1 and cache_creation×1.25."
+        )
+    elif spend_kind == "mixed":
+        spend_label = f"Spend (mixed) actual ${act_u:.4f} + est ${est_u:.4f}"
+        spend_tip = (
+            f"Headline = sum of repo rows below. "
+            f"Actual ${act_u:.4f}: Stop snapshot per session with cache billed "
+            f"(cache_read×0.1, cache_creation×1.25) — not a vendor invoice. "
+            f"Estimated ${est_u:.4f}: router recommend × (prompt_chars/4 in + 500 out per fire); "
+            f"Grok/Codex have no Stop tokens — estimates are not billed dollars."
         )
     else:
         spend_label = "Spend (estimated)"
-        spend_tip = "No cost-log actuals. turn-log est_cost_usd only (chars/4 + 500 out guess). Not billed."
-    spend_tip = spend_tip + " Check actual billed cost on this dashboard after Refresh, or /run-costs."
+        spend_tip = (
+            "No cost-log actuals. Per router fire: chars/4 in + 500 out × rates. "
+            "Not billed — Grok/Codex Stop tokens are absent."
+        )
+    spend_tip = (
+        spend_tip
+        + " Sessions count matches the grouped table (same log filter), not vault .metrics rollups. "
+        + "Check vendor billing after Refresh, or /run-costs."
+    )
     sess = int(metrics.get("sessions_count") or 0)
     tok = int(metrics.get("total_tokens") or 0)
     days = metrics.get("cost_by_day") or {}
@@ -3583,8 +3711,8 @@ select{{background:#1c2330;color:var(--ink);border:1px solid var(--line);padding
 <section class="view on" id="v-home">
   {_pane_bar("Overview", built_at)}
   <div class="tiles">
-    <div class="tile" title="{html_lib.escape(spend_tip)}"><div class="dim">{spend_label} <span id="ovScope"></span></div><div style="font-size:22px" id="ovSpend">${spend:.2f}</div></div>
-    <div class="tile"><div class="dim">Sessions</div><div style="font-size:22px" id="ovSess">{sess}</div></div>
+    <div class="tile" title="{html_lib.escape(spend_tip)}"><div class="dim">{spend_label} <span id="ovScope"></span></div><div style="font-size:22px" id="ovSpend">${spend:.4f}</div></div>
+    <div class="tile"><div class="dim">Sessions (table)</div><div style="font-size:22px" id="ovSess">{sess}</div></div>
     <div class="tile"><div class="dim">Tokens</div><div style="font-size:22px" id="ovTok">{tok:,}</div></div>
     <div class="tile"><div class="dim">Guard events (all repos)</div><div style="font-size:22px">{n_guards}</div></div>
   </div>
@@ -3611,8 +3739,8 @@ select{{background:#1c2330;color:var(--ink);border:1px solid var(--line);padding
   {_pane_bar("Costs", built_at)}
   <p class="dim">{html_lib.escape(spend_tip)} Grouped by <b>repo</b>, then <b>IDE</b>.</p>
   <div class="tiles">
-    <div class="tile" title="{html_lib.escape(spend_tip)}"><div class="dim">{spend_label}</div><div style="font-size:22px" id="costSpend">${spend:.2f}</div></div>
-    <div class="tile"><div class="dim">Sessions</div><div style="font-size:22px" id="costSess">{sess}</div></div>
+    <div class="tile" title="{html_lib.escape(spend_tip)}"><div class="dim">{spend_label}</div><div style="font-size:22px" id="costSpend">${spend:.4f}</div></div>
+    <div class="tile"><div class="dim">Sessions (table)</div><div style="font-size:22px" id="costSess">{sess}</div></div>
   </div>
   <h3 style="margin:16px 0 8px">By repo, then IDE</h3>
   <table><thead><tr><th>Repo / IDE</th><th class="num">Sessions</th><th class="num">Tokens</th><th class="num">Cost</th></tr></thead>
@@ -3711,6 +3839,10 @@ function show(v){{
   try {{ sessionStorage.setItem('ravenPane', v); }} catch(e) {{}}
   closeLogDetail();
 }}
+function liveDashUrl(){{
+  const hash = (location.hash || '').replace(/^#/, '');
+  return 'http://127.0.0.1:9787' + (hash ? '#' + hash : '');
+}}
 function refreshNow(){{
   const on = document.querySelector('.nav.on');
   const pane = on && on.dataset.v;
@@ -3722,8 +3854,9 @@ function refreshNow(){{
   ).then(r=>r.json()).then(() => {{
     location.reload();
   }}).catch(() => {{
+    const live = liveDashUrl();
     document.querySelectorAll('.refresh-meta').forEach(el => {{
-      el.textContent = 'Last refresh: start python3 scripts/ops/dashboard-server.py then click again (file:// cannot rebuild)';
+      el.innerHTML = 'Last refresh: file:// is view-only. <a class="live-dash" href="'+live+'">Open live dashboard</a>';
     }});
     document.querySelectorAll('.refresh-now').forEach(b => {{ b.disabled = false; b.textContent = '↻ Refresh now'; }});
   }});
@@ -4564,7 +4697,8 @@ function refreshDashboard() {{
     }})
     .catch(err => {{
       status.style.color = '#fbbf24';
-      status.textContent = 'Hard refresh only reloads this file. Rebuild: python3 scripts/dashboard.py --html --open';
+      const live = (typeof liveDashUrl === 'function') ? liveDashUrl() : 'http://127.0.0.1:9787';
+      status.innerHTML = 'file:// is view-only. <a class="live-dash" href="'+live+'">Open live dashboard</a>';
     }});
 }}
 

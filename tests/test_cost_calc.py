@@ -27,6 +27,15 @@ class TestCostCalc(unittest.TestCase):
         usd = self.cc.get_cost("anthropic/claude-haiku-4-5", 1_000_000, 1_000_000)
         self.assertEqual(usd, 6.0)
 
+    def test_cache_read_bills_at_tenth_input(self):
+        # 1M cache_read at $1/1M input → $0.10; no in/out
+        usd = self.cc.get_cost("anthropic/claude-haiku-4-5", 0, 0, cache_read=1_000_000)
+        self.assertEqual(usd, 0.1)
+
+    def test_cache_creation_bills_at_1_25x_input(self):
+        usd = self.cc.get_cost("anthropic/claude-haiku-4-5", 0, 0, cache_creation=1_000_000)
+        self.assertEqual(usd, 1.25)
+
     def test_unknown_records_needs_rate(self):
         td = tempfile.TemporaryDirectory()
         local = Path(td.name) / "model-pricing.local.json"
