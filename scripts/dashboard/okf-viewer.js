@@ -7,7 +7,7 @@
   const title = document.getElementById("title");
   if (title) title.textContent = G.repo || title.textContent;
   const head = document.getElementById("head");
-  if (head) head.textContent = G.git_head || "";
+  if (head) head.textContent = headLabel();
   const sum = document.getElementById("sum");
   if (sum) sum.textContent = G.summary || "No README summary yet.";
   let mode = "both";
@@ -15,6 +15,24 @@
   let flowTimer = 0;
   let focusCommit = null;
   let focusFile = null;
+
+  function headLabel() {
+    const baked = G.git_head || "";
+    const live = G.live_head || "";
+    if (live && baked && live !== baked) {
+      return "live HEAD: " + live + " · graph baked at " + baked;
+    }
+    return live || baked || "";
+  }
+  function headMetaHtml() {
+    const baked = G.git_head || "";
+    const live = G.live_head || "";
+    if (!baked && !live) return "";
+    if (live && baked && live !== baked) {
+      return "live HEAD: " + esc(live) + "<br>graph baked at: " + esc(baked) + "<br>";
+    }
+    return "HEAD: " + esc(live || baked) + "<br>";
+  }
 
   function extractedNeighbors(id) {
     const ids = new Set();
@@ -208,6 +226,7 @@
   }
   function showPanel(n) {
     const ed = G.edges.filter((e) => (e.from === n.id || e.to === n.id) && e.tag === "EXTRACTED");
+    // history[0] is recent file change — never treat as current checkout HEAD
     const last = (n.history && n.history[0]) || {};
     const t = (n.label || n.id).split("/").pop();
     const isFile = n.type === "file";
@@ -231,10 +250,10 @@
       summaryHtml +
       "<h3>Metadata</h3><p>" +
       "repo: " + esc(G.repo || "") + "<br>" +
-      (G.git_head ? "HEAD: " + esc(G.git_head) + "<br>" : "") +
+      headMetaHtml() +
       (rel ? "path: <a href='" + fileHref(rel) + "'>" + esc(rel) + "</a><br>" : "") +
       (n.churn_30d != null ? "churn 30d: " + n.churn_30d + "<br>" : "") +
-      (last.why ? "last commit: " + esc(last.commit || "") + " " + esc(last.why) + "<br>" : "") +
+      (last.why ? "recent change: " + esc(last.commit || "") + " " + esc(last.why) + "<br>" : "") +
       (n.date ? "date: " + esc(n.date) + "<br>" : "") +
       (n.sha ? "sha: " + esc(n.sha) + "<br>" : "") +
       (n.files ? "files:<br>" + fileLinks(n) : "") +

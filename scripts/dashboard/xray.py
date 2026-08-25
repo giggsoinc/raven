@@ -454,10 +454,32 @@ def _load() -> dict | None:
         return None
 
 
+def live_git_head() -> str:
+    """Short SHA of live HEAD for this REPO. Empty on failure."""
+    return _run(["git", "rev-parse", "--short", "HEAD"])
+
+
+def baked_git_head(tree: dict | None = None) -> str:
+    """SHA stored on the last OKF bake (not history[0])."""
+    t = tree if tree is not None else _load()
+    if not t:
+        return ""
+    return str((t.get("okf") or {}).get("git_head") or "")
+
+
+def head_drifted(tree: dict | None = None) -> bool:
+    """True when baked okf.git_head differs from live HEAD (or bake missing)."""
+    live = live_git_head()
+    if not live:
+        return False
+    baked = baked_git_head(tree)
+    return (not baked) or baked != live
+
+
 def build(*, if_stale: int = 0) -> dict:
     if if_stale:
         old = _load()
-        head = _run(["git", "rev-parse", "--short", "HEAD"])
+        head = live_git_head()
         if old and (old.get("okf") or {}).get("git_head") == head:
             return old
     hook_roles = _hook_roles()
@@ -730,15 +752,24 @@ def rebake_tree_htmls() -> int:
 
 
 def render_html(open_after: bool = False) -> pathlib.Path:
-    """Graphify-style node/edge canvas + repo summary. Not a folder tree."""
-    tree = _load() or build()
+    """Graphify-style node/edge canvas + repo summary. Not a folder tree.
+
+    Rebuilds OKF when live HEAD ≠ baked okf.git_head so the panel tracks
+    current checkout (not a stale history[0] commit).
+    """
+    live = live_git_head()
+    tree = _load()
+    if tree is None or head_drifted(tree):
+        tree = build()
     okf = tree.get("okf") or build_okf(_flat_dict(tree))
+    baked = str(okf.get("git_head") or "")
     summary = repo_summary()
     nodes_out = enrich_nodes(list(okf.get("nodes") or []))
     payload = {
         "nodes": nodes_out,
         "edges": okf.get("edges", []),
-        "git_head": okf.get("git_head", ""),
+        "git_head": baked,
+        "live_head": live or baked,
         "repo": tree.get("repo") or REPO.name,
         "root": str(REPO.resolve()),
         "summary": summary,

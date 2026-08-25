@@ -39,39 +39,65 @@ class TestXrayOkf(unittest.TestCase):
         }
 
     def test_extracted_only_touches_for_head(self):
-        x = self.x
-        with mock.patch.object(x, "_run", return_value="63f1ed9"):
-            edges = x.query_graph(self._okf(), type="touches", commit="HEAD")
+        with mock.patch.object(self.x, "_run", return_value="63f1ed9"):
+            edges = self.x.query_graph(self._okf(), type="touches", commit="HEAD")
         self.assertTrue(edges)
         self.assertTrue(all(e["tag"] == "EXTRACTED" and e["type"] == "touches" for e in edges))
         self.assertEqual(edges[0]["to"], "file:a.py")
 
     def test_head_resolves_in_commit_impact(self):
-        x = self.x
-        with mock.patch.object(x, "_run", return_value="63f1ed9"):
-            out = x.commit_impact(self._okf(), "HEAD")
+        with mock.patch.object(self.x, "_run", return_value="63f1ed9"):
+            out = self.x.commit_impact(self._okf(), "HEAD")
         self.assertNotIn("error", out)
         self.assertIn("file:a.py", out["files"])
 
     def test_query_type_touches_not_empty_vs_node_type(self):
-        x = self.x
-        nodes = x.query_graph(self._okf(), type="commit")
+        nodes = self.x.query_graph(self._okf(), type="commit")
         self.assertTrue(any(n["type"] == "commit" for n in nodes))
-        with mock.patch.object(x, "_run", return_value="63f1ed9"):
-            self.assertTrue(x.query_graph(self._okf(), type="touches", commit="HEAD"))
+        with mock.patch.object(self.x, "_run", return_value="63f1ed9"):
+            self.assertTrue(self.x.query_graph(self._okf(), type="touches", commit="HEAD"))
 
     def test_if_stale_noop(self):
-        x = self.x
         with tempfile.TemporaryDirectory() as td:
             tree = Path(td) / "code-xray.json"
-            payload = {"okf": {"git_head": "abc1234", "nodes": [{"id": "keep"}]}, "root": {"id": "r", "children": []}}
-            tree.write_text(json.dumps(payload))
-            with mock.patch.object(x, "TREE_PATH", tree), mock.patch.object(x, "_run", return_value="abc1234"):
-                out = x.build(if_stale=15)
-            self.assertEqual(out["okf"]["nodes"][0]["id"], "keep")
+            tree.write_text(json.dumps({"okf": {"git_head": "abc1234", "nodes": [{"id": "keep"}]}, "root": {"id": "r", "children": []}}))
+            with mock.patch.object(self.x, "TREE_PATH", tree), mock.patch.object(self.x, "_run", return_value="abc1234"):
+                self.assertEqual(self.x.build(if_stale=15)["okf"]["nodes"][0]["id"], "keep")
+
+    def test_head_drifted_detects_mismatch(self):
+        with tempfile.TemporaryDirectory() as td:
+            tree = Path(td) / "code-xray.json"
+            tree.write_text(json.dumps({"okf": {"git_head": "oldsha1", "nodes": []}, "root": {}}))
+            with mock.patch.object(self.x, "TREE_PATH", tree), mock.patch.object(self.x, "_run", return_value="newsha2"):
+                self.assertTrue(self.x.head_drifted())
+            with mock.patch.object(self.x, "TREE_PATH", tree), mock.patch.object(self.x, "_run", return_value="oldsha1"):
+                self.assertFalse(self.x.head_drifted())
+
+    def test_render_html_rebuilds_on_drift(self):
+        x = self.x
+        with tempfile.TemporaryDirectory() as td:
+            td_path, trees = Path(td), Path(td) / "trees"
+            trees.mkdir()
+            tree = td_path / "code-xray.json"
+            tree.write_text(json.dumps({"okf": {"git_head": "olddead", "nodes": [], "edges": []}, "root": {"id": "r", "children": []}, "repo": "t"}))
+            built = {"version": 1, "repo": "t", "root": {"id": "r", "children": []}, "okf": {"git_head": "livehead", "nodes": [], "edges": []}}
+
+            def fake_build(**_kw):
+                tree.write_text(json.dumps(built))
+                return built
+
+            with mock.patch.object(x, "TREE_PATH", tree), mock.patch.object(x, "HTML_PATH", trees / "t.html"), \
+                    mock.patch.object(x, "TREES_DIR", trees), mock.patch.object(x, "VAULT", td_path), \
+                    mock.patch.object(x, "live_git_head", return_value="livehead"), \
+                    mock.patch.object(x, "build", side_effect=fake_build) as b, \
+                    mock.patch.object(x, "publish_viewer"), mock.patch.object(x, "repo_summary", return_value="sum"), \
+                    mock.patch.object(x, "enrich_nodes", side_effect=lambda n: n):
+                body = x.render_html(open_after=False).read_text(encoding="utf-8")
+            self.assertTrue(b.called)
+            self.assertIn("livehead", body)
+            self.assertIn("live_head", body)
 
     def test_deleted_file_drops_from_tree(self):
-        x = self.x
         rebuilt = {
             "a.py": {"id": "a.py", "type": "program", "functions": [], "imports": [], "history": [], "sessions": []},
             "gone.py": {"id": "gone.py", "type": "program", "deleted": True, "functions": [], "imports": [], "history": [], "sessions": []},
@@ -91,26 +117,32 @@ class TestXrayOkf(unittest.TestCase):
     def test_panel_has_repo_and_looping_flow(self):
         js = (ROOT / "scripts" / "dashboard" / "okf-viewer.js").read_text(encoding="utf-8")
         css = (ROOT / "scripts" / "dashboard" / "okf-viewer.css").read_text(encoding="utf-8")
+        src = (ROOT / "scripts" / "dashboard" / "xray.py").read_text(encoding="utf-8")
         self.assertIn("repo: ", js)
         self.assertIn("linear infinite", css)
         self.assertIn("runOnce(true)", js)
-        src = (ROOT / "scripts" / "dashboard" / "xray.py").read_text(encoding="utf-8")
+        self.assertIn("graph baked at", js)
+        self.assertIn("recent change:", js)
+        self.assertNotIn("last commit:", js)
+        self.assertIn("live_head", js)
         self.assertIn("okf-viewer.js", src)
         self.assertIn("rebake_tree_htmls", src)
+        self.assertIn("head_drifted", src)
 
     def test_rebake_rewrites_stub(self):
-        x = self.x
         with tempfile.TemporaryDirectory() as td:
-            vault = Path(td)
-            trees = vault / "dashboard" / "trees"
+            vault, trees = Path(td), Path(td) / "dashboard" / "trees"
             trees.mkdir(parents=True)
             old = '<html><script type="application/json" id="okf">{"repo":"Aryx","nodes":[{"id":"commit:1","type":"commit","label":"818782d"}],"edges":[]}</script><script>old inline</script></html>'
             (trees / "Aryx.html").write_text(old)
-            with mock.patch.object(x, "VAULT", vault), mock.patch.object(x, "TREES_DIR", trees):
-                n = x.rebake_tree_htmls()
-            self.assertEqual(n, 1)
+            with mock.patch.object(self.x, "VAULT", vault), mock.patch.object(self.x, "TREES_DIR", trees):
+                self.assertEqual(self.x.rebake_tree_htmls(), 1)
             body = (trees / "Aryx.html").read_text()
             self.assertIn("okf-viewer.js", body)
             self.assertNotIn("old inline", body)
             self.assertTrue((vault / "dashboard" / "okf-viewer.js").is_file())
             self.assertTrue((trees / "okf-viewer.js").is_file())
+
+
+if __name__ == "__main__":
+    unittest.main()

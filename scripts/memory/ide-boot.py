@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import socket
 import subprocess
 import sys
 import time
@@ -20,6 +21,7 @@ from pathlib import Path
 ROOT = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path(__file__).resolve().parents[2])
 BOOT = ROOT / ".raven" / "boot.json"
 CARD_SCHEMA = 1
+DASH_PORT = 9787
 _MEM = Path(__file__).resolve().parent
 if str(_MEM) not in sys.path:
     sys.path.insert(0, str(_MEM))
@@ -69,12 +71,50 @@ def _graph_html(root: Path) -> Path:
 
 
 def _dashboard_uri(root: Path) -> str:
+    """Prefer live server URL so Refresh works; file:// is view-only fallback."""
+    return f"http://127.0.0.1:{DASH_PORT}#{_project_name(root)}"
+
+
+def _file_dashboard_uri(root: Path) -> str:
     html = Path.home() / "RavenVault" / "dashboard" / "raven-dashboard.html"
     try:
         uri = html.resolve().as_uri() if html.exists() else html.expanduser().absolute().as_uri()
     except Exception:
         uri = f"file://{html}"
     return f"{uri}#{_project_name(root)}"
+
+
+def dashboard_server_up(port: int = DASH_PORT) -> bool:
+    try:
+        with socket.create_connection(("127.0.0.1", port), timeout=0.4):
+            return True
+    except OSError:
+        return False
+
+
+def ensure_dashboard_server(root: Path | None = None, port: int = DASH_PORT) -> bool:
+    """Start dashboard-server.py in background if down. True when port accepts."""
+    if dashboard_server_up(port):
+        return True
+    root = root or ROOT
+    script = Path(root) / "scripts" / "ops" / "dashboard-server.py"
+    if not script.is_file():
+        return False
+    try:
+        subprocess.Popen(
+            [sys.executable, str(script), "--port", str(port)],
+            cwd=str(root),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
+        )
+    except Exception:
+        return False
+    for _ in range(25):
+        time.sleep(0.12)
+        if dashboard_server_up(port):
+            return True
+    return dashboard_server_up(port)
 
 
 def card_loadable(card: Path) -> bool:
@@ -180,7 +220,7 @@ def claim_browser_open(lock_path: Path | None = None, force: bool = False) -> bo
 
 
 def rebuild_dashboard(root: Path) -> None:
-    """One HTML rebuild. Fail-soft. Does not open a browser."""
+    """One HTML rebuild (rebakes xray when HEAD drifted). Fail-soft. No browser."""
     env = dict(os.environ)
     env["RAVEN_DASHBOARD_NO_OPEN"] = "1"
     dash = Path(root) / "scripts" / "dashboard.py"
@@ -210,21 +250,48 @@ def rebuild_dashboard(root: Path) -> None:
             pass
 
 
+def _xray_head_drifted(root: Path) -> bool:
+    """True when .raven/code-xray.json git_head ≠ live HEAD."""
+    path = Path(root) / ".raven" / "code-xray.json"
+    try:
+        baked = str((json.loads(path.read_text(encoding="utf-8")).get("okf") or {}).get("git_head") or "")
+    except (OSError, json.JSONDecodeError, TypeError):
+        baked = ""
+    try:
+        r = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "--short", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=8,
+        )
+        live = (r.stdout or "").strip() if r.returncode == 0 else ""
+    except Exception:
+        live = ""
+    if not live:
+        return not Path(_graph_html(root)).is_file()
+    return (not baked) or baked != live
+
+
 def open_dashboard(uri: str, root: Path | None = None) -> None:
-    """Default browser. Builds this repo's graph HTML if missing. Fail-soft."""
+    """Start live server if needed, rebake on HEAD drift, open http://127.0.0.1:9787#proj."""
     root = root or ROOT
     html = _graph_html(root)
-    if not html.is_file():
+    if (not html.is_file()) or _xray_head_drifted(root):
         rebuild_dashboard(root)
         html = _graph_html(root)
-        try:
-            uri = html.resolve().as_uri() if html.exists() else uri
-        except Exception:
-            pass
-    if not uri:
+    live_up = ensure_dashboard_server(root)
+    open_uri = uri if (uri or "").startswith("http") else _dashboard_uri(root)
+    if not live_up:
+        open_uri = _file_dashboard_uri(root)
+        if html.is_file():
+            try:
+                open_uri = f"{html.resolve().as_uri()}#{_project_name(root)}"
+            except Exception:
+                pass
+    if not open_uri:
         return
     try:
-        webbrowser.open(uri, new=0)
+        webbrowser.open(open_uri, new=0)
     except Exception:
         pass
 

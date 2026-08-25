@@ -8,6 +8,8 @@ Endpoints:
   GET /metrics.json → raw metrics dict
 Usage: python3 dashboard-server.py [--port 9787]
 """
+from __future__ import annotations
+
 import argparse
 import http.server
 import json
@@ -18,28 +20,99 @@ import sys
 import urllib.parse
 from io import StringIO
 
-DASHBOARD_SCRIPT = pathlib.Path(__file__).resolve().parents[1] / "dashboard.py"
+_SCRIPTS = pathlib.Path(__file__).resolve().parents[1]
+DASHBOARD_SCRIPT = _SCRIPTS / "dashboard.py"
+XRAY_SCRIPT = _SCRIPTS / "code-xray.py"
+REPO_ROOT = _SCRIPTS.parent
 DASHBOARD_HTML = pathlib.Path.home() / "RavenVault" / "dashboard" / "raven-dashboard.html"
 PORT = 9787
 
 
-def run_dashboard_script() -> dict:
-    """Rebuild raven-dashboard.html. Timeout covers OKF rebake."""
+def _live_head(repo: pathlib.Path) -> str:
+    try:
+        r = subprocess.run(
+            ["git", "-C", str(repo), "rev-parse", "--short", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=8,
+        )
+        return (r.stdout or "").strip() if r.returncode == 0 else ""
+    except Exception:
+        return ""
+
+
+def _baked_head(repo: pathlib.Path) -> str:
+    path = repo / ".raven" / "code-xray.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return str((data.get("okf") or {}).get("git_head") or "")
+    except Exception:
+        return ""
+
+
+def rebake_xray_if_drifted(repo: pathlib.Path | None = None) -> dict:
+    """Force xray --html when live HEAD ≠ baked okf.git_head."""
+    root = repo or REPO_ROOT
+    live = _live_head(root)
+    baked = _baked_head(root)
+    drifted = bool(live) and (not baked or baked != live)
+    if not drifted:
+        return {"ok": True, "rebaked": False, "live_head": live, "baked_head": baked}
+    if not XRAY_SCRIPT.is_file():
+        return {"ok": False, "rebaked": False, "error": "code-xray.py missing", "live_head": live}
     env = dict(os.environ)
     env["RAVEN_DASHBOARD_NO_OPEN"] = "1"
+    env["CLAUDE_PROJECT_DIR"] = str(root)
     try:
         result = subprocess.run(
-            ["python3", str(DASHBOARD_SCRIPT), "--html"],
+            [sys.executable, str(XRAY_SCRIPT), "--html"],
             capture_output=True,
             text=True,
             timeout=180,
+            cwd=str(root),
             env=env,
         )
         if result.returncode != 0:
-            return {"ok": False, "error": (result.stderr or result.stdout or "")[-800]}
-        return {"ok": True, "html_generated": True}
+            return {
+                "ok": False,
+                "rebaked": False,
+                "error": (result.stderr or result.stdout or "")[-800],
+                "live_head": live,
+            }
+        return {"ok": True, "rebaked": True, "live_head": live, "baked_head": live}
     except Exception as e:
-        return {"ok": False, "error": str(e)}
+        return {"ok": False, "rebaked": False, "error": str(e), "live_head": live}
+
+
+def run_dashboard_script() -> dict:
+    """Rebuild raven-dashboard.html; rebake OKF when HEAD drifted."""
+    env = dict(os.environ)
+    env["RAVEN_DASHBOARD_NO_OPEN"] = "1"
+    env.setdefault("CLAUDE_PROJECT_DIR", str(REPO_ROOT))
+    xray_info = rebake_xray_if_drifted(REPO_ROOT)
+    try:
+        result = subprocess.run(
+            [sys.executable, str(DASHBOARD_SCRIPT), "--html"],
+            capture_output=True,
+            text=True,
+            timeout=180,
+            cwd=str(REPO_ROOT),
+            env=env,
+        )
+        if result.returncode != 0:
+            return {
+                "ok": False,
+                "error": (result.stderr or result.stdout or "")[-800],
+                "xray": xray_info,
+            }
+        return {
+            "ok": True,
+            "html_generated": True,
+            "xray": xray_info,
+            "live_head": xray_info.get("live_head") or _live_head(REPO_ROOT),
+        }
+    except Exception as e:
+        return {"ok": False, "error": str(e), "xray": xray_info}
 
 
 def render_html_with_refresh() -> str:
@@ -74,7 +147,6 @@ def render_html_with_refresh() -> str:
 
 
 VAULT_DASH = pathlib.Path.home() / "RavenVault" / "dashboard"
-_SCRIPTS = pathlib.Path(__file__).resolve().parents[1]
 if str(_SCRIPTS / "dashboard") not in sys.path:
     sys.path.insert(0, str(_SCRIPTS / "dashboard"))
 

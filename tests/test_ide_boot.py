@@ -45,8 +45,8 @@ class TestIdeBoot(unittest.TestCase):
         self.assertEqual(r["load"], 1)
         self.assertEqual(r.get("educate"), "guided")
         self.assertIn("SIMPLE→", r.get("expected_route", ""))
-        self.assertIn("model-router.py", r.get("route", ""))
-        self.assertTrue(r.get("dashboard", "").startswith("file://"))
+        self.assertIn("raven-first.py", r.get("route", ""))
+        self.assertTrue(r.get("dashboard", "").startswith("http://127.0.0.1:9787"))
         self.assertIn("#", r.get("dashboard", ""))
 
     def test_codex_and_grok_use_agents(self):
@@ -105,3 +105,10 @@ class TestIdeBoot(unittest.TestCase):
             "first_load=run ide-boot then Read memory= if load=1 then model-router --session-start",
             src,
         )
+
+    def test_ensure_dashboard_server_helpers(self):
+        self.assertTrue(hasattr(self.mod, "ensure_dashboard_server"))
+        self.assertTrue(hasattr(self.mod, "dashboard_server_up"))
+        self.assertEqual(self.mod.DASH_PORT, 9787)
+        # Down port must not raise
+        self.assertIsInstance(self.mod.dashboard_server_up(1), bool)

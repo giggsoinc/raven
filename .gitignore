@@ -17,6 +17,8 @@ local/
 *.md.env
 *.local.md
 docs/APPLY-PROMPT-vault-graph-memory.md
+RAVEN-changes-2026-08-22.md
+raven5.5-updates.md
 
 # Raven secrets — NEVER commit
 .raven/manifest.secrets.json
