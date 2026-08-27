@@ -3563,12 +3563,24 @@ def write_raven_dashboard(metadata: dict, metrics: Optional[dict] = None) -> Pat
     om = _obs_metrics(obs_src)
     obs_ide_tbl = _count_tbl(om["by_ide"], "IDE", "Traces")
     obs_tier_tbl = _count_tbl(om["by_tier"], "Tier", "Traces")
+    # Money from log_spend by_project (same as Costs); traces still from _obs_metrics.
+    obs_repo_names = set(om["by_repo"].keys()) | {
+        str(k) for k, v in (bp or {}).items() if isinstance(v, dict)
+    }
     obs_repo_tbl = "".join(
-        f"<tr><td>{html_lib.escape(str(k))}</td>"
-        f"<td class='num'>{om['by_repo'].get(k, 0)}</td>"
-        f"<td class='num'>${float(om['by_repo_cost'].get(k, 0)):.4f}</td></tr>"
-        for k in sorted(om["by_repo"].keys(), key=lambda x: -om["by_repo_cost"].get(x, 0))
-    ) or "<tr><td colspan='3'>No repo traces yet</td></tr>"
+        f"<tr><td>{html_lib.escape(str(k))} "
+        f"<span class='dim'>{html_lib.escape(str((bp.get(k) or {}).get('kind') or '—'))}</span></td>"
+        f"<td class='num'>{int(om['by_repo'].get(k, 0))}</td>"
+        f"<td class='num'>${float((bp.get(k) or {}).get('cost_usd') or 0):.4f}</td></tr>"
+        for k in sorted(
+            obs_repo_names,
+            key=lambda x: (
+                -float((bp.get(x) or {}).get("cost_usd") or 0),
+                -int(om["by_repo"].get(x, 0)),
+                str(x).lower(),
+            ),
+        )
+    ) or "<tr><td colspan='3'>No repo cost or traces yet</td></tr>"
     cost_repo_parts = []
     for k, v in sorted((bp or {}).items(), key=lambda kv: -float((kv[1] or {}).get("cost_usd") or 0)):
         if not isinstance(v, dict):
@@ -3770,10 +3782,10 @@ select{{background:#1c2330;color:var(--ink);border:1px solid var(--line);padding
 </section>
 <section class="view" id="v-obs">
   {_pane_bar("Observability", built_at)}
-  <p class="dim">Local traces from <code>~/RavenVault/obs/runs.jsonl</code> (metadata only — no prompt/response). Metrics are counts from those rows.</p>
+  <p class="dim">Local traces from <code>~/RavenVault/obs/runs.jsonl</code> (metadata only — no prompt/response). Spend is the same calculator as Costs (cost-log + turn-log). Trace counts are from these rows; per-row <code>est_cost_usd</code> in the table remains the router guess.</p>
   <div class="tiles">
     <div class="tile"><div class="dim">Traces</div><div style="font-size:22px">{om["traces"]}</div></div>
-    <div class="tile"><div class="dim">Est spend (traces)</div><div style="font-size:22px">${om["est"]:.4f}</div></div>
+    <div class="tile" title="{html_lib.escape(spend_tip)}"><div class="dim">{spend_label}</div><div style="font-size:22px" id="obsSpend">${spend:.4f}</div></div>
     <div class="tile"><div class="dim">Prompt chars</div><div style="font-size:22px">{om["chars"]:,}</div></div>
     <div class="tile"><div class="dim">Last trace</div><div style="font-size:14px">{html_lib.escape(om["last"])}</div></div>
     <div class="tile"><div class="dim">needs_rate</div><div style="font-size:22px">{om["needs_rate"]}</div></div>
@@ -3782,7 +3794,7 @@ select{{background:#1c2330;color:var(--ink);border:1px solid var(--line);padding
   <div class="tiles">
     <div class="tile"><h3>By IDE</h3><table><thead><tr><th>IDE</th><th class="num">Traces</th></tr></thead><tbody>{obs_ide_tbl}</tbody></table></div>
     <div class="tile"><h3>By tier</h3><table><thead><tr><th>Tier</th><th class="num">Traces</th></tr></thead><tbody>{obs_tier_tbl}</tbody></table></div>
-    <div class="tile"><h3>By repo (cost)</h3><table><thead><tr><th>Repo</th><th class="num">Traces</th><th class="num">Est $</th></tr></thead><tbody>{obs_repo_tbl}</tbody></table></div>
+    <div class="tile"><h3>By repo (cost)</h3><table><thead><tr><th>Repo</th><th class="num">Traces</th><th class="num">Cost</th></tr></thead><tbody>{obs_repo_tbl}</tbody></table></div>
   </div>
   <div id="obsTables">
   <p>Repo: <select id="obsRepo" onchange="filterLogs(this.value)">{log_repo_opts}</select></p>
