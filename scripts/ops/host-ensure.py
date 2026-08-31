@@ -90,6 +90,11 @@ def ensure() -> list[str]:
     boot_dst = TARGET / ".raven" / "boot.json"
     if boot_src.is_file() and not boot_dst.is_file():
         done.append(_copy(boot_src, boot_dst))
+    edu = TARGET / ".raven" / "educate.json"
+    if not edu.is_file():
+        edu.parent.mkdir(parents=True, exist_ok=True)
+        edu.write_text('{"mode": "guided"}\n', encoding="utf-8")
+        done.append(".raven/educate.json")
     return done
 
 

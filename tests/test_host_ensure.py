@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import os
 import tempfile
 import unittest
@@ -32,6 +33,9 @@ class TestHostEnsure(unittest.TestCase):
         self.assertTrue((target / "scripts" / "ops" / "raven-first.py").is_file())
         self.assertTrue((target / ".agents" / "agents.md").is_file())
         self.assertTrue((target / "AGENTS.override.md").is_file())
+        edu = target / ".raven" / "educate.json"
+        self.assertTrue(edu.is_file())
+        self.assertEqual(json.loads(edu.read_text())["mode"], "guided")
         self.assertTrue(any("raven-python" in x for x in done))
 
     def test_skills_call_raven_first(self):
