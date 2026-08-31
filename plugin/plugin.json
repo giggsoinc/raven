@@ -1,7 +1,7 @@
 {
   "name": "raven",
   "description": "Raven v5.5 \u2014 one plugin for Claude, Grok, Codex, Cursor, AntiGravity, Windsurf, Replit, Gemini. Discipline layer: Andie / Andie-jr, host router, cost logs, local dashboard. 61 skills, 10 guard agents.",
-  "version": "5.5.4",
+  "version": "5.5.5",
   "author": {
     "name": "Giggso / AntiGravity Projects",
     "email": "rv@giggso.com",

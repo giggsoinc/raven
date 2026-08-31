@@ -5,6 +5,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [5.5.5] — 2026-08-31 — obs spend, refresh, repo filter
+
+- Observability actual spend from cost-log; pre-turn est labeled not billed.
+- Refresh stays put if dashboard-server is down; repo filter on Costs/Obs.
+
 ## [5.5.4] — 2026-08-23 — GitHub version banner on session start
 
 - Session start + first router turn: current vs GitHub latest; upgrade prompt; 5 bullets.

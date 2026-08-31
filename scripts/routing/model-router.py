@@ -497,7 +497,7 @@ def main():
             models = _load_model_env(host)
             edu = _educate_mode()
             rules = _host_rules(host)
-            ver = "5.5.4"
+            ver = "5.5.5"
             try:
                 vp = _find_project_root() / "raven-core" / "VERSION"
                 if vp.is_file():

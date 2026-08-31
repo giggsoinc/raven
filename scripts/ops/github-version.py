@@ -13,7 +13,7 @@ from pathlib import Path
 
 REPO = "giggsoinc/raven"
 TIMEOUT = 2.5
-UA = "raven-version-check/5.5.4"
+UA = "raven-version-check/5.5.5"
 
 
 def _root() -> Path:

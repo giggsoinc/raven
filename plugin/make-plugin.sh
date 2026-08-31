@@ -5,7 +5,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
-VERSION="5.5.4"
+VERSION="5.5.5"
 VERSION="$(tr -d '[:space:]' < "$REPO_DIR/raven-core/VERSION")"
 ZIP_NAME="raven-plugin-v${VERSION}.zip"
 ZIP_PATH="$SCRIPT_DIR/$ZIP_NAME"

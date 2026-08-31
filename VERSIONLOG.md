@@ -5,6 +5,14 @@ adds an entry here (newest first), and must pass `scripts/check-version-consiste
 (CI: `raven-version-consistency-check`). Historical changelogs in `docs/` are
 never rewritten — this file is the roll-up index.
 
+## v5.5.5 — 2026-08-31 — Observability spend + dashboard refresh (patch)
+
+Observability Spend uses cost-log `computed_cost_usd` (not pre-turn ~$2 estimates).
+Refresh now does not jump to a dead `file://`→9787 URL. Costs and Observability
+filter by repo. Local dashboard opens `http://127.0.0.1:9787`. Tag `v5.5.5`.
+
+---
+
 ## v5.5.4 — 2026-08-23 — Session-start GitHub version check (patch)
 
 On session start and the first router turn, Raven checks github.com/giggsoinc/raven
