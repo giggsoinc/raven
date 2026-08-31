@@ -114,6 +114,21 @@ class TestSpendFromLogs(unittest.TestCase):
             spend["actual_usd"] + spend["estimated_usd"], spend["total_cost_usd"], places=4
         )
 
+    def test_estimates_kept_for_uncovered_sessions_same_ide(self):
+        """One actual snapshot must not wipe other estimated sessions for that IDE."""
+        cost_log = [{"ts": "2026-08-25T01:00:00Z", "repo": "raven", "ide": "grok",
+                     "session_id": "sess-actual", "model": "grok-4.5",
+                     "tokens_in": 100, "tokens_out": 50, "computed_cost_usd": 0.01}]
+        turn_log = [{"ts": "2026-08-26T02:00:00Z", "repo": "raven", "ide": "grok",
+                     "recommend": "grok-4.5", "tier": "SIMPLE",
+                     "prompt_chars": 400, "session_id": "sess-est"}]
+        with mock.patch.object(self.core, "_get_cost_fn", return_value=lambda *a, **k: 0.25):
+            spend = self.core._spend_from_logs(turn_log, cost_log)
+        grok = spend["by_project"]["raven"]["by_ide"]["grok"]
+        self.assertEqual(grok["sessions"], 2)
+        self.assertGreater(spend["total_cost_usd"], 0.01)
+        self.assertEqual(grok["kind"], "mixed")
+
     def test_gather_keeps_per_repo_tails(self):
         """Merged gather must not drop repo B when repo A alone exceeds `per`."""
         # Smoke: function returns three lists and does not slice to `per` globally

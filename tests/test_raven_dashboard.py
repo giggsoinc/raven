@@ -85,7 +85,8 @@ class TestRavenDashboard(unittest.TestCase):
         self.assertIn("Last refresh:", text)
         self.assertIn("Open live dashboard", text)
         self.assertIn("liveDashUrl", text)
-        self.assertIn("http://127.0.0.1:9787", text)
+        self.assertIn("http://127.0.0.1:9787#raven", text)
+        self.assertNotIn("history.replaceState(null,'','#'+stem)", text)
         self.assertNotIn(
             "start python3 scripts/ops/dashboard-server.py then click again (file:// cannot rebuild)",
             text,

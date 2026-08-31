@@ -319,12 +319,17 @@ class DashboardRequestHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         if path == "/refresh":
-            data = run_dashboard_script()
+            try:
+                data = run_dashboard_script()
+            except Exception as e:
+                data = {"ok": False, "error": str(e)}
+            body = json.dumps(data).encode()
             self.send_response(200)
             self.send_header("Content-type", "application/json")
             self._cors()
+            self.send_header("Content-Length", str(len(body)))
             self.end_headers()
-            self.wfile.write(json.dumps(data).encode())
+            self.wfile.write(body)
             return
 
         rel = path.lstrip("/")

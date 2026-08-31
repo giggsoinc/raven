@@ -2959,7 +2959,7 @@ def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
         if day:
             days[day] = days.get(day, 0.0) + float(usd)
         sess_keys.add(key)
-        covered.add((repo, ide))
+        covered.add(key)
 
     for r in turn_log:
         repo = str(r.get("repo") or r.get("project") or "unknown")
@@ -2968,7 +2968,7 @@ def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
         tier = str(r.get("tier") or "?")
         mk = (ide, tier, model or "?")
         router_mix[mk] = router_mix.get(mk, 0) + 1
-        if (repo, ide) in covered:
+        if _log_session_key(repo, ide, r) in covered:
             continue
         chars = int(r.get("prompt_chars") or 0)
         tin = max(0, chars // 4)
@@ -2978,7 +2978,8 @@ def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
             usd = _usd(r.get("est_cost_usd"))
         _b, ib = bucket(repo, ide)
         ib["cost_usd"] += float(usd or 0)
-        ib["kind"] = "estimated"
+        prev_k = ib.get("kind") or "estimated"
+        ib["kind"] = "mixed" if prev_k == "actual" else "estimated"
         ib["in"] = int(ib.get("in") or 0) + tin
         ib["out"] = int(ib.get("out") or 0) + tout
         ib["fires"] = int(ib.get("fires") or 0) + 1
@@ -3858,8 +3859,7 @@ function show(v){{
   closeLogDetail();
 }}
 function liveDashUrl(){{
-  const hash = (location.hash || '').replace(/^#/, '');
-  return 'http://127.0.0.1:9787' + (hash ? '#' + hash : '');
+  return 'http://127.0.0.1:9787#raven';
 }}
 function refreshNow(){{
   const on = document.querySelector('.nav.on');
@@ -3895,7 +3895,6 @@ function applyRepo(file){{
   if (look) look.textContent = 'Looking at: ' + (stem || 'all');
   const set = (id, v) => {{ const n=document.getElementById(id); if(n) n.textContent=v; }};
   set('ovScope', stem ? '(graph: '+stem+'; totals are all repos)' : '(all repos)');
-  if (history.replaceState) history.replaceState(null,'','#'+stem);
 }}
 function filterLogs(repo){{
   const r = (repo||'all').toLowerCase().replace(/\\.html$/,'');
@@ -3996,6 +3995,13 @@ function goOkf(name, stay){{
   var h = decodeURIComponent((location.hash||'').replace(/^#/,''));
   if(!h) return;
   var s = h.toLowerCase().replace(/\\.html$/,'');
+  var panes = ['home','graph','repos','costs','logs','obs','guards','settings','raven'];
+  if (panes.indexOf(s) >= 0) {{
+    if (s !== 'raven' && s !== 'home') try {{ show(s); }} catch(e) {{}}
+    var mine = OKF['raven'] || OKF['RAVEN'] || '';
+    if (mine) goOkf(mine, true);
+    return;
+  }}
   var file = OKF[s];
   if(!file){{
     var k = Object.keys(OKF).find(x => x.replace(/-/g,'')===s.replace(/-/g,''));
