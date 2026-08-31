@@ -153,6 +153,14 @@ def route(env: dict | None = None, root: Path | None = None) -> dict:
     mem_rel = boot.get("memory") or ".raven/memory/CARD.md"
     card = root / mem_rel
     load = card_loadable(card)
+    if not load and not card.is_file():
+        try:
+            from vault_common import write_memory_card
+
+            write_memory_card(root)
+            load = card_loadable(card)
+        except Exception:
+            load = False
     try:
         import educate as _edu_mod
 

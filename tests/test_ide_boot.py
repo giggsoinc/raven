@@ -65,11 +65,14 @@ class TestIdeBoot(unittest.TestCase):
         self.assertEqual(r["rules"], ".agents/agents.md")
         self.assertEqual(r["load"], 1)
 
-    def test_no_card_load_zero(self):
+    def test_no_card_seeds_none_card(self):
         root = self._root(None)
         r = self.mod.route({"CLAUDECODE": "1"}, root)
-        self.assertEqual(r["load"], 0)
-        self.assertEqual(r["memory"], "")
+        card = root / ".raven" / "memory" / "CARD.md"
+        self.assertTrue(card.is_file())
+        self.assertIn("schema: 1", card.read_text(encoding="utf-8"))
+        self.assertEqual(r["load"], 1)
+        self.assertEqual(r["memory"], ".raven/memory/CARD.md")
 
     def test_bad_schema_load_zero(self):
         root = self._root("schema: 99\nstatus: FRESH\n")

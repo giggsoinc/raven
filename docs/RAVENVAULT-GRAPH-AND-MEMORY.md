@@ -42,7 +42,7 @@ Human: python3 scripts/dashboard.py --html --open
 | Path | Role |
 |------|------|
 | `~/RavenVault` | **Canonical** Obsidian vault + metrics + dashboard (humans) |
-| `.raven/memory/CARD.md` | **Agent** start surface (generated on Stop) |
+| `.raven/memory/CARD.md` | **Agent** start surface (seeded on first boot if missing; refreshed on Stop) |
 | `.raven/boot.json` | IDE env → native rules file |
 | `AndieVault` | **Deprecated** — do not use |
 
@@ -54,7 +54,7 @@ Human: python3 scripts/dashboard.py --html --open
 
 1. Native rules file for this IDE (see README host table) says: run **`scripts/memory/ide-boot.py`**.  
 2. If `load=1`, Read **only** `.raven/memory/CARD.md` (schema 1, open questions/decisions, dashboard path).  
-3. If `load=0` or schema ≠ 1: no vault, no graph, no invented memory.  
+3. If the card is missing, ide-boot writes a schema-1 `status: NONE` card (no invented history), then `load=1` and Read it. Invalid schema still `load=0`.  
 4. Claude `SessionStart` still runs **`session-start.py`** (banner/models) — it does **not** shell `vault-load.py`.  
 5. `vault-load.py` remains a **manual** dump for humans.
 
@@ -276,7 +276,7 @@ Feature release: agent vault load, knowledge graph export, dashboard graph + cit
 
 ---
 
-## 7. Apply to raven-codex / raven-enterprise
+## 7. Apply to other Raven variants
 
 Use the **portable apply prompt** in:
 
