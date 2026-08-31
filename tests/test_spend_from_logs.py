@@ -34,7 +34,8 @@ class TestSpendFromLogs(unittest.TestCase):
                 "tokens_out": 2000,
                 "cache_read": 1_000_000,
                 "cache_creation": 0,
-                "computed_cost_usd": 0.111,  # includes cache; prefer this
+                "computed_cost_usd": 0.111,
+                "cum_session_usd": 0.111,
             },
             {
                 # older smaller snapshot — must not double-count
@@ -129,19 +130,17 @@ class TestSpendFromLogs(unittest.TestCase):
         self.assertGreater(spend["total_cost_usd"], 0.01)
         self.assertEqual(grok["kind"], "mixed")
 
-    def test_gather_keeps_per_repo_tails(self):
-        """Merged gather must not drop repo B when repo A alone exceeds `per`."""
-        # Smoke: function returns three lists and does not slice to `per` globally
-        # (implementation detail asserted via source contract in dashboard tests too).
-        src = (ROOT / "scripts" / "dashboard" / "core.py").read_text(encoding="utf-8")
-        self.assertIn("Do not re-trim the", src)
-        self.assertIn("merged_bp = {}", src)
-        self.assertIn("Sessions (table)", src)
-        self.assertIn("cache_read×0.1", src)
-        self.assertNotIn(
-            'metrics["sessions_count"] = max(int(metrics.get("sessions_count") or 0), log_spend["sessions_count"])',
-            src,
-        )
+    def test_cum_session_not_turn_delta(self):
+        """Headline is session cum, not the last turn's computed_cost_usd."""
+        base = {"repo": "raven", "ide": "claude", "session_id": "s", "model": "claude-sonnet-5",
+                "tokens_in": 1}
+        cost_log = [
+            {**base, "ts": "t1", "tokens_out": 10, "computed_cost_usd": 18.69, "cum_session_usd": 18.69},
+            {**base, "ts": "t2", "tokens_out": 20, "computed_cost_usd": 32.58, "cum_session_usd": 51.27},
+        ]
+        with mock.patch.object(self.core, "_get_cost_fn", return_value=lambda *a, **k: 0):
+            spend = self.core._spend_from_logs([], cost_log)
+        self.assertAlmostEqual(spend["total_cost_usd"], 51.27, places=2)
 
 
 if __name__ == "__main__":

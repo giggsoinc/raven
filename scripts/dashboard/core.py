@@ -2847,13 +2847,14 @@ def _log_session_key(repo: str, ide: str, row: dict) -> tuple:
 
 
 def _row_actual_usd(row: dict, gc) -> float:
-    """One Stop snapshot: prefer computed_cost_usd (includes cache); else get_cost+cache."""
-    raw = row.get("computed_cost_usd")
-    if raw is not None and str(raw) != "":
-        try:
-            return float(raw)
-        except (TypeError, ValueError):
-            pass
+    """Session actual: prefer cum_session_usd (full session), not a turn delta."""
+    for key in ("cum_session_usd", "computed_cost_usd"):
+        raw = row.get(key)
+        if raw is not None and str(raw).strip() != "":
+            try:
+                return float(raw)
+            except (TypeError, ValueError):
+                pass
     model = str(row.get("model") or "")
     try:
         usd = gc(
@@ -2872,10 +2873,9 @@ def _row_actual_usd(row: dict, gc) -> float:
 def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
     """Spend from cost-log (actual) + turn-log (estimated) with matching grains.
 
-    Actual: one snapshot per (repo, ide, session) — the max tokens_out row —
-    priced once via computed_cost_usd / get_cost including cache_read (0.1×) and
-    cache_creation (1.25×). Taking one snapshot avoids triple-counting when
-    Stop re-parsed a full transcript.
+    Actual: one snapshot per (repo, ide, session) — the highest
+    cum_session_usd (else computed_cost_usd / tokens_out). Price that row via
+    cum_session_usd so turn deltas are not mistaken for the session total.
 
     Estimated (IDEs with no cost-log coverage): per router fire,
     tokens_in=prompt_chars/4, tokens_out=500, then sum into session keys
@@ -2920,6 +2920,8 @@ def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
                 "out": 0,
                 "cache_read": 0,
                 "fires": 0,
+                "actual_usd": 0.0,
+                "est_usd": 0.0,
             },
         )
         return b, ib
@@ -2933,11 +2935,17 @@ def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
         repo = str(r.get("repo") or r.get("project") or "unknown")
         key = _log_session_key(repo, ide, r)
         prev = best.get(key)
-        tout = int(r.get("tokens_out") or 0)
-        prev_out = int(prev.get("tokens_out") or 0) if prev else -1
-        prev_usd = float(prev.get("computed_cost_usd") or 0) if prev else -1.0
-        cur_usd = float(r.get("computed_cost_usd") or 0)
-        if prev is None or tout > prev_out or (tout == prev_out and cur_usd >= prev_usd):
+        def _snap(row: dict) -> tuple:
+            try:
+                cum = float(row.get("cum_session_usd") or 0)
+            except (TypeError, ValueError):
+                cum = 0.0
+            try:
+                comp = float(row.get("computed_cost_usd") or 0)
+            except (TypeError, ValueError):
+                comp = 0.0
+            return (cum, comp, int(row.get("tokens_out") or 0))
+        if prev is None or _snap(r) >= _snap(prev):
             best[key] = r
 
     covered = set()
@@ -2949,7 +2957,8 @@ def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
         usd = _row_actual_usd(r, gc)
         _b, ib = bucket(repo, ide)
         ib["cost_usd"] += float(usd)
-        ib["kind"] = "actual"
+        ib["actual_usd"] = float(ib.get("actual_usd") or 0) + float(usd)
+        ib["kind"] = "mixed" if ib.get("kind") == "estimated" and ib.get("est_usd") else "actual"
         ib["in"] = int(ib.get("in") or 0) + tin
         ib["out"] = int(ib.get("out") or 0) + tout
         ib["cache_read"] = int(ib.get("cache_read") or 0) + cr
@@ -2978,6 +2987,7 @@ def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
             usd = _usd(r.get("est_cost_usd"))
         _b, ib = bucket(repo, ide)
         ib["cost_usd"] += float(usd or 0)
+        ib["est_usd"] = float(ib.get("est_usd") or 0) + float(usd or 0)
         prev_k = ib.get("kind") or "estimated"
         ib["kind"] = "mixed" if prev_k == "actual" else "estimated"
         ib["in"] = int(ib.get("in") or 0) + tin
@@ -3003,10 +3013,8 @@ def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
             cost += ib["cost_usd"]
             tokens += int(ib.get("tokens") or 0)
             kinds.add(ib.get("kind") or "estimated")
-            if ib.get("kind") == "actual":
-                actual_total += ib["cost_usd"]
-            else:
-                est_total += ib["cost_usd"]
+            actual_total += float(ib.get("actual_usd") or 0)
+            est_total += float(ib.get("est_usd") or 0)
         b["cost_usd"] = round(cost, 4)
         b["tokens"] = tokens
         b["kind"] = (
