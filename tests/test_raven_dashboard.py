@@ -66,6 +66,13 @@ class TestRavenDashboard(unittest.TestCase):
         self.assertIn("Back to log tables", text)
         self.assertIn("<th>Repo</th>", text)
         self.assertIn("filterLogs", text)
+        self.assertIn("costRepo", text)
+        self.assertIn("obsRepo", text)
+        self.assertIn("repoFilter", text)
+        self.assertNotIn(
+            "location.replace('http://127.0.0.1:9787/raven-dashboard.html' + location.hash);\n    }}",
+            text,
+        )
         self.assertIn("_gather_repo_logs", text)
         self.assertIn("data-v=\"settings\"", text)
         self.assertIn("saveSettings", text)

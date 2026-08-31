@@ -3568,7 +3568,8 @@ def write_raven_dashboard(metadata: dict, metrics: Optional[dict] = None) -> Pat
         str(k) for k, v in (bp or {}).items() if isinstance(v, dict)
     }
     obs_repo_tbl = "".join(
-        f"<tr><td>{html_lib.escape(str(k))} "
+        f"<tr data-repo='{html_lib.escape(str(k).lower())}'>"
+        f"<td>{html_lib.escape(str(k))} "
         f"<span class='dim'>{html_lib.escape(str((bp.get(k) or {}).get('kind') or '—'))}</span></td>"
         f"<td class='num'>{int(om['by_repo'].get(k, 0))}</td>"
         f"<td class='num'>${float((bp.get(k) or {}).get('cost_usd') or 0):.4f}</td></tr>"
@@ -3586,8 +3587,11 @@ def write_raven_dashboard(metadata: dict, metrics: Optional[dict] = None) -> Pat
         if not isinstance(v, dict):
             continue
         rk = v.get("kind") or "estimated"
+        rk_slug = html_lib.escape(str(k).lower())
         cost_repo_parts.append(
-            f"<tr><td><b>{html_lib.escape(str(k))}</b> <span class='dim'>summary · {html_lib.escape(str(rk))}</span></td>"
+            f"<tr data-repo='{rk_slug}' data-kind='summary' data-cost='{float(v.get('cost_usd') or 0):.6f}' "
+            f"data-sess='{int(v.get('sessions') or 0)}' data-tok='{int(v.get('tokens') or 0)}'>"
+            f"<td><b>{html_lib.escape(str(k))}</b> <span class='dim'>summary · {html_lib.escape(str(rk))}</span></td>"
             f"<td class='num'>{int(v.get('sessions') or 0)}</td>"
             f"<td class='num'>{int(v.get('tokens') or 0):,}</td>"
             f"<td class='num'>${float(v.get('cost_usd') or 0):.4f}</td></tr>"
@@ -3604,7 +3608,8 @@ def write_raven_dashboard(metadata: dict, metrics: Optional[dict] = None) -> Pat
                 if ik == "estimated" and int(iv.get("fires") or 0):
                     io += f" fires={int(iv.get('fires') or 0)}×500out"
             cost_repo_parts.append(
-                f"<tr><td class='dim' style='padding-left:24px'>IDE · {html_lib.escape(str(ide))} ({html_lib.escape(str(ik))}{io})</td>"
+                f"<tr data-repo='{rk_slug}'>"
+                f"<td class='dim' style='padding-left:24px'>IDE · {html_lib.escape(str(ide))} ({html_lib.escape(str(ik))}{io})</td>"
                 f"<td class='num'>{int(iv.get('sessions') or 0)}</td>"
                 f"<td class='num'>{int(iv.get('tokens') or 0):,}</td>"
                 f"<td class='num'>${float(iv.get('cost_usd') or 0):.4f}</td></tr>"
@@ -3749,7 +3754,8 @@ select{{background:#1c2330;color:var(--ink);border:1px solid var(--line);padding
 </section>
 <section class="view" id="v-costs">
   {_pane_bar("Costs", built_at)}
-  <p class="dim">{html_lib.escape(spend_tip)} Grouped by <b>repo</b>, then <b>IDE</b>.</p>
+  <p class="dim">{html_lib.escape(spend_tip)} Grouped by <b>repo</b>, then <b>IDE</b>. Filter: 
+    <select class="repoFilter" id="costRepo" onchange="filterLogs(this.value)">{log_repo_opts}</select></p>
   <div class="tiles">
     <div class="tile" title="{html_lib.escape(spend_tip)}"><div class="dim">{spend_label}</div><div style="font-size:22px" id="costSpend">${spend:.4f}</div></div>
     <div class="tile"><div class="dim">Sessions (table)</div><div style="font-size:22px" id="costSess">{sess}</div></div>
@@ -3768,7 +3774,7 @@ select{{background:#1c2330;color:var(--ink);border:1px solid var(--line);padding
   {_pane_bar("Logs", built_at)}
   <p class="dim">Every row is classified by <b>repo</b> and <b>IDE</b>. Filter, then json → detail. ← Back returns to these tables.</p>
   <div id="logTables">
-  <p>Repo: <select id="logRepo" onchange="filterLogs(this.value)">{log_repo_opts}</select></p>
+  <p>Repo: <select class="repoFilter" id="logRepo" onchange="filterLogs(this.value)">{log_repo_opts}</select></p>
   <h3 style="margin:16px 0 8px">Router (turn-log.jsonl)</h3>
   <table><thead><tr><th>When</th><th>Repo</th><th>IDE</th><th>Tier</th><th>Recommend</th><th class="num">est</th><th class="num">total-cost</th><th>Observe</th><th></th></tr></thead>
   <tbody>{turn_tbl}</tbody></table>
@@ -3797,7 +3803,7 @@ select{{background:#1c2330;color:var(--ink);border:1px solid var(--line);padding
     <div class="tile"><h3>By repo (cost)</h3><table><thead><tr><th>Repo</th><th class="num">Traces</th><th class="num">Cost</th></tr></thead><tbody>{obs_repo_tbl}</tbody></table></div>
   </div>
   <div id="obsTables">
-  <p>Repo: <select id="obsRepo" onchange="filterLogs(this.value)">{log_repo_opts}</select></p>
+  <p>Repo: <select class="repoFilter" id="obsRepo" onchange="filterLogs(this.value)">{log_repo_opts}</select></p>
   <table><thead><tr><th>When</th><th>Repo</th><th>IDE</th><th>Tier</th><th>Recommend</th><th class="num">prompt chars</th><th class="num">est</th><th></th></tr></thead>
   <tbody>{obs_tbl}</tbody></table>
   </div>
@@ -3868,7 +3874,7 @@ function refreshNow(){{
   }}).catch(() => {{
     const live = liveDashUrl();
     document.querySelectorAll('.refresh-meta').forEach(el => {{
-      el.innerHTML = 'Last refresh: file:// is view-only. <a class="live-dash" href="'+live+'">Open live dashboard</a>';
+      el.innerHTML = 'Last refresh: file:// is view-only. Start python3 scripts/ops/dashboard-server.py then <a class="live-dash" href="'+live+'">open live dashboard</a>.';
     }});
     document.querySelectorAll('.refresh-now').forEach(b => {{ b.disabled = false; b.textContent = '↻ Refresh now'; }});
   }});
@@ -3898,12 +3904,23 @@ function filterLogs(repo){{
     const hit = (r==='all'||r===''||v===r||v.replace(/_/g,'-')===r.replace(/_/g,'-'));
     tr.style.display = hit ? '' : 'none';
   }});
-  const sel = document.getElementById('logRepo');
-  if (sel) {{
+  document.querySelectorAll('.repoFilter').forEach(sel => {{
     for (const o of sel.options) {{
       if (o.value.toLowerCase()===r) {{ sel.value = o.value; break; }}
     }}
-  }}
+  }});
+  let sum = 0, sess = 0, tok = 0, n = 0;
+  document.querySelectorAll('#v-costs tr[data-kind=summary]').forEach(tr => {{
+    if (tr.style.display === 'none') return;
+    n += 1;
+    sum += parseFloat(tr.getAttribute('data-cost')||'0');
+    sess += parseInt(tr.getAttribute('data-sess')||'0', 10);
+    tok += parseInt(tr.getAttribute('data-tok')||'0', 10);
+  }});
+  const cs = document.getElementById('costSpend');
+  const ss = document.getElementById('costSess');
+  if (cs && n) cs.textContent = '$' + sum.toFixed(2);
+  if (ss && n) ss.textContent = String(sess);
 }}
 function openLog(bag, i){{
   const row = (LOGPACK[bag]||[])[i];
