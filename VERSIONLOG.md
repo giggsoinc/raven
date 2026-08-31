@@ -5,6 +5,13 @@ adds an entry here (newest first), and must pass `scripts/check-version-consiste
 (CI: `raven-version-consistency-check`). Historical changelogs in `docs/` are
 never rewritten — this file is the roll-up index.
 
+## v5.5.6 — 2026-08-31 — Rule 8 plugin session-start + marketplace pin (patch)
+
+`plugin/scripts/session-start.py` is a symlink to canonical session-start (no
+auto-tier Opus/Fable). Marketplace.json version 5.5.6. Tag `v5.5.6`.
+
+---
+
 ## v5.5.5 — 2026-08-31 — Observability spend + dashboard refresh (patch)
 
 Observability Spend uses cost-log `computed_cost_usd` (not pre-turn ~$2 estimates).

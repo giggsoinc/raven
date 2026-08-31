@@ -1,4 +1,4 @@
-# CLAUDE.md — Raven Discipline Engine v5.5.5
+# CLAUDE.md — Raven Discipline Engine v5.5.6
 
 > **This file is the contract.** Claude reads this on every turn. The rules below are not aspirational — they are how Claude must behave in this project.
 
@@ -304,4 +304,4 @@ python3 scripts/ops/install-claudemd.py --source path/to/new/CLAUDE.md --target 
 
 ---
 
-*Raven v5.5.5 — MIT — github.com/giggsoinc/raven*
+*Raven v5.5.6 — MIT — github.com/giggsoinc/raven*

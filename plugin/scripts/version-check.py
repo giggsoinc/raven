@@ -27,7 +27,7 @@ from pathlib import Path
 # Add each new release to the END of this list.
 # Distance = index(latest) - index(installed)
 _REL = Path(__file__).resolve().parent / "releases.json"
-RAVEN_RELEASES = json.loads(_REL.read_text()) if _REL.is_file() else ["5.5.5"]
+RAVEN_RELEASES = json.loads(_REL.read_text()) if _REL.is_file() else ["5.5.6"]
 
 RAVEN_LATEST = RAVEN_RELEASES[-1]
 AUTO_SYNC_THRESHOLD = 3   # releases behind → auto-sync

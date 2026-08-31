@@ -1,6 +1,6 @@
-# Raven 5.5.5 — one plugin, every host
+# Raven 5.5.6 — one plugin, every host
 
-There is **one** artifact: `plugin/raven-plugin-v5.5.5.zip`.
+There is **one** artifact: `plugin/raven-plugin-v5.5.6.zip`.
 It is not Claude-Desktop-only. Claude’s marketplace loader (`.claude-plugin/`) is included because Claude Code uses it. Other hosts load the **same zip contents** via `install-host.sh` (copies `hosts/` + `scripts/` into the project).
 
 | Host | What the zip installs | How you load it |
