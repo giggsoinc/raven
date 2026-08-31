@@ -5,6 +5,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [5.5.6] — 2026-08-31 — Rule 8 plugin mirror + marketplace 5.5.6
+
+- plugin session-start no longer auto-tiers Opus.
+- marketplace.json 5.5.0/5.5.5 → 5.5.6.
+
 ## [5.5.5] — 2026-08-31 — obs spend, refresh, repo filter
 
 - Observability actual spend from cost-log; pre-turn est labeled not billed.
