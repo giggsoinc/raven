@@ -7,14 +7,14 @@
   },
   "metadata": {
     "description": "AI codes fast. Raven enforces Discipline \u2014 Strategic Thinking, Scalable Structure, Security at Source. A plan attacked from three angles before any edit, approved by you; every prompt routed to the right one of 61 specialists, never silently; and local guards that block secrets, vulnerable libraries, and edits until the thinking happened \u2014 at the source, not after the damage. All local. Zero telemetry. MIT.",
-    "version": "5.5.0"
+    "version": "5.5.5"
   },
   "plugins": [
     {
       "name": "raven",
       "source": "./",
       "description": "AI codes fast. Raven enforces Discipline \u2014 Strategic Thinking, Scalable Structure, Security at Source. A plan attacked from three angles before any edit, approved by you; every prompt routed to the right one of 61 specialists, never silently; and local guards that block secrets, vulnerable libraries, and edits until the thinking happened \u2014 at the source, not after the damage. All local. Zero telemetry. MIT.",
-      "version": "5.5.0",
+      "version": "5.5.5",
       "author": {
         "name": "Giggso Inc.",
         "email": "rv@giggso.com",
@@ -36,5 +36,5 @@
       "category": "security"
     }
   ],
-  "version": "5.5.0"
+  "version": "5.5.5"
 }
