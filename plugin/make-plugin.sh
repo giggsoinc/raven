@@ -17,8 +17,9 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "  Raven plugin  v${VERSION}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-mkdir -p "$TMP_DIR/.claude-plugin"
+mkdir -p "$TMP_DIR/.claude-plugin" "$TMP_DIR/.codex-plugin"
 cp "$REPO_DIR/.claude-plugin/plugin.json" "$TMP_DIR/.claude-plugin/plugin.json"
+cp "$REPO_DIR/.codex-plugin/plugin.json" "$TMP_DIR/.codex-plugin/plugin.json"
 cp "$REPO_DIR/plugin/plugin.json" "$TMP_DIR/plugin.json"
 
 mkdir -p "$TMP_DIR/skills"
@@ -100,6 +101,7 @@ zip -rq "$ZIP_PATH" . -x "*.DS_Store" -x "*/__pycache__/*" -x "*.pyc"
 SIZE="$(du -h "$ZIP_PATH" | cut -f1)"
 echo "  📦 $ZIP_PATH ($SIZE)"
 python3 -c "import json; json.load(open('$TMP_DIR/.claude-plugin/plugin.json'))"
+python3 -c "import json; json.load(open('$TMP_DIR/.codex-plugin/plugin.json'))"
 python3 -c "import json; json.load(open('$TMP_DIR/settings.json'))"
 echo "  install: unzip then  claude plugin install <dir>  OR  bash install-host.sh <project>"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

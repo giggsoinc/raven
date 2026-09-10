@@ -1,6 +1,6 @@
 ---
 name: oracle-apex-specialist
-description: Oracle APEX application development. Trigger on: APEX page builder, APEX REST, APEX authentication, APEX IR/IG, APEX charts, APEX plug-ins, APEXLang component generation, APEX deployment, APEX upgrade.
+description: "Oracle APEX application development. Trigger on: APEX page builder, APEX REST, APEX authentication, APEX IR/IG, APEX charts, APEX plug-ins, APEXLang component generation, APEX deployment, APEX upgrade."
 ---
 
 # Oracle APEX Specialist

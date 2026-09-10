@@ -43,4 +43,9 @@ if [[ -d "$ROOT/scripts" ]]; then
   cp -R "$ROOT/scripts/." "$TARGET/scripts/"
   echo "  $TARGET/scripts/ (engine)"
 fi
+if [[ -d "$ROOT/skills" ]]; then
+  mkdir -p "$TARGET/.codex/skills"
+  cp -R "$ROOT/skills/." "$TARGET/.codex/skills/"
+  echo "  $TARGET/.codex/skills/ (Codex \$skill-name discovery)"
+fi
 echo "Done. Open the project in your IDE. Router: python3 scripts/ops/raven-first.py --prompt \"...\""

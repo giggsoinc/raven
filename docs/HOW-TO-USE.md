@@ -519,15 +519,17 @@ The pre-commit hook (separate from Claude Code hooks) adds: manifest check · se
 
 ### Install
 
-1. Go to [giggsoinc/raven-codex](https://github.com/giggsoinc/raven-codex)
-2. Install the plugin in your Codex or Copilot interface
-3. That's it — all 55 skills load automatically
+1. Install Raven's plugin directory or zip in Codex.
+2. Start a new Codex thread so the plugin manifest is loaded.
+3. Type `$r` in the composer to search and select Raven skills such as `$raven-init`, `$raven-review`, or `$raven-security`.
+
+For project-based host installation, run `bash install-host.sh /path/to/your-project`; this provisions `.codex/skills/` as well as the Raven host instructions.
 
 ### What's different from Claude Code
 
 | Feature | Claude Code | Codex / Copilot |
 |---|---|---|
-| All 61 skills | ✅ | ✅ |
+| All 61 skills | ✅ | ✅ — available with `$skill-name` |
 | Andie orchestration | ✅ | ✅ — mandatory first step |
 | Pre-commit hook | ✅ | ❌ — no hook system |
 | Secret detection at save | ✅ | Conversational only |

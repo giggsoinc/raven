@@ -8,7 +8,7 @@ It is not Claude-Desktop-only. Claude’s marketplace loader (`.claude-plugin/`)
 | Claude Code | `.claude-plugin/`, `skills/`, `agents/`, `commands/`, `settings.json` | `claude plugin install ./plugin` **or** unzip zip and `claude plugin install <extracted>` |
 | Claude Desktop | same + `.claude-plugin/plugin.json` | Settings → Extensions → Add plugin → zip or folder |
 | Grok | `hosts/AGENTS.md` → project `AGENTS.md` + `scripts/` | `bash install-host.sh /path/to/project` |
-| Codex | same `AGENTS.md` | same |
+| Codex | `.codex-plugin/plugin.json` + `skills/` for native `$skill-name` discovery; host install also copies `.codex/skills/` | install the plugin in Codex, or run `bash install-host.sh /path/to/project` |
 | Cursor | `.cursor/rules/raven-router.mdc` + `AGENTS.md` | same |
 | AntiGravity | `.agents/agents.md` (same contract as Codex/Grok). **Must** use `bash scripts/raven-python.sh …` not Anaconda `python3`. | same |
 | Windsurf | `.windsurf/rules/ide-boot.md` | same |

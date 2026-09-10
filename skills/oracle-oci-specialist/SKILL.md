@@ -1,6 +1,6 @@
 ---
 name: oracle-oci-specialist
-description: Oracle Cloud Infrastructure — compute, networking, storage, databases, security, DevOps pipelines, Container Engine (OKE), Functions, Streaming, AI services. Trigger on: OCI, Oracle Cloud, OKE, OCI Compute, OCI Networking, OCI Object Storage, OCI IAM, OCI DevOps, OCI Functions, OCI Streaming, OCI AI.
+description: "Oracle Cloud Infrastructure — compute, networking, storage, databases, security, DevOps pipelines, Container Engine (OKE), Functions, Streaming, AI services. Trigger on: OCI, Oracle Cloud, OKE, OCI Compute, OCI Networking, OCI Object Storage, OCI IAM, OCI DevOps, OCI Functions, OCI Streaming, OCI AI."
 ---
 
 # Oracle Cloud Infrastructure Specialist
