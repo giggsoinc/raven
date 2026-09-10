@@ -1,6 +1,6 @@
 ---
 name: oracle-apexlang-specialist
-description: APEXLang deterministic component generation for Oracle APEX. Trigger on: APEXLang, .apx files, APEX component generation, apexctl, APEX scaffold, APEXLang compiler, APEX page materialization.
+description: "APEXLang deterministic component generation for Oracle APEX. Trigger on: APEXLang, .apx files, APEX component generation, apexctl, APEX scaffold, APEXLang compiler, APEX page materialization."
 ---
 
 # APEXLang Specialist

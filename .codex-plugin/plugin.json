@@ -1,0 +1,28 @@
+{
+  "name": "raven",
+  "version": "5.5.6",
+  "description": "Raven discipline, routing, governance, and specialist skills for Codex.",
+  "author": {
+    "name": "Giggso / AntiGravity Projects",
+    "email": "rv@giggso.com",
+    "url": "https://github.com/giggsoinc/raven"
+  },
+  "homepage": "https://github.com/giggsoinc/raven",
+  "repository": "https://github.com/giggsoinc/raven",
+  "license": "MIT",
+  "keywords": ["raven", "governance", "security", "routing", "specialists"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Raven",
+    "shortDescription": "Discipline and specialist skills for Codex",
+    "longDescription": "Raven provides routing, governance, security, and specialist skills for Codex.",
+    "developerName": "Giggso",
+    "category": "Developer Tools",
+    "capabilities": ["Write", "Code execution"],
+    "defaultPrompt": [
+      "Use Raven to review this change",
+      "Use Raven's security skill on this project",
+      "Initialize Raven for this repository"
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 ---
 name: oracle-graal-specialist
-description: GraalVM Native Image — builds, configuration, reachability metadata, and troubleshooting. Trigger on: native-image, GraalVM, native-maven-plugin, org.graalvm.buildtools.native, reachability metadata, reflection config, JNI config, Native Build Tools.
+description: "GraalVM Native Image — builds, configuration, reachability metadata, and troubleshooting. Trigger on: native-image, GraalVM, native-maven-plugin, org.graalvm.buildtools.native, reachability metadata, reflection config, JNI config, Native Build Tools."
 ---
 
 # GraalVM Native Image Specialist
