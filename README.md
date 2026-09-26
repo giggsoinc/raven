@@ -2,7 +2,7 @@
   <img src="./assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
 </p>
 
-# Raven v5.5.6 — The Open-Source Solution to AI Comprehension Debt.
+# Raven v5.5.7 — The Open-Source Solution to AI Comprehension Debt.
 
 **Raven is the open-source solution to AI comprehension debt — a local AI Engineering Control Plane built to fight the two things AI coding actually breaks: discipline (code shipping faster than the thinking behind it) and comprehension debt (nobody remembering what the AI wrote, or why). One governed local layer routes each prompt to the right expert, blocks secrets and vulnerable code at the source, meters every token and dollar with verified math, and keeps your team's decisions in a memory that outlives the session.**
 
@@ -238,7 +238,11 @@ diagrams: [business view](docs/Agent_token_architecture_business.html) ·
 
 ## Features by Version
 
-### **Raven v5.5.6** (Current) — One plugin, every host
+### **Raven v5.5.7** (Current) — Version bump
+
+- Patch bump from v5.5.6. No new plugin surface. The install zip is still `plugin/raven-plugin-v5.5.6.zip` until `bash plugin/make-plugin.sh` is run against `raven-core/VERSION`.
+
+### **Raven v5.5.6** — One plugin, every host
 
 - Single zip `raven-plugin-v5.5.6.zip`: Claude `.claude-plugin` **plus** `hosts/` + `install-host.sh` for Grok, Codex, Cursor, Windsurf, VS Code, AntiGravity, Gemini, Replit. First-load UX unified across IDEs.
 - Engine scripts in the zip (`session/`, `routing/`, `memory/`, `dashboard/`) — not a Claude-only subset.
@@ -340,7 +344,7 @@ This repo is the **free tier — everything runs local**, MIT-licensed, complete
   <strong>Built by <a href="https://giggso.com">Giggso</a> · <a href="https://github.com/giggsoinc/raven">GitHub</a> · MIT License</strong>
 </p>
 
-*Raven v5.5.6 — one plugin, every host.*
+*Raven v5.5.7 — one plugin, every host.*
 
 
-*Raven v5.5.6 — Governance for AI coding at the speed of thought.*
+*Raven v5.5.7 — Governance for AI coding at the speed of thought.*
