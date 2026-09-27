@@ -21,9 +21,11 @@ RAVEN-changes-2026-08-22.md
 raven5.5-updates.md
 
 # Raven secrets — NEVER commit
+# Jev / TypeSafe API key is the typesafe_api_key field in this file only.
 .raven/manifest.secrets.json
 **/manifest.secrets.json
 *.secrets.json
+.raven/manifest.secrets.json.tmp
 
 # Raven runtime audit logs — local-only, not source
 .raven/audit/
@@ -51,6 +53,7 @@ __pycache__/
 .raven/model-pricing.local.json
 .raven/.last-turn-cost.json
 .raven/turn-log.jsonl
+.raven/logs/
 .raven/.run-costs.json
 .raven/.route-stamp
 .raven/dashboard-settings.json

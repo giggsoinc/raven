@@ -108,6 +108,9 @@ def main(argv: list[str] | None = None) -> int:
     engine = find_engine()
     target = _target()
     _ensure(engine, target)
+    jev_key = target / "scripts" / "ops" / "jev-key.py"
+    if any(flag in args for flag in ("--boot", "--session-start", "--prompt")):
+        _run(target, jev_key, ["--check"])
     boot = target / "scripts" / "memory" / "ide-boot.py"
     router = target / "scripts" / "routing" / "model-router.py"
     cost = target / "scripts" / "session" / "cost_calc.py"
@@ -115,12 +118,15 @@ def main(argv: list[str] | None = None) -> int:
         return _run(target, boot, ["--no-open"] if "--open" not in args else ["--open"])
     if "--session-start" in args:
         return _run(target, router, ["--session-start"])
+    hook = target / "scripts" / "memory" / "memory-card-hook.py"
     if "--end" in args:
+        _run(target, hook, ["--event", "exit"])
         return _run(target, cost, ["--end"])
     if "--prompt" in args:
         i = args.index("--prompt")
         rest = args[i + 1 :]
         prompt = rest[0] if rest else ""
+        _run(target, hook, ["--event", "turn"])
         return _run(target, router, ["--prompt", prompt])
     print(
         "usage: raven-first.py --prompt TEXT | --session-start | --boot | --end",
