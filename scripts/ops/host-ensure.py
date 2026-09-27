@@ -9,7 +9,6 @@ Called from raven-first /raven-init /raven-debug so public users get AGENTS.md,
 """
 from __future__ import annotations
 
-import getpass
 import importlib.util
 import os
 import shutil
@@ -130,7 +129,7 @@ def _jev_module():
 
 
 def prompt_jev_key() -> None:
-    """First init step. Hidden paste. Never prints the key."""
+    """First init step. Opens the local key page. Never prints the key."""
     try:
         jev = _jev_module()
     except (ImportError, OSError, FileNotFoundError) as exc:
@@ -140,12 +139,14 @@ def prompt_jev_key() -> None:
     if jev.stored_key(path):
         print("host-ensure: Jev key already stored")
         return
-    print(jev.instructions())
-    if not sys.stdin.isatty():
-        print("host-ensure: run this in your terminal: python3 scripts/ops/jev-key.py --set")
-        return
-    typed = getpass.getpass("Paste the Jev API key (input hidden): ")
-    jev.save_key(path, typed)
+    jev.ensure_secrets_file(path)
+    script = ENGINE / "scripts" / "ops" / "jev-key.py"
+    if not script.is_file():
+        script = TARGET / "scripts" / "ops" / "jev-key.py"
+    subprocess.run(
+        [sys.executable, str(script), "--page", "--file", str(path)],
+        cwd=str(TARGET),
+    )
 
 
 def main() -> int:
