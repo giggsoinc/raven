@@ -9,6 +9,8 @@ Called from raven-first /raven-init /raven-debug so public users get AGENTS.md,
 """
 from __future__ import annotations
 
+import getpass
+import importlib.util
 import os
 import shutil
 import stat
@@ -115,7 +117,39 @@ def open_dashboard() -> None:
     subprocess.run(cmd, cwd=str(TARGET), env=env, timeout=180)
 
 
+def _jev_module():
+    path = ENGINE / "scripts" / "ops" / "jev-key.py"
+    if not path.is_file():
+        path = TARGET / "scripts" / "ops" / "jev-key.py"
+    spec = importlib.util.spec_from_file_location("jev_key", path)
+    if spec is None or spec.loader is None:
+        raise ImportError(path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def prompt_jev_key() -> None:
+    """First init step. Hidden paste. Never prints the key."""
+    try:
+        jev = _jev_module()
+    except (ImportError, OSError, FileNotFoundError) as exc:
+        print(f"host-ensure: Jev key prompt unavailable ({exc})", file=sys.stderr)
+        return
+    path = jev.secrets_path(TARGET)
+    if jev.stored_key(path):
+        print("host-ensure: Jev key already stored")
+        return
+    print(jev.instructions())
+    if not sys.stdin.isatty():
+        print("host-ensure: run this in your terminal: python3 scripts/ops/jev-key.py --set")
+        return
+    typed = getpass.getpass("Paste the Jev API key (input hidden): ")
+    jev.save_key(path, typed)
+
+
 def main() -> int:
+    prompt_jev_key()
     done = ensure()
     print("host-ensure: " + (", ".join(done) if done else "already present"))
     print('Router: python3 scripts/ops/raven-first.py --prompt "…"')

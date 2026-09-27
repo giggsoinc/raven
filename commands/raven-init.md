@@ -44,7 +44,7 @@ Ask these questions one at a time. Wait for answer before proceeding.
 
 **Question 0 — Jev API key (required, first):**
 
-Do not ask the user to paste the key into chat. Tell them to run `python3 scripts/ops/jev-key.py --set`. The script prints these steps and saves the key in gitignored `.raven/manifest.secrets.json`:
+Do not ask the user to paste the key into chat. The first thing `/raven-init` runs is `python3 scripts/ops/host-ensure.py --no-open`, which asks in a hidden terminal prompt and saves the key in gitignored `.raven/manifest.secrets.json`. If this session has no terminal, tell them to run that command themselves:
 
 - Open https://console.typesafe.ai/keys
 - Sign in to the TypeSafe console
