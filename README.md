@@ -20,7 +20,7 @@ All local. Zero telemetry. MIT.
 
 ## Plugin — what you can do
 
-One zip: [`plugin/raven-plugin-v5.5.6.zip`](plugin/raven-plugin-v5.5.6.zip). Same artifact for Claude Code / Desktop and other hosts (`install-host.sh`).
+One zip: [`plugin/raven-plugin-v5.5.7.zip`](plugin/raven-plugin-v5.5.7.zip). Same artifact for Claude Code / Desktop and other hosts (`install-host.sh`).
 
 | You want to | In the plugin |
 |---|---|
@@ -40,7 +40,7 @@ Calculator spend is local. Check **actual billed** cost on the Costs pane or `/r
 Raven is **not** in an Anthropic-hosted plugin marketplace — `/plugin marketplace add giggsoinc/raven` will not work. Pick one:
 
 1. **Clone + install (Claude Code)** — `git clone https://github.com/giggsoinc/raven.git && claude plugin install ./raven/plugin`
-2. **One zip** — `plugin/raven-plugin-v5.5.6.zip`. Claude: unzip then `claude plugin install <dir>`. Other hosts: `bash install-host.sh /path/to/project` (see [plugin/HOSTS.md](plugin/HOSTS.md)).
+2. **One zip** — `plugin/raven-plugin-v5.5.7.zip`. Claude: unzip then `claude plugin install <dir>`. Other hosts: `bash install-host.sh /path/to/project` (see [plugin/HOSTS.md](plugin/HOSTS.md)).
 3. **Let Claude do it** — inside a Claude Code session, ask Claude to clone the repo and run the install command for you (same two steps as Option 1, just delegated)
 
 Full walkthrough (enterprise admin upload, org-wide managed deployment, troubleshooting): [claude_plugin_readme.md](./claude_plugin_readme.md)
@@ -238,9 +238,9 @@ diagrams: [business view](docs/Agent_token_architecture_business.html) ·
 
 ## Features by Version
 
-### **Raven v5.5.7** (Current) — Version bump
+### **Raven v5.5.7** (Current) — One plugin, every host
 
-- Patch bump from v5.5.6. No new plugin surface. The install zip is still `plugin/raven-plugin-v5.5.6.zip` until `bash plugin/make-plugin.sh` is run against `raven-core/VERSION`.
+- Single zip `raven-plugin-v5.5.7.zip`: Claude `.claude-plugin` plus `hosts/` and `install-host.sh` for Grok, Codex, Cursor, Windsurf, VS Code, AntiGravity, Gemini, and Replit.
 
 ### **Raven v5.5.6** — One plugin, every host
 
@@ -301,13 +301,13 @@ See [CHANGELOG.md](CHANGELOG.md) for v3.x and earlier.
 
 ## Other Install Paths
 
-**One ZIP (all hosts):** [`plugin/raven-plugin-v5.5.6.zip`](plugin/raven-plugin-v5.5.6.zip). Claude Desktop: Settings → Extensions → Add plugin. Other IDEs: `bash install-host.sh` (see [plugin/HOSTS.md](plugin/HOSTS.md)).
+**One ZIP (all hosts):** [`plugin/raven-plugin-v5.5.7.zip`](plugin/raven-plugin-v5.5.7.zip). Claude Desktop: Settings → Extensions → Add plugin. Other IDEs: `bash install-host.sh` (see [plugin/HOSTS.md](plugin/HOSTS.md)).
 
 **From source:**
 
 ```bash
 git clone https://github.com/giggsoinc/raven.git
-cd raven && bash plugin/make-plugin.sh   # builds plugin/raven-plugin-v5.5.6.zip
+cd raven && bash plugin/make-plugin.sh   # builds plugin/raven-plugin-v5.5.7.zip
 ```
 
 ---
