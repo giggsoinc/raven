@@ -1,6 +1,6 @@
 ---
 name: oracle-db-specialist
-description: Oracle Database guidance for SQL, PL/SQL, SQLcl, ORDS, administration, performance, security, migrations, and agent-safe database workflows. Version-aware across 19c, 21c, and 23ai. Trigger on: SQL, PL/SQL, SQLcl, ORDS, JDBC, node-oracledb, AWR, ASH, explain plan, Data Guard, RAC, Multitenant, Exadata, schema migrations, VPD, auditing, encryption, vector search, SELECT AI, property graph, JSON Relational Duality, OML, True Cache.
+description: "Oracle Database guidance for SQL, PL/SQL, SQLcl, ORDS, administration, performance, security, migrations, and agent-safe database workflows. Version-aware across 19c, 21c, and 23ai. Trigger on: SQL, PL/SQL, SQLcl, ORDS, JDBC, node-oracledb, AWR, ASH, explain plan, Data Guard, RAC, Multitenant, Exadata, schema migrations, VPD, auditing, encryption, vector search, SELECT AI, property graph, JSON Relational Duality, OML, True Cache."
 ---
 
 # Oracle Database Specialist

@@ -1,6 +1,6 @@
 ---
 name: oracle-fusion-specialist
-description: Oracle Fusion ERP — Order to Cash, Procure to Pay, Record to Report, FBDI, BIP, OIC, REST APIs, OTBI, FRS, ADW. Trigger on: Oracle Fusion, Oracle ERP, O2C, P2P, R2R, FBDI, BIP reports, OIC integration, OTBI analytics, Fusion REST.
+description: "Oracle Fusion ERP — Order to Cash, Procure to Pay, Record to Report, FBDI, BIP, OIC, REST APIs, OTBI, FRS, ADW. Trigger on: Oracle Fusion, Oracle ERP, O2C, P2P, R2R, FBDI, BIP reports, OIC integration, OTBI analytics, Fusion REST."
 ---
 
 # Oracle Fusion Specialist
