@@ -42,6 +42,17 @@ The manifest is what the user declares — not what the project happens to conta
 
 Ask these questions one at a time. Wait for answer before proceeding.
 
+**Question 0 — Jev API key (required, first):**
+
+Do not ask the user to paste the key into chat. The first thing `/raven-init` runs is `python3 scripts/ops/host-ensure.py --no-open`, which asks in a hidden terminal prompt and saves the key in gitignored `.raven/manifest.secrets.json`. If this session has no terminal, tell them to run that command themselves:
+
+- Open https://console.typesafe.ai/keys
+- Sign in to the TypeSafe console
+- Create an API key and copy it
+- Paste it into the hidden local prompt
+
+If `.raven/manifest.secrets.json` already has `typesafe_api_key`, skip this question.
+
 **Question 1 — Project name:**
 ```
 What is your project name?
