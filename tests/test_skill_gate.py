@@ -51,9 +51,18 @@ def _mark(root, skill, session_id="s1"):
     )
 
 
-def test_no_policy_allows(tmp_path):
+def test_shipped_default_blocks_without_stamps(tmp_path):
     r = _run_gate(tmp_path)
-    assert r.returncode == 0
+    assert r.returncode == 2
+    assert "BLOCKED by raven-skill-gate" in r.stderr
+
+
+def _route(root, skill, klass):
+    state = root / ".raven" / "state"
+    state.mkdir(parents=True, exist_ok=True)
+    (state / "ask-route.json").write_text(
+        json.dumps({"class": klass, "skill": skill})
+    )
 
 
 def test_edit_blocked_without_marker(tmp_path):
@@ -65,6 +74,7 @@ def test_edit_blocked_without_marker(tmp_path):
 
 def test_edit_allowed_after_marker(tmp_path):
     _policy(tmp_path)
+    _route(tmp_path, "andie-jr", "fix")
     assert _mark(tmp_path, "andie-jr").returncode == 0
     r = _run_gate(tmp_path)
     assert r.returncode == 0, r.stderr
@@ -119,6 +129,52 @@ def test_out_of_scope_allowed(tmp_path):
     _policy(tmp_path)
     r = _run_gate(tmp_path, file_path="docs/notes.md")
     assert r.returncode == 0
+
+
+def test_strict_pair_requires_reviewer_then_guided(tmp_path):
+    _policy(tmp_path, strict_pair=True, mode="hard")
+    _route(tmp_path, "andie", "enhance")
+    assert _mark(tmp_path, "andie-jr").returncode == 2
+    assert _mark(tmp_path, "guided").returncode == 2
+    assert _mark(tmp_path, "andie").returncode == 0
+    assert _run_gate(tmp_path).returncode == 2
+    assert _mark(tmp_path, "guided").returncode == 0
+    assert _run_gate(tmp_path).returncode == 0, _run_gate(tmp_path).stderr
+
+
+def test_fix_class_rejects_andie(tmp_path):
+    _policy(tmp_path, strict_pair=True, mode="hard")
+    _route(tmp_path, "andie-jr", "fix")
+    assert _mark(tmp_path, "andie").returncode == 2
+    assert _run_gate(tmp_path).returncode == 2
+    assert _mark(tmp_path, "andie-jr").returncode == 0
+    assert _mark(tmp_path, "guided").returncode == 0
+    assert _run_gate(tmp_path).returncode == 0
+
+
+def test_ask_class_fix_then_approval_keeps_jr(tmp_path):
+    ask = _ROOT / "scripts" / "ops" / "ask-class.py"
+    first = subprocess.run(
+        ["python3", str(ask), "--prompt", "this bug is broken"],
+        cwd=tmp_path, capture_output=True, text=True, timeout=10,
+    )
+    assert first.returncode == 0
+    route = json.loads((tmp_path / ".raven" / "state" / "ask-route.json").read_text())
+    assert route["skill"] == "andie-jr"
+    second = subprocess.run(
+        ["python3", str(ask), "--prompt", "go ahead"],
+        cwd=tmp_path, capture_output=True, text=True, timeout=10,
+    )
+    assert second.returncode == 0
+    kept = json.loads((tmp_path / ".raven" / "state" / "ask-route.json").read_text())
+    assert kept["skill"] == "andie-jr"
+    third = subprocess.run(
+        ["python3", str(ask), "--prompt", "add a new feature for export"],
+        cwd=tmp_path, capture_output=True, text=True, timeout=10,
+    )
+    assert json.loads(
+        (tmp_path / ".raven" / "state" / "ask-route.json").read_text()
+    )["skill"] == "andie"
 
 
 def test_gate_latency_under_100ms(tmp_path):

@@ -35,15 +35,14 @@ Copy `routing-policy.example.json` to `.raven/state/routing-policy.json`:
 | Field | Meaning |
 |---|---|
 | `mode` | `shadow` (log only) · `soft` (warn — default) · `hard` (block) · `off` |
-| `required_skills` | any one fresh marker from this list satisfies the gate |
+| `required_skills` | legacy list. With `strict_pair`, ignored in favor of the ask class |
+| `strict_pair` | ask class picks `andie` or `andie-jr`, then `guided` must be stamped after it |
 | `scope` | globs of gated paths; `[]` = everything not excluded |
 | `exclude` | never-gated globs (default: docs, markdown, `.raven/`) |
 | `freshness_hours` | fallback window when no session stamp exists (default 4) |
 | `override_uses` | tool calls one override touch allows (default 3) |
 
-**No policy file → gate is disabled** (exits in <5 ms). New installs should
-run `soft` for a week, then switch to `hard` — the same grace-period pattern
-as architecture-guard.
+**No project policy file → the shipped `scripts/ops/routing-policy.default.json` applies.** That default is `hard` and `strict_pair`. A bug, error, or fix requires `andie-jr` then `guided`. An enhancement or new feature requires `andie` then `guided`. The other reviewer does not unlock the edit.
 
 **Freshness**: a marker counts if its `session_id` matches the current
 session, or it is newer than `.raven/state/.session-start` (touched by

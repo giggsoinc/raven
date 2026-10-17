@@ -1,0 +1,10 @@
+{
+  "_comment": "Shipped default. The skill gate uses this when .raven/state/routing-policy.json is missing. strict_pair: the ask class picks andie or andie-jr, then Guided must be stamped after that reviewer. The other reviewer does not unlock the edit.",
+  "mode": "hard",
+  "strict_pair": true,
+  "required_skills": ["andie", "andie-jr"],
+  "scope": [],
+  "exclude": ["docs/**", "*.md", ".raven/**"],
+  "freshness_hours": 4,
+  "override_uses": 1
+}

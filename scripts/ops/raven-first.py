@@ -126,6 +126,9 @@ def main(argv: list[str] | None = None) -> int:
         i = args.index("--prompt")
         rest = args[i + 1 :]
         prompt = rest[0] if rest else ""
+        ask_class = target / "scripts" / "ops" / "ask-class.py"
+        if ask_class.is_file():
+            _run(target, ask_class, ["--prompt", prompt])
         _run(target, hook, ["--event", "turn"])
         return _run(target, router, ["--prompt", prompt])
     print(

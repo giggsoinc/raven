@@ -34,8 +34,10 @@ session-start.py) OR fall inside freshness_hours.
 Escape hatch: `touch .raven/state/gate-override` allows the next N tool calls.
 NEVER silent — every override use is appended to .raven/audit/YYYY-MM-DD.log.
 
-No policy file → exit 0 immediately (zero friction, <5ms).
-Honest contract: guarantees the skill RAN, not that its output was used well.
+No project policy → the shipped routing-policy.default.json applies.
+strict_pair requires the ask class skill (andie or andie-jr) and a Guided
+marker stamped after it. The other reviewer does not satisfy the gate.
+Honest contract: guarantees those stamps exist, not that the write-up was used well.
 Local-only. No telemetry. Zero model tokens except the one block message.
 """
 
@@ -48,7 +50,9 @@ from pathlib import Path
 
 STATE_DIR = Path(".raven") / "state"
 POLICY_FILE = STATE_DIR / "routing-policy.json"
+DEFAULT_POLICY = Path(__file__).resolve().parent / "routing-policy.default.json"
 MARKER_FILE = STATE_DIR / "skill-invocations.jsonl"
+ROUTE_FILE = STATE_DIR / "ask-route.json"
 SESSION_STAMP = STATE_DIR / ".session-start"
 OVERRIDE_FILE = STATE_DIR / "gate-override"
 AUDIT_DIR = Path(".raven") / "audit"
@@ -96,6 +100,67 @@ def _in_scope(path: str, policy: dict) -> bool:
         fnmatch.fnmatch(path, p) or fnmatch.fnmatch(Path(path).name, p)
         for p in scope
     )
+
+
+def _load_policy() -> dict | None:
+    """Project policy wins. Otherwise the shipped default. None only if both are missing."""
+    for path in (POLICY_FILE, DEFAULT_POLICY):
+        if not path.exists():
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            _audit("policy-parse-error", {"file": str(path)})
+            continue
+        if isinstance(data, dict):
+            return data
+    return None
+
+
+def _latest_fresh(skill: str, session_id: str, policy: dict) -> dict | None:
+    """Newest fresh marker for one skill name."""
+    if not MARKER_FILE.exists():
+        return None
+    window = float(policy.get("freshness_hours", 4)) * 3600
+    now = time.time()
+    session_started = SESSION_STAMP.stat().st_mtime if SESSION_STAMP.exists() else None
+    try:
+        lines = MARKER_FILE.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return None
+    for line in reversed(lines):
+        try:
+            rec = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if rec.get("skill") != skill:
+            continue
+        ts = float(rec.get("ts", 0))
+        if session_id and rec.get("session_id") == session_id:
+            return rec
+        if session_started is not None:
+            if ts >= session_started:
+                return rec
+            continue
+        if now - ts <= window:
+            return rec
+    return None
+
+
+def _strict_pair(policy: dict, session_id: str) -> bool:
+    """Ask class picks one reviewer. Guided must be stamped at or after that reviewer."""
+    try:
+        route = json.loads(ROUTE_FILE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    skill = route.get("skill") if isinstance(route, dict) else ""
+    if skill not in {"andie", "andie-jr"}:
+        return False
+    reviewer = _latest_fresh(skill, session_id, policy)
+    guided = _latest_fresh("guided", session_id, policy)
+    if not reviewer or not guided:
+        return False
+    return float(guided.get("ts", 0)) >= float(reviewer.get("ts", 0))
 
 
 def _fresh_marker(policy: dict, session_id: str) -> str | None:
@@ -158,13 +223,9 @@ def main() -> int:
     except Exception:
         hook_input = {}
 
-    if not POLICY_FILE.exists():
-        return 0  # no policy → gate disabled, zero friction
-    try:
-        policy = json.loads(POLICY_FILE.read_text())
-    except Exception:
-        _audit("policy-parse-error", {})
-        return 0  # fail-soft: a broken policy must not lock the user out
+    policy = _load_policy()
+    if not policy:
+        return 0  # no shipped default and no project policy
 
     mode = policy.get("mode", "soft")
     if mode == "off":
@@ -183,11 +244,15 @@ def main() -> int:
         return 0
 
     session_id = hook_input.get("session_id", "")
-    skill = _fresh_marker(policy, session_id)
-    if skill:
-        return 0  # invariant satisfied
-
-    required = ", ".join(policy.get("required_skills", [])) or "a specialist"
+    if policy.get("strict_pair"):
+        if _strict_pair(policy, session_id):
+            return 0
+        required = "the ask-class reviewer, then guided"
+    else:
+        skill = _fresh_marker(policy, session_id)
+        if skill:
+            return 0  # legacy: any required skill satisfies
+        required = ", ".join(policy.get("required_skills", [])) or "a specialist"
     if _consume_override():
         print(f"⚠️ raven-skill-gate: override used — edit allowed without "
               f"specialist marker (logged to .raven/audit/).")
@@ -197,10 +262,10 @@ def main() -> int:
     if mode == "hard":
         _audit("blocked", detail)
         print(
-            f"BLOCKED by raven-skill-gate: no specialist skill invoked this "
-            f"session. Invoke the matching specialist (e.g. andie-jr for bugs, "
-            f"andie for design) before editing — its first step runs "
-            f"raven-mark-skill.py, which unlocks edits. "
+            f"BLOCKED by raven-skill-gate: {required} is not stamped for this ask. "
+            f"Bug/error/fix requires andie-jr, then guided. "
+            f"Enhancement/new feature requires andie, then guided. "
+            f"The other reviewer does not unlock the edit. "
             f"Override: touch .raven/state/gate-override (logged).",
             file=sys.stderr,
         )
