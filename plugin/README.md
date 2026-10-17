@@ -1,4 +1,4 @@
-# Raven Plugin — v5.5.7
+# Raven Plugin — v5.5.8
 
 **One plugin.** File: `raven-plugin-v5.5.7.zip` (built by `bash plugin/make-plugin.sh`).
 

@@ -5,6 +5,11 @@ adds an entry here (newest first), and must pass `scripts/check-version-consiste
 (CI: `raven-version-consistency-check`). Historical changelogs in `docs/` are
 never rewritten — this file is the roll-up index.
 
+## v5.5.8 — 2026-10-17 — Jev key prompt (patch)
+
+Canonical version 5.5.8. Asks a new user for a TypeSafe API key and stores it
+outside git. Does not check a token balance. Tag `v5.5.8`.
+
 ## v5.5.6 — 2026-08-31 — Rule 8 plugin session-start + marketplace pin (patch)
 
 `plugin/scripts/session-start.py` is a symlink to canonical session-start (no
