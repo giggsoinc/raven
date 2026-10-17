@@ -1,7 +1,7 @@
 {
   "project": "raven",
   "owner": "giggso",
-  "version": "5.5.8",
+  "version": "6.0",
   "stack": {
     "language": [
       "python3.13",

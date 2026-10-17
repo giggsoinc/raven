@@ -5,6 +5,15 @@ adds an entry here (newest first), and must pass `scripts/check-version-consiste
 (CI: `raven-version-consistency-check`). Historical changelogs in `docs/` are
 never rewritten — this file is the roll-up index.
 
+## v6.0 — 2026-10-17 — Jev, local models, and the ask gate (major)
+
+Current version is 6.0. A new user is asked for a Jev TypeSafe key. No key keeps
+default routing. Ollama and LlamaCPP can become flash and thinking. Any other
+model can be added with its key. Keys stay in `.raven/manifest.secrets.json`.
+Model names stay in `.model.env`. A bug goes to Andie Jr, then Guided. An
+enhancement goes to Andie, then Guided. The skill gate blocks an edit until
+both stamps exist. Tag `v6.0`.
+
 ## v5.5.8 — 2026-10-17 — Jev key prompt (patch)
 
 Canonical version 5.5.8. Asks a new user for a TypeSafe API key and stores it
