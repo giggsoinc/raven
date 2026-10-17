@@ -20,7 +20,7 @@ All local. Zero telemetry. MIT.
 
 ## Plugin — what you can do
 
-One plugin for every host. Build it with `bash plugin/make-plugin.sh`. The zip is `plugin/raven-plugin-v6.0.zip`. Same artifact for Claude Code, Claude Desktop, and the other hosts (`install-host.sh`).
+One current plugin zip is in the repo: [`plugin/raven-plugin-v6.0.zip`](plugin/raven-plugin-v6.0.zip). It is the only install zip. Older plugin zips (v4.1.0 and v5.5.0 through v5.5.7) are packed in [`plugin/version.archive.zip`](plugin/version.archive.zip). Same current zip for Claude Code, Claude Desktop, and the other hosts (`install-host.sh`).
 
 | You want to | In the plugin |
 |---|---|
@@ -40,7 +40,7 @@ Calculator spend is local. Check **actual billed** cost on the Costs pane or `/r
 Raven is **not** in an Anthropic-hosted plugin marketplace — `/plugin marketplace add giggsoinc/raven` will not work. Pick one:
 
 1. **Clone + install (Claude Code)** — `git clone https://github.com/giggsoinc/raven.git && claude plugin install ./raven/plugin`
-2. **One zip** — build `plugin/raven-plugin-v6.0.zip` with `bash plugin/make-plugin.sh`. Claude: unzip then `claude plugin install <dir>`. Other hosts: `bash install-host.sh /path/to/project` (see [plugin/HOSTS.md](plugin/HOSTS.md)).
+2. **Current zip** — [`plugin/raven-plugin-v6.0.zip`](plugin/raven-plugin-v6.0.zip). Claude: unzip then `claude plugin install <dir>`. Other hosts: `bash install-host.sh /path/to/project` (see [plugin/HOSTS.md](plugin/HOSTS.md)). Rebuild it with `bash plugin/make-plugin.sh` after you change the plugin. Older zips are not installed. They sit in [`plugin/version.archive.zip`](plugin/version.archive.zip).
 3. **Let Claude do it** — inside a Claude Code session, ask Claude to clone the repo and run the install command for you (same two steps as Option 1, just delegated)
 
 Full walkthrough (enterprise admin upload, org-wide managed deployment, troubleshooting): [claude_plugin_readme.md](./claude_plugin_readme.md)
@@ -246,19 +246,19 @@ Raven 6.0 is the current release. One plugin covers Claude, Grok, Codex, Cursor,
 
 **Ask order.** A bug, error, or fix goes to Andie Jr, then the guided explanation. An enhancement or new feature goes to Andie, then the guided explanation. The skill gate blocks an edit until that reviewer and Guided are both stamped. The other reviewer does not unlock the edit.
 
-**Still in this release.** Secret and CVE blocks at commit, local token and cost metering, the dashboard, and cross-session memory. Details of older releases stay in [VERSIONLOG.md](VERSIONLOG.md).
+**What this repo holds now.** `main` is the only branch. The install file is `plugin/raven-plugin-v6.0.zip`. The nine older plugin zips are not loose files. They are inside `plugin/version.archive.zip`. Secret and CVE blocks, local token and cost metering, the dashboard, and cross-session memory are still in this release. The written history of older releases stays in [VERSIONLOG.md](VERSIONLOG.md).
 
 ---
 
 ## Other Install Paths
 
-**One ZIP (all hosts):** build `plugin/raven-plugin-v6.0.zip` with `bash plugin/make-plugin.sh`. Claude Desktop: Settings → Extensions → Add plugin. Other IDEs: `bash install-host.sh` (see [plugin/HOSTS.md](plugin/HOSTS.md)).
+**Current ZIP (all hosts):** [`plugin/raven-plugin-v6.0.zip`](plugin/raven-plugin-v6.0.zip). Claude Desktop: Settings → Extensions → Add plugin. Other IDEs: `bash install-host.sh` (see [plugin/HOSTS.md](plugin/HOSTS.md)). Older zips: [`plugin/version.archive.zip`](plugin/version.archive.zip).
 
 **From source:**
 
 ```bash
 git clone https://github.com/giggsoinc/raven.git
-cd raven && bash plugin/make-plugin.sh   # builds plugin/raven-plugin-v6.0.zip
+cd raven && bash plugin/make-plugin.sh   # rebuilds plugin/raven-plugin-v6.0.zip
 ```
 
 ---
