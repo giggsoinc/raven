@@ -240,9 +240,20 @@ diagrams: [business view](docs/Agent_token_architecture_business.html) ·
 
 Raven 6.0 is the current release. One plugin covers Claude, Grok, Codex, Cursor, Windsurf, VS Code, AntiGravity, Gemini, and Replit.
 
-**Jev.** On first setup Raven asks if you have a Jev TypeSafe key. If you do, you paste it. The key is stored in `.raven/manifest.secrets.json` (gitignored, mode 600) and is never printed. If you do not, Raven keeps its default routing. Raven does not read or bill a Jev token balance. Before the paste, and again after the save, Raven tells you that path.
+**How Jev works.** The first time you set up a project, in a terminal, Raven asks one question: do you have a Jev TypeSafe key?
 
-**Local and other models.** After the key question, Raven asks what you prefer. It checks Ollama at `127.0.0.1:11434` and LlamaCPP at `127.0.0.1:8080`. A detected server becomes the flash model (`SIMPLE`) and the thinking model (`MEDIUM` and `COMPLEX`). You can also name any other model and paste that provider’s key at the same step. Model names go in `.model.env`. Keys stay in the secrets file.
+- **Yes.** You paste the key. Raven tells you the storage path before the paste and again after the save. The value is hidden while you type and is never printed. Get or create the key at https://console.typesafe.ai/keys. TypeSafe calls it `TYPESAFE_API_KEY`. It is saved as `typesafe_api_key` in `.raven/manifest.secrets.json` (gitignored, mode 600).
+- **No.** Raven keeps its normal routing. You are not blocked. A session that is not a terminal, including every automated prompt, does not ask and does not stop.
+
+Raven does not call TypeSafe to run a prompt, and it does not read or bill a token balance. The key is stored for you. Routing uses the model names you choose next.
+
+**What you can do after that question.** Raven asks what you prefer:
+
+1. **Use a local model.** It checks Ollama at `127.0.0.1:11434` and LlamaCPP at `127.0.0.1:8080`. If both are running, Ollama is flash (`SIMPLE`) and LlamaCPP is thinking (`MEDIUM` and `COMPLEX`). If only one is running, that one is both. The model names are written to `.model.env`. No key is written for a local server.
+2. **Add any other model.** You type a model id, such as `groq/llama-3.3-70b`, and paste that provider’s key. The key goes in the same secrets file as `<provider>_api_key`. The model id is used for both flash and thinking.
+3. **Keep the current defaults.** Nothing is changed.
+
+Run it again with `python3 scripts/ops/jev-key.py`. `python3 scripts/ops/jev-key.py --set` saves a TypeSafe key from the hidden prompt. `--save-env` saves the `TYPESAFE_API_KEY` already in the environment. The choice is remembered in `.raven/setup-choice.json`, which is gitignored. If that file exists, setup does not ask again.
 
 **Ask order.** A bug, error, or fix goes to Andie Jr, then the guided explanation. An enhancement or new feature goes to Andie, then the guided explanation. The skill gate blocks an edit until that reviewer and Guided are both stamped. The other reviewer does not unlock the edit.
 
