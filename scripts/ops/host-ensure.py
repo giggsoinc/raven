@@ -129,24 +129,16 @@ def _jev_module():
 
 
 def prompt_jev_key() -> None:
-    """First init step. Opens the local key page. Never prints the key."""
+    """First init step. Ask for a TypeSafe key, then local or other models."""
     try:
         jev = _jev_module()
     except (ImportError, OSError, FileNotFoundError) as exc:
         print(f"host-ensure: Jev key prompt unavailable ({exc})", file=sys.stderr)
         return
-    path = jev.secrets_path(TARGET)
-    if jev.stored_key(path):
-        print("host-ensure: Jev key already stored")
+    if jev.setup_done(TARGET):
         return
-    jev.ensure_secrets_file(path)
-    script = ENGINE / "scripts" / "ops" / "jev-key.py"
-    if not script.is_file():
-        script = TARGET / "scripts" / "ops" / "jev-key.py"
-    subprocess.run(
-        [sys.executable, str(script), "--page", "--file", str(path)],
-        cwd=str(TARGET),
-    )
+    jev.ensure_secrets_file(jev.secrets_path(TARGET))
+    jev.offer(TARGET)
 
 
 def main() -> int:

@@ -42,16 +42,15 @@ The manifest is what the user declares — not what the project happens to conta
 
 Ask these questions one at a time. Wait for answer before proceeding.
 
-**Question 0 — Jev API key (required, first):**
+**Question 0 — Jev key or local models (first):**
 
-Do not ask the user to paste the key into chat. The first thing `/raven-init` runs is `python3 scripts/ops/host-ensure.py --no-open`, which asks in a hidden terminal prompt and saves the key in gitignored `.raven/manifest.secrets.json`. If this session has no terminal, tell them to run that command themselves:
+Do not ask the user to paste a key into chat. The first thing `/raven-init` runs is `python3 scripts/ops/host-ensure.py --no-open`.
 
-- Open https://console.typesafe.ai/keys
-- Sign in to the TypeSafe console
-- Create an API key and copy it
-- Paste it into the hidden local prompt
+Before any paste, tell them: API keys go in gitignored `.raven/manifest.secrets.json` (mode 600). Model names go in gitignored `.model.env`.
 
-If `.raven/manifest.secrets.json` already has `typesafe_api_key`, skip this question.
+The script asks if they have a Jev TypeSafe key. Yes: hidden paste into `typesafe_api_key`. No: Raven keeps its default routing. Then it asks what they prefer: autodetect Ollama (`127.0.0.1:11434`) and LlamaCPP (`127.0.0.1:8080`) for flash (`SIMPLE`) and thinking (`MEDIUM`, `COMPLEX`), add another model plus its key, or keep the current defaults.
+
+After the save, repeat those two paths. Do not print the key. If `.raven/setup-choice.json` already exists, skip this question.
 
 **Question 1 — Project name:**
 ```

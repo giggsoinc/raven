@@ -9,9 +9,12 @@ from __future__ import annotations
 import getpass
 import json
 import os
+import re
 import secrets
 import sys
 import threading
+import urllib.error
+import urllib.request
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -44,33 +47,230 @@ def stored_key(path: Path) -> str:
     return "" if value.strip() in PLACEHOLDERS else value.strip()
 
 
-def instructions() -> str:
+def project_root(path: Path) -> Path:
+    """Secrets file lives in <root>/.raven/. Return that root."""
+    if path.name == "manifest.secrets.json" and path.parent.name == ".raven":
+        return path.parent.parent
+    return path
+
+
+def where_stored(root: Path) -> str:
+    secrets_file = root / ".raven" / "manifest.secrets.json"
+    models_file = root / ".model.env"
     return "\n".join(
         [
-            "Jev API key is required before Raven can route with System 1.",
-            "- Open https://console.typesafe.ai/keys",
-            "- Sign in to the TypeSafe console (create an account if you do not have one).",
-            "- Create an API key and copy it. TypeSafe calls this TYPESAFE_API_KEY.",
-            "- Paste it into the local prompt. It is saved in .raven/manifest.secrets.json and is not committed.",
-            "- Run: python3 scripts/ops/jev-key.py --set",
-            f"- Key page: {KEY_URL}",
+            f"API keys are stored in {secrets_file}",
+            "That file is gitignored and saved as mode 600. The key value is never printed.",
+            f"Model names, not keys, are stored in {models_file} (gitignored).",
         ]
     )
 
 
-def save_key(path: Path, key: str) -> None:
+def setup_marker(root: Path) -> Path:
+    return root / ".raven" / "setup-choice.json"
+
+
+def setup_done(root: Path) -> bool:
+    return setup_marker(root).is_file()
+
+
+def mark_setup(root: Path, typesafe: str, preference: str) -> None:
+    path = setup_marker(root)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps({"typesafe": typesafe, "preference": preference}, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _get_json(url: str) -> dict:
+    request = urllib.request.Request(url, method="GET")
+    with urllib.request.urlopen(request, timeout=1.5) as response:
+        data = json.loads(response.read().decode("utf-8"))
+    return data if isinstance(data, dict) else {}
+
+
+def detect_ollama() -> list[str]:
+    """Model names from a local Ollama server. Empty when it is not running."""
+    try:
+        data = _get_json("http://127.0.0.1:11434/api/tags")
+    except (OSError, urllib.error.URLError, json.JSONDecodeError, TimeoutError):
+        return []
+    names = []
+    for item in data.get("models") or []:
+        if isinstance(item, dict) and item.get("name"):
+            names.append(str(item["name"]))
+    return names
+
+
+def detect_llamacpp() -> list[str]:
+    """Model ids from a local LlamaCPP server on port 8080."""
+    try:
+        data = _get_json("http://127.0.0.1:8080/v1/models")
+    except (OSError, urllib.error.URLError, json.JSONDecodeError, TimeoutError):
+        return []
+    names = []
+    for item in data.get("data") or []:
+        if isinstance(item, dict) and item.get("id"):
+            names.append(str(item["id"]))
+    return names
+
+
+def write_routing(root: Path, flash: str, thinking: str) -> Path:
+    """Set SIMPLE to flash and MEDIUM/COMPLEX to thinking in .model.env."""
+    path = root / ".model.env"
+    existing = path.read_text(encoding="utf-8") if path.is_file() else ""
+    block_lines = [
+        "[routing]",
+        f"SIMPLE={flash}",
+        f"MEDIUM={thinking}",
+        f"COMPLEX={thinking}",
+    ]
+    lines = existing.splitlines()
+    start = None
+    end = len(lines)
+    for i, line in enumerate(lines):
+        if line.strip() == "[routing]":
+            start = i
+            continue
+        if start is not None and i > start and line.strip().startswith("["):
+            end = i
+            break
+    if start is None:
+        body = existing.rstrip()
+        prefix = (body + "\n\n") if body else ""
+        path.write_text(prefix + "\n".join(block_lines) + "\n", encoding="utf-8")
+    else:
+        lines[start:end] = block_lines
+        path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+    return path
+
+
+def _ask_yn(question: str) -> bool:
+    while True:
+        answer = input(question + " [y/n] ").strip().lower()
+        if answer in {"y", "yes"}:
+            return True
+        if answer in {"n", "no"}:
+            return False
+        print("Enter y or n.")
+
+
+def _preference() -> str:
+    print("What do you prefer for models?")
+    print("  1) Autodetect Ollama and LlamaCPP, then use them for flash and thinking")
+    print("  2) Add another model and its API key")
+    print("  3) Keep Raven's current default routing")
+    while True:
+        answer = input("Choose 1, 2, or 3: ").strip()
+        if answer in {"1", "2", "3"}:
+            return answer
+        print("Enter 1, 2, or 3.")
+
+
+def _apply_local(root: Path) -> str:
+    ollama = detect_ollama()
+    llamacpp = detect_llamacpp()
+    print(f"Ollama at 127.0.0.1:11434: {', '.join(ollama) if ollama else 'not running'}")
+    print(f"LlamaCPP at 127.0.0.1:8080: {', '.join(llamacpp) if llamacpp else 'not running'}")
+    if ollama and llamacpp:
+        flash = f"ollama/{ollama[0]}"
+        thinking = f"llamacpp/{llamacpp[0]}"
+    elif ollama:
+        flash = thinking = f"ollama/{ollama[0]}"
+    elif llamacpp:
+        flash = thinking = f"llamacpp/{llamacpp[0]}"
+    else:
+        print("No local server found. Raven keeps its current default routing.")
+        return "defaults"
+    path = write_routing(root, flash, thinking)
+    print(f"Flash (SIMPLE) = {flash}")
+    print(f"Thinking (MEDIUM and COMPLEX) = {thinking}")
+    print(f"Model names saved in {path}")
+    return "local"
+
+
+def _field_for_model(model_id: str) -> str:
+    provider = model_id.split("/", 1)[0].strip().lower()
+    provider = re.sub(r"[^a-z0-9]+", "_", provider).strip("_") or "provider"
+    if provider == "typesafe":
+        return FIELD
+    return f"{provider}_api_key"
+
+
+def _apply_custom(root: Path, secrets_file: Path) -> str:
+    model_id = input("Model id (example groq/llama-3.3-70b): ").strip()
+    if not model_id:
+        print("No model id. Raven keeps its current default routing.")
+        return "defaults"
+    field = _field_for_model(model_id)
+    print("Before you paste the key:")
+    print(where_stored(root))
+    print(f"This key will be saved as {field}.")
+    typed = getpass.getpass("Paste the API key (input hidden): ")
+    save_field(secrets_file, field, typed)
+    path = write_routing(root, model_id, model_id)
+    print("After the save:")
+    print(where_stored(root))
+    print(f"{field} is in {secrets_file}. The value was not printed.")
+    print(f"Flash and thinking both use {model_id}, recorded in {path}.")
+    return "custom"
+
+
+def save_field(path: Path, field: str, key: str) -> None:
     cleaned = key.strip()
     if cleaned in PLACEHOLDERS or len(cleaned) < 8:
         raise SystemExit("jev-key: that value is empty or too short; nothing saved")
+    if not re.fullmatch(r"[A-Za-z0-9_]+", field):
+        raise SystemExit("jev-key: key field name must be letters, numbers, and underscore")
     data = _load(path)
-    data[FIELD] = cleaned
+    data[field] = cleaned
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
     os.chmod(tmp, 0o600)
     os.replace(tmp, path)
     os.chmod(path, 0o600)
-    print(f"jev-key: saved {FIELD} in {path} (gitignored, chmod 600)")
+    print(f"jev-key: saved {field} in {path} (gitignored, chmod 600)")
+
+
+def offer(root: Path) -> int:
+    """Ask for a TypeSafe key, then local or custom models. Routing still runs if they say no."""
+    secrets_file = secrets_path(root)
+    if not sys.stdin.isatty():
+        return 0
+    print("Before you enter a key:")
+    print(where_stored(root))
+    has_key = _ask_yn("Do you have a Jev TypeSafe key?")
+    if has_key:
+        print("Before you paste the TypeSafe key:")
+        print(where_stored(root))
+        print(f"Create one at {KEY_URL} if you need a new key. TypeSafe calls it TYPESAFE_API_KEY.")
+        typed = getpass.getpass("Paste the Jev TypeSafe key (input hidden): ")
+        save_field(secrets_file, FIELD, typed)
+        print("After the save:")
+        print(where_stored(root))
+        print(f"{FIELD} is in {secrets_file}. The value was not printed.")
+        typesafe = "yes"
+    else:
+        print("No TypeSafe key. Raven keeps its default routing.")
+        typesafe = "no"
+    choice = _preference()
+    if choice == "1":
+        preference = _apply_local(root)
+    elif choice == "2":
+        preference = _apply_custom(root, secrets_file)
+    else:
+        print("Raven keeps its current default routing.")
+        preference = "defaults"
+    mark_setup(root, typesafe, preference)
+    print("After this step:")
+    print(where_stored(root))
+    return 0
+
+
+def save_key(path: Path, key: str) -> None:
+    save_field(path, FIELD, key)
 
 
 def ensure_secrets_file(path: Path) -> None:
@@ -202,24 +402,31 @@ def main(argv: list[str] | None = None) -> int:
     if "--file" in args:
         i = args.index("--file")
         path = Path(args[i + 1])
+    root = project_root(path)
     if "--page" in args:
         return serve_page(path, open_browser="--no-open" not in args)
     if "--set" in args:
-        typed = getpass.getpass("Paste the Jev API key (input hidden): ")
+        print("Before you paste the key:")
+        print(where_stored(root))
+        typed = getpass.getpass("Paste the Jev TypeSafe key (input hidden): ")
         save_key(path, typed)
+        print("After the save:")
+        print(where_stored(root))
         return 0
     if "--save-env" in args:
+        print("Before the save:")
+        print(where_stored(root))
         save_key(path, os.environ.get("TYPESAFE_API_KEY") or "")
+        print("After the save:")
+        print(where_stored(root))
         return 0
-    if stored_key(path) or (os.environ.get("TYPESAFE_API_KEY") or "").strip():
-        if not stored_key(path):
-            print(
-                "Jev API key is in the environment only. "
-                "Run: python3 scripts/ops/jev-key.py --save-env"
-            )
+    if "--check" in args:
+        if setup_done(root) or not sys.stdin.isatty():
+            return 0
+        return offer(root)
+    if setup_done(root):
         return 0
-    print(instructions())
-    return 0
+    return offer(root)
 
 
 if __name__ == "__main__":
