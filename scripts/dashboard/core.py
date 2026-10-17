@@ -3191,7 +3191,7 @@ def _live_git_head(repo: Path) -> str:
     """Short SHA of origin/main after a fail-soft fetch, otherwise local HEAD."""
     try:
         subprocess.run(
-            ["git", "-C", str(repo), "fetch", "origin", "main"],
+            ["git", "-C", str(repo), "fetch", "origin", "+main:refs/remotes/origin/main"],
             capture_output=True,
             text=True,
             timeout=20,

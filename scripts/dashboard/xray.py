@@ -185,7 +185,7 @@ def sync_origin() -> None:
     """Fetch origin/main. Failure leaves the local history in place."""
     try:
         subprocess.run(
-            ["git", "fetch", "origin", "main"],
+            ["git", "fetch", "origin", "+main:refs/remotes/origin/main"],
             cwd=REPO,
             capture_output=True,
             text=True,
