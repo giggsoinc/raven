@@ -11,6 +11,7 @@ codex/.raven/
 # Do-not-share working documents
 *.dns
 .model.env
+.raven/setup-choice.json
 _donot_share_jev_list.md
 
 # Internal-only working docs — NEVER share to repo
