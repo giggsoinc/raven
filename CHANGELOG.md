@@ -5,6 +5,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [5.5.8] — 2026-10-17 — Jev key prompt
+
+- Version pins aligned to 5.5.8.
+- Jev key prompt from the `jev` branch, without the private use list.
+
 ## [5.5.6] — 2026-08-31 — Rule 8 plugin mirror + marketplace 5.5.6
 
 - plugin session-start no longer auto-tiers Opus.

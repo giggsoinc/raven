@@ -2,7 +2,7 @@
   <img src="./assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
 </p>
 
-# Raven v5.5.7 — The Open-Source Solution to AI Comprehension Debt.
+# Raven v5.5.8 — The Open-Source Solution to AI Comprehension Debt.
 
 **Raven is the open-source solution to AI comprehension debt — a local AI Engineering Control Plane built to fight the two things AI coding actually breaks: discipline (code shipping faster than the thinking behind it) and comprehension debt (nobody remembering what the AI wrote, or why). One governed local layer routes each prompt to the right expert, blocks secrets and vulnerable code at the source, meters every token and dollar with verified math, and keeps your team's decisions in a memory that outlives the session.**
 
@@ -238,7 +238,11 @@ diagrams: [business view](docs/Agent_token_architecture_business.html) ·
 
 ## Features by Version
 
-### **Raven v5.5.7** (Current) — One plugin, every host
+### **Raven v5.5.8** (Current) — Jev API key prompt
+
+- A new machine with no TypeSafe key is told how to create one. The key stays in `.raven/manifest.secrets.json` and is not committed. Routing still runs. Raven does not read or bill a Jev token balance.
+
+### **Raven v5.5.7** — One plugin, every host
 
 - Single zip `raven-plugin-v5.5.7.zip`: Claude `.claude-plugin` plus `hosts/` and `install-host.sh` for Grok, Codex, Cursor, Windsurf, VS Code, AntiGravity, Gemini, and Replit.
 
