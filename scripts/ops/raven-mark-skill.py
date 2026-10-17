@@ -25,7 +25,61 @@ from pathlib import Path
 
 STATE_DIR = Path(".raven") / "state"
 MARKER_FILE = STATE_DIR / "skill-invocations.jsonl"
+ROUTE_FILE = STATE_DIR / "ask-route.json"
 MAX_LINES = 200  # rotate: keep the file tiny so the gate stays <100ms
+REVIEWERS = {"andie", "andie-jr"}
+
+
+def _route_skill() -> str:
+    try:
+        data = json.loads(ROUTE_FILE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return ""
+    skill = data.get("skill") if isinstance(data, dict) else ""
+    return skill if skill in REVIEWERS else ""
+
+
+def _has_marker(skill: str) -> bool:
+    if not MARKER_FILE.exists():
+        return False
+    try:
+        lines = MARKER_FILE.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return False
+    for line in reversed(lines):
+        try:
+            rec = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if rec.get("skill") == skill:
+            return True
+    return False
+
+
+def _refuse(skill: str) -> int | None:
+    """Block the wrong reviewer, and block Guided before its reviewer."""
+    required = _route_skill()
+    if skill in REVIEWERS and skill != required:
+        need = required or "a classified ask (run raven-first.py --prompt)"
+        print(
+            f"BLOCKED by raven-mark-skill: this ask requires {need}, not {skill}.",
+            file=sys.stderr,
+        )
+        return 2
+    if skill == "guided":
+        if not required:
+            print(
+                "BLOCKED by raven-mark-skill: Guided is refused until the ask is classified.",
+                file=sys.stderr,
+            )
+            return 2
+        if not _has_marker(required):
+            print(
+                f"BLOCKED by raven-mark-skill: Guided comes after {required} is marked.",
+                file=sys.stderr,
+            )
+            return 2
+    return None
 
 
 def main() -> int:
@@ -33,6 +87,9 @@ def main() -> int:
         print("usage: raven-mark-skill.py <skill-name>", file=sys.stderr)
         return 1
     skill = sys.argv[1].strip()
+    refused = _refuse(skill)
+    if refused:
+        return refused
 
     try:
         STATE_DIR.mkdir(parents=True, exist_ok=True)

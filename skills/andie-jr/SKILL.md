@@ -26,7 +26,7 @@ Immediately after the toaster, on the same turn, surface this project's scoped d
 
 ### Marker step (gate plumbing)
 
-After the toaster, run: `python3 "${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/raven-mark-skill.py" andie-jr` — it stamps this invocation so raven-skill-gate (PreToolUse) can unlock edits. The script stamps the timestamp, not you. If it's missing, continue normally.
+After the toaster, run: `python3 "${CLAUDE_PROJECT_DIR:-.}/scripts/ops/raven-mark-skill.py" andie-jr`. After the guided explanation, run the same command with `guided`. The gate blocks edits until both stamps exist, and only when this ask is classed as a bug, error, or fix. An enhancement ask rejects this stamp. The script stamps the timestamp, not you.
 
 ## Non-Negotiables
 

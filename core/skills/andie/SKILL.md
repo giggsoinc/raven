@@ -23,7 +23,7 @@ RULE: The FIRST line of Andie's FIRST response — whether auto-routed by Raven,
 
 ### Marker step (gate plumbing)
 
-After the toaster, run: `python3 "${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/raven-mark-skill.py" andie` — it stamps this invocation so raven-skill-gate (PreToolUse) can unlock edits. The script stamps the timestamp, not you. If it's missing, continue normally.
+After the toaster, run: `python3 "${CLAUDE_PROJECT_DIR:-.}/scripts/ops/raven-mark-skill.py" andie`. After the guided explanation, run the same command with `guided`. The gate blocks edits until both stamps exist, and only when this ask is classed as an enhancement. A bug ask rejects this stamp. The script stamps the timestamp, not you.
 
 ## Gate Discipline (v6.4)
 

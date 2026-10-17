@@ -9,6 +9,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 - Version pins aligned to 5.5.8.
 - Jev key prompt from the `jev` branch, without the private use list.
+- Skill gate fail-closed: bug/error/fix requires Andie Jr then Guided; enhancement requires Andie then Guided.
 
 ## [5.5.6] — 2026-08-31 — Rule 8 plugin mirror + marketplace 5.5.6
 
