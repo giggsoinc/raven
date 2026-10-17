@@ -5,6 +5,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [6.0] — 2026-10-17 — Jev, local models, and the ask gate
+
+- Current version is 6.0. The README describes only this release.
+- Jev TypeSafe key is optional. No key keeps default routing.
+- Ollama and LlamaCPP can be flash and thinking. Another model can be saved with its key.
+- Bug, error, or fix requires Andie Jr then Guided. Enhancement requires Andie then Guided.
+
 ## [5.5.8] — 2026-10-17 — Jev key prompt
 
 - Version pins aligned to 5.5.8.

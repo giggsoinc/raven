@@ -2,15 +2,15 @@
   <img src="./assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
 </p>
 
-# Raven v5.5.8 — The Open-Source Solution to AI Comprehension Debt.
+# Raven v6.0 — The Open-Source Solution to AI Comprehension Debt.
 
 **Raven is the open-source solution to AI comprehension debt — a local AI Engineering Control Plane built to fight the two things AI coding actually breaks: discipline (code shipping faster than the thinking behind it) and comprehension debt (nobody remembering what the AI wrote, or why). One governed local layer routes each prompt to the right expert, blocks secrets and vulnerable code at the source, meters every token and dollar with verified math, and keeps your team's decisions in a memory that outlives the session.**
 
 AI codes fast. Raven enforces Discipline — Strategic Thinking, Scalable Structure, Security at Source. How, in simple terms:
 
 - **Strategic Thinking** — done by two orchestrators, picked automatically based on what you're doing:
-  - **Andie** — for new work and decisions (new repo, new feature, "should we use X or Y?"). Makes a plan, attacks it from three angles (business, technical, data — plus a critic), and waits for your go before touching code.
-  - **Andie-Jr** — for bugs in existing code ("why is auth failing?"). Skips the planning ceremony and runs a fast 2-round triage straight to root cause → fix, so brownfield debugging isn't slowed down by process it doesn't need.
+  - **Andie** — for an enhancement or a new feature. Validates first, then the guided explanation, then waits for your go before touching code.
+  - **Andie-Jr** — for a bug, error, or fix. Finds the root cause first, then the guided explanation. It does not take new design.
 - **Scalable Structure** — every prompt is routed to the right expert automatically. 61 specialists, one per domain, picked by deterministic rules — and you always see a one-line note saying who's handling it and why. Works the same on one repo or a hundred.
 - **Security at Source** — guards run on your machine, at the moment code is written and committed: secrets are blocked, vulnerable libraries are blocked, and edits are blocked until the thinking actually happened. Not a report after the damage — a gate before it.
 
@@ -20,7 +20,7 @@ All local. Zero telemetry. MIT.
 
 ## Plugin — what you can do
 
-One zip: [`plugin/raven-plugin-v5.5.7.zip`](plugin/raven-plugin-v5.5.7.zip). Same artifact for Claude Code / Desktop and other hosts (`install-host.sh`).
+One plugin for every host. Build it with `bash plugin/make-plugin.sh`. The zip is `plugin/raven-plugin-v6.0.zip`. Same artifact for Claude Code, Claude Desktop, and the other hosts (`install-host.sh`).
 
 | You want to | In the plugin |
 |---|---|
@@ -40,7 +40,7 @@ Calculator spend is local. Check **actual billed** cost on the Costs pane or `/r
 Raven is **not** in an Anthropic-hosted plugin marketplace — `/plugin marketplace add giggsoinc/raven` will not work. Pick one:
 
 1. **Clone + install (Claude Code)** — `git clone https://github.com/giggsoinc/raven.git && claude plugin install ./raven/plugin`
-2. **One zip** — `plugin/raven-plugin-v5.5.7.zip`. Claude: unzip then `claude plugin install <dir>`. Other hosts: `bash install-host.sh /path/to/project` (see [plugin/HOSTS.md](plugin/HOSTS.md)).
+2. **One zip** — build `plugin/raven-plugin-v6.0.zip` with `bash plugin/make-plugin.sh`. Claude: unzip then `claude plugin install <dir>`. Other hosts: `bash install-host.sh /path/to/project` (see [plugin/HOSTS.md](plugin/HOSTS.md)).
 3. **Let Claude do it** — inside a Claude Code session, ask Claude to clone the repo and run the install command for you (same two steps as Option 1, just delegated)
 
 Full walkthrough (enterprise admin upload, org-wide managed deployment, troubleshooting): [claude_plugin_readme.md](./claude_plugin_readme.md)
@@ -236,82 +236,29 @@ diagrams: [business view](docs/Agent_token_architecture_business.html) ·
 
 ---
 
-## Features by Version
+## Raven 6.0
 
-### **Raven v5.5.8** (Current) — Jev API key prompt
+Raven 6.0 is the current release. One plugin covers Claude, Grok, Codex, Cursor, Windsurf, VS Code, AntiGravity, Gemini, and Replit.
 
-- A new machine with no TypeSafe key is told how to create one. The key stays in `.raven/manifest.secrets.json` and is not committed. Routing still runs. Raven does not read or bill a Jev token balance.
+**Jev.** On first setup Raven asks if you have a Jev TypeSafe key. If you do, you paste it. The key is stored in `.raven/manifest.secrets.json` (gitignored, mode 600) and is never printed. If you do not, Raven keeps its default routing. Raven does not read or bill a Jev token balance. Before the paste, and again after the save, Raven tells you that path.
 
-### **Raven v5.5.7** — One plugin, every host
+**Local and other models.** After the key question, Raven asks what you prefer. It checks Ollama at `127.0.0.1:11434` and LlamaCPP at `127.0.0.1:8080`. A detected server becomes the flash model (`SIMPLE`) and the thinking model (`MEDIUM` and `COMPLEX`). You can also name any other model and paste that provider’s key at the same step. Model names go in `.model.env`. Keys stay in the secrets file.
 
-- Single zip `raven-plugin-v5.5.7.zip`: Claude `.claude-plugin` plus `hosts/` and `install-host.sh` for Grok, Codex, Cursor, Windsurf, VS Code, AntiGravity, Gemini, and Replit.
+**Ask order.** A bug, error, or fix goes to Andie Jr, then the guided explanation. An enhancement or new feature goes to Andie, then the guided explanation. The skill gate blocks an edit until that reviewer and Guided are both stamped. The other reviewer does not unlock the edit.
 
-### **Raven v5.5.6** — One plugin, every host
-
-- Single zip `raven-plugin-v5.5.6.zip`: Claude `.claude-plugin` **plus** `hosts/` + `install-host.sh` for Grok, Codex, Cursor, Windsurf, VS Code, AntiGravity, Gemini, Replit. First-load UX unified across IDEs.
-- Engine scripts in the zip (`session/`, `routing/`, `memory/`, `dashboard/`) — not a Claude-only subset.
-- Dashboard: Overview-first, repo cost by IDE, graph search, open-file via local server.
-
-### **Raven v5.0.0** — Discipline Fix Chain
-The engine applied to itself: unified script trees + CI drift gates, docs-vs-reality enforcement (PostToolUse guards wired for real), canonical hook config with generated distribution copies, 62-skill ownership registry, honest model-router disclosure + /router toggle, dual-path cost verification, per-model cost log, and the raven-xray Code Map. Full details: VERSIONLOG.md.
-
-### **Raven v4.3.0** — Tokenomics Metering + Vibe-Coder Dashboard
-
-**New:**
-- **Token metering** — `token-meter-write.py` Stop hook records tokens, cost, and call counts per session (session JSON + monthly rollup + audit log). Session-end meters printed in-terminal.
-- **Dashboard upgrade** — local HTML dashboard (`~/RavenVault/dashboard.html`) now shows tokenomics with a Raven-metered vs Claude-reported cost comparison. See [docs/DASHBOARD.md](docs/DASHBOARD.md).
-- **Knowledge-graph icons** — picture-map UI for non-programmers; SVG icons inlined for offline `file://` use. Zero-code guide: [docs/VIBE-CODER-MAP.md](docs/VIBE-CODER-MAP.md).
-- Andie v6.4 (one hard gate, implicit GO, GATES ledger, critic voice) + routing toasters — Raven never routes silently.
-
-### **Raven v4.2.0** — RavenVault Knowledge Graph & Agent Memory
-
-- Vault-backed cross-session memory with graph export; see [docs/CHANGELOG-4.2.0-vault-graph.md](docs/CHANGELOG-4.2.0-vault-graph.md) and [docs/RAVENVAULT-GRAPH-AND-MEMORY.md](docs/RAVENVAULT-GRAPH-AND-MEMORY.md).
-
-### **Raven v4.1.0** — Privacy + Routing Hardening
-
-**New:**
-- Privacy hardening: Changelog cleared from manifest, personal emails replaced with org email across all registries.
-- **Critical routing fix**: Deterministic repo-state logic replaces regex classification. Brownfield →andie-jr, greenfield → Andie, data questions → direct. Fixes misclassification of debug as new-work.
-
-**Maintained from v4.0:**
-- Andie Drama mode (3-panelist debate on tradeoffs)
-- Andie-jr fast triage (2-round root-cause flow)
-- 61 domain skills (ML, Salesforce, Odoo, K8s, Terraform, etc.)
-- Commit-time secret + CVE scanning
-- Cross-session memory (`.raven/memory/`)
-- SMTP + Slack notifications
-
-### **Raven v4.0.0** — Honesty Pass + First Release
-
-- Rewritten README: no false claims, honest ROI section, per-persona messaging.
-- Verified 61 skills (corrected from earlier miscount).
-- CLAUDE.md per-turn discipline contract at top; Raven/Lucky gate; real hook names.
-- First onboarding in Andie: brownfield self-detect vs greenfield setup (≤2 questions).
-- `/andie` + `/andie-jr` force-path commands; plugin now bundles 12 commands.
-- `notify.py`: real SMTP + Slack wired into pre-commit.
-- `install-claudemd.py`: append-only CLAUDE.md installer (never deletes user content).
-- Session-start transparency banner.
-
-### **Previous Versions**
-
-See [CHANGELOG.md](CHANGELOG.md) for v3.x and earlier.
-
-### Upgrade Path
-
-- **v4.0 → v4.1**: Drop-in replacement. Run `/raven-sync` to sync manifests; no config changes needed.
-- **v3.x → v4.0+**: Not backward-compatible. See migration guide in CONTRIBUTING.md.
+**Still in this release.** Secret and CVE blocks at commit, local token and cost metering, the dashboard, and cross-session memory. Details of older releases stay in [VERSIONLOG.md](VERSIONLOG.md).
 
 ---
 
 ## Other Install Paths
 
-**One ZIP (all hosts):** [`plugin/raven-plugin-v5.5.7.zip`](plugin/raven-plugin-v5.5.7.zip). Claude Desktop: Settings → Extensions → Add plugin. Other IDEs: `bash install-host.sh` (see [plugin/HOSTS.md](plugin/HOSTS.md)).
+**One ZIP (all hosts):** build `plugin/raven-plugin-v6.0.zip` with `bash plugin/make-plugin.sh`. Claude Desktop: Settings → Extensions → Add plugin. Other IDEs: `bash install-host.sh` (see [plugin/HOSTS.md](plugin/HOSTS.md)).
 
 **From source:**
 
 ```bash
 git clone https://github.com/giggsoinc/raven.git
-cd raven && bash plugin/make-plugin.sh   # builds plugin/raven-plugin-v5.5.7.zip
+cd raven && bash plugin/make-plugin.sh   # builds plugin/raven-plugin-v6.0.zip
 ```
 
 ---
@@ -348,7 +295,7 @@ This repo is the **free tier — everything runs local**, MIT-licensed, complete
   <strong>Built by <a href="https://giggso.com">Giggso</a> · <a href="https://github.com/giggsoinc/raven">GitHub</a> · MIT License</strong>
 </p>
 
-*Raven v5.5.7 — one plugin, every host.*
+*Raven 6.0 — one plugin, every host.*
 
 
-*Raven v5.5.7 — Governance for AI coding at the speed of thought.*
+*Raven 6.0 — Governance for AI coding at the speed of thought.*
