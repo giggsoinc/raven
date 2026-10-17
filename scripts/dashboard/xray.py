@@ -36,7 +36,7 @@ HTML_PATH = TREES_DIR / (REPO.name + ".html")
 
 HISTORY_CAP = 5
 SESSIONS_CAP = 10
-COMMIT_CAP = 20
+COMMIT_CAP = 60
 SYMBOL_DIFF_COMMITS = 5
 OKF_SCHEMA = 1
 SKIP_DIRS = {".git", "__pycache__", "node_modules", ".venv", "venv", ".raven", "dist", "build"}
@@ -181,17 +181,53 @@ def _py_symbols(rel: str) -> list[dict]:
     return out
 
 
+def sync_origin() -> None:
+    """Fetch origin/main. Failure leaves the local history in place."""
+    try:
+        subprocess.run(
+            ["git", "fetch", "origin", "main"],
+            cwd=REPO,
+            capture_output=True,
+            text=True,
+            timeout=20,
+        )
+    except Exception:
+        return
+
+
+def graph_ref() -> str:
+    """Commits come from origin/main when that ref exists, otherwise local HEAD."""
+    if _run(["git", "rev-parse", "--verify", "origin/main"]):
+        return "origin/main"
+    return "HEAD"
+
+
+def github_repo_url() -> str:
+    """https://github.com/owner/repo from origin, or empty."""
+    url = _run(["git", "remote", "get-url", "origin"]).strip()
+    ssh = re.match(r"git@github\.com:(.+?)(?:\.git)?$", url)
+    if ssh:
+        return "https://github.com/" + ssh.group(1)
+    https = re.match(r"https://github\.com/(.+?)(?:\.git)?$", url)
+    if https:
+        return "https://github.com/" + https.group(1)
+    return ""
+
+
 def _commits(limit: int = COMMIT_CAP) -> list[dict]:
-    raw = _run(["git", "log", f"-{limit}", "--format=%H|%h|%as|%s"])
+    ref = graph_ref()
+    raw = _run(["git", "log", ref, f"-{limit}", "--format=%H|%h|%an|%as|%s"])
     rows = []
     for line in raw.splitlines():
-        parts = line.split("|", 3)
-        if len(parts) < 4:
+        parts = line.split("|", 4)
+        if len(parts) < 5:
             continue
-        full, short, date, subj = parts
+        full, short, author, date, subj = parts
         files = [f for f in _run(["git", "diff-tree", "--no-commit-id", "--name-only", "-r", full]).splitlines() if f]
-        rows.append({"id": f"commit:{short}", "sha": full, "short": short, "date": date,
-                     "subject": subj[:200], "files": files})
+        rows.append({
+            "id": f"commit:{short}", "sha": full, "short": short, "author": author[:80],
+            "date": date, "subject": subj[:200], "files": files,
+        })
     return rows
 
 
@@ -232,8 +268,9 @@ def build_okf(file_nodes: dict[str, dict]) -> dict:
     for i, c in enumerate(_commits()):
         nodes.append({
             "id": c["id"], "type": "commit", "label": c["short"], "sha": c["sha"],
-            "date": c["date"], "subject": c["subject"], "files": c["files"],
-            "summary": f"{c['short']} {c['date']} — {c['subject']}",
+            "date": c["date"], "subject": c["subject"], "author": c.get("author", ""),
+            "files": c["files"],
+            "summary": f"{c['short']} {c['date']} {c.get('author', '')} — {c['subject']}",
         })
         parent = _run(["git", "rev-parse", f"{c['sha']}^"]) or ""
         do_syms = i < SYMBOL_DIFF_COMMITS
@@ -247,7 +284,7 @@ def build_okf(file_nodes: dict[str, dict]) -> dict:
                     sid = f"sym:{rel}:{name}"
                     if sid in node_ids:
                         edges.append({"from": c["id"], "to": sid, "type": "changes_symbol", "tag": "EXTRACTED"})
-    head = _run(["git", "rev-parse", "--short", "HEAD"])
+    head = live_git_head()
     return {"schema": OKF_SCHEMA, "git_head": head, "nodes": nodes, "edges": edges}
 
 
@@ -455,8 +492,9 @@ def _load() -> dict | None:
 
 
 def live_git_head() -> str:
-    """Short SHA of live HEAD for this REPO. Empty on failure."""
-    return _run(["git", "rev-parse", "--short", "HEAD"])
+    """Short SHA of origin/main when it exists, otherwise local HEAD."""
+    ref = graph_ref()
+    return _run(["git", "rev-parse", "--short", ref]) or _run(["git", "rev-parse", "--short", "HEAD"])
 
 
 def baked_git_head(tree: dict | None = None) -> str:
@@ -477,6 +515,7 @@ def head_drifted(tree: dict | None = None) -> bool:
 
 
 def build(*, if_stale: int = 0) -> dict:
+    sync_origin()
     if if_stale:
         old = _load()
         head = live_git_head()
@@ -757,6 +796,7 @@ def render_html(open_after: bool = False) -> pathlib.Path:
     Rebuilds OKF when live HEAD ≠ baked okf.git_head so the panel tracks
     current checkout (not a stale history[0] commit).
     """
+    sync_origin()
     live = live_git_head()
     tree = _load()
     if tree is None or head_drifted(tree):
@@ -772,6 +812,7 @@ def render_html(open_after: bool = False) -> pathlib.Path:
         "live_head": live or baked,
         "repo": tree.get("repo") or REPO.name,
         "root": str(REPO.resolve()),
+        "github": github_repo_url(),
         "summary": summary,
     }
     publish_viewer()

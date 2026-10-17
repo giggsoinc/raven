@@ -3188,16 +3188,30 @@ def _okf_baked_head(path: Path) -> str:
 
 
 def _live_git_head(repo: Path) -> str:
+    """Short SHA of origin/main after a fail-soft fetch, otherwise local HEAD."""
     try:
-        out = subprocess.run(
-            ["git", "-C", str(repo), "rev-parse", "--short", "HEAD"],
+        subprocess.run(
+            ["git", "-C", str(repo), "fetch", "origin", "main"],
             capture_output=True,
             text=True,
-            timeout=8,
+            timeout=20,
         )
-        return (out.stdout or "").strip() if out.returncode == 0 else ""
     except Exception:
-        return ""
+        pass
+    for ref in ("origin/main", "HEAD"):
+        try:
+            out = subprocess.run(
+                ["git", "-C", str(repo), "rev-parse", "--short", ref],
+                capture_output=True,
+                text=True,
+                timeout=8,
+            )
+            sha = (out.stdout or "").strip() if out.returncode == 0 else ""
+            if sha:
+                return sha
+        except Exception:
+            continue
+    return ""
 
 
 def _ensure_okf_graphs(names: list[str]) -> None:

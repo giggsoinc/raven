@@ -24,6 +24,12 @@
     }
     return live || baked || "";
   }
+  function commitHref(n) {
+    const sha = (n && n.sha) || "";
+    const base = String(G.github || "").replace(/\/$/, "");
+    if (!sha || !base) return "";
+    return base + "/commit/" + encodeURIComponent(sha);
+  }
   function headMetaHtml() {
     const baked = G.git_head || "";
     const live = G.live_head || "";
@@ -46,7 +52,7 @@
 
   function pickSet() {
     const files = G.nodes.filter((n) => n.type === "file").sort((a, b) => (b.churn_30d || 0) - (a.churn_30d || 0)).slice(0, 48);
-    const commits = G.nodes.filter((n) => n.type === "commit").slice(0, 20);
+    const commits = G.nodes.filter((n) => n.type === "commit").slice(0, 60);
     const byId = {};
     G.nodes.forEach((n) => { byId[n.id] = n; });
     if (mode === "file") {
@@ -216,7 +222,7 @@
       folderTree(rel) +
       "<h3>File summary</h3><p>" + esc(words(nodeSummary(fileNode), 100)) + "</p>" +
       "<h3>Changes (this commit)</h3><p>" + esc(words(fileChangeSummary(fileNode, commitNode), 100)) + "</p>" +
-      "<h3>Metadata</h3><p>path: <a href='" + fileHref(rel) + "'>" + esc(rel) + "</a><br>repo: " + esc(G.repo || "") + "</p>";
+      "<h3>Metadata</h3><p>path: " + esc(rel) + "<br>repo: " + esc(G.repo || "") + "</p>";
     const back = document.getElementById("backCommit");
     bindOpenButtons();
     if (rel) loadPreview(rel);
@@ -251,11 +257,14 @@
       "<h3>Metadata</h3><p>" +
       "repo: " + esc(G.repo || "") + "<br>" +
       headMetaHtml() +
-      (rel ? "path: <a href='" + fileHref(rel) + "'>" + esc(rel) + "</a><br>" : "") +
+      (rel ? "path: " + esc(rel) + "<br>" : "") +
       (n.churn_30d != null ? "churn 30d: " + n.churn_30d + "<br>" : "") +
       (last.why ? "recent change: " + esc(last.commit || "") + " " + esc(last.why) + "<br>" : "") +
+      (n.author ? "author: " + esc(n.author) + "<br>" : "") +
       (n.date ? "date: " + esc(n.date) + "<br>" : "") +
-      (n.sha ? "sha: " + esc(n.sha) + "<br>" : "") +
+      (n.sha ? (commitHref(n)
+        ? "<a href='" + commitHref(n) + "' target='_blank' rel='noopener'>open commit " + esc(n.short || n.sha) + "</a><br>"
+        : "sha: " + esc(n.sha) + "<br>") : "") +
       (n.files ? "files:<br>" + fileLinks(n) : "") +
       "</p><h3>How it connects</h3><p>" + flowHtml + "</p>";
     bindFileLinks();
