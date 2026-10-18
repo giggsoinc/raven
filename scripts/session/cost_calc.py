@@ -365,7 +365,13 @@ def start_money_line(model: str, prompt_chars: int) -> str:
     last = load_last_turn()
     est = estimate(model, prompt_chars)
     last_s = _fmt_usd(last.get("turn_usd")) if last else "$0.0000"
-    note = " needs_rate (fill .raven/model-pricing.local.json)" if est.get("needs_rate") else ""
+    note = ""
+    if est.get("needs_rate"):
+        note = (
+            f" no_rate_for={est.get('model')}"
+            " (add rates in scripts/session/model-pricing.json"
+            " or .raven/model-pricing.local.json)"
+        )
     return (
         f"💰 total-cost={_fmt_usd(total)} last_turn={last_s} "
         f"est={_fmt_usd(est.get('est_cost_usd'))}{note}"

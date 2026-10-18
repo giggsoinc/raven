@@ -2904,6 +2904,7 @@ def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
     sess_keys: set = set()
     tok = 0
     router_mix: dict = {}
+    unpriced: dict = {}
 
     def bucket(repo: str, ide: str) -> tuple:
         b = by_repo.setdefault(
@@ -2982,9 +2983,12 @@ def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
         chars = int(r.get("prompt_chars") or 0)
         tin = max(0, chars // 4)
         tout = 500  # nominal reply guess per router fire
-        usd = gc(model, tin, tout) if model else None
-        if usd is None:
-            usd = _usd(r.get("est_cost_usd"))
+        priced = gc(model, tin, tout) if model else None
+        if priced is None and r.get("est_cost_usd") is None:
+            if model:
+                unpriced[model] = unpriced.get(model, 0) + 1
+            continue
+        usd = float(priced) if priced is not None else _usd(r.get("est_cost_usd"))
         _b, ib = bucket(repo, ide)
         ib["cost_usd"] += float(usd or 0)
         ib["est_usd"] = float(ib.get("est_usd") or 0) + float(usd or 0)
@@ -3043,7 +3047,35 @@ def _spend_from_logs(turn_log: list, cost_log: list) -> dict:
         "actual_usd": round(actual_total, 4),
         "estimated_usd": round(est_total, 4),
         "router_mix": mix_rows,
+        "unpriced": [
+            {"model": m, "fires": n}
+            for m, n in sorted(unpriced.items(), key=lambda kv: -kv[1])
+        ],
     }
+
+
+def _jev_calls(limit: int = 50) -> list:
+    """Jev setup events from ~/RavenVault/jev-calls.jsonl. Never contains a key."""
+    path = VAULT / "jev-calls.jsonl"
+    if not path.is_file():
+        return []
+    try:
+        lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return []
+    out = []
+    for line in lines[-limit:]:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            rec = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(rec, dict):
+            out.append(rec)
+    out.reverse()
+    return out
 
 
 def _obs_metrics(rows: list) -> dict:
@@ -3645,6 +3677,20 @@ def write_raven_dashboard(metadata: dict, metrics: Optional[dict] = None) -> Pat
         f"<td class='num'>{int(r.get('fires') or 0)}</td></tr>"
         for r in mix
     ) or "<tr><td colspan='4'>No router fires</td></tr>"
+    unpriced_rows = log_spend.get("unpriced") or []
+    unpriced_tbl = "".join(
+        f"<tr><td><code>{html_lib.escape(str(r.get('model')))}</code></td>"
+        f"<td class='num'>{int(r.get('fires') or 0)}</td></tr>"
+        for r in unpriced_rows
+    ) or "<tr><td colspan='2'>Every logged router model has a rate.</td></tr>"
+    jev_rows = _jev_calls()
+    jev_tbl = "".join(
+        f"<tr><td>{html_lib.escape(str(r.get('ts') or ''))}</td>"
+        f"<td>{html_lib.escape(str(r.get('event') or ''))}</td>"
+        f"<td>{html_lib.escape(str(r.get('typesafe') or ''))}</td>"
+        f"<td>{html_lib.escape(str(r.get('preference') or ''))}</td></tr>"
+        for r in jev_rows[:20]
+    ) or "<tr><td colspan='4'>No Jev calls yet. A terminal setup writes ~/RavenVault/jev-calls.jsonl. Keys are not logged.</td></tr>"
     cost_by_repo_tbl = "".join(cost_repo_parts) or "<tr><td colspan='4'>No repo cost yet — router turn-log is empty</td></tr>"
     built_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%SZ")
 
@@ -3787,7 +3833,15 @@ select{{background:#1c2330;color:var(--ink);border:1px solid var(--line);padding
   <table><thead><tr><th>Repo / IDE</th><th class="num">Sessions</th><th class="num">Tokens</th><th class="num">Cost</th></tr></thead>
   <tbody>{cost_by_repo_tbl}</tbody></table>
   <h3 style="margin:16px 0 8px">Router (what classified, not billed Opus/Fable)</h3>
-  <p class="dim">Counts from turn-log.jsonl. Cost uses this <code>recommend</code> in get_cost(). No Opus/Fable in this table unless the router wrote those ids.</p>
+  <p class="dim">Counts from turn-log.jsonl. A priced model uses chars/4 input plus a 500-token reply guess. That number is an estimate, not an invoice. A model with no rate is left out of the dollar total and listed under Unpriced. The router line <code>no_rate_for=MODEL</code> means the same thing. <code>cost_calc_unavailable</code> means the calculator did not import.</p>
+  <h3 style="margin:16px 0 8px">Unpriced router fires</h3>
+  <table><thead><tr><th>Model</th><th class="num">Fires</th></tr></thead>
+  <tbody>{unpriced_tbl}</tbody></table>
+  <h3 style="margin:16px 0 8px">Jev calls</h3>
+  <p class="dim">{len(jev_rows)} recorded. Setup, key save, and model choice. The API key is never written here.</p>
+  <table><thead><tr><th>When</th><th>Event</th><th>TypeSafe</th><th>Preference</th></tr></thead>
+  <tbody>{jev_tbl}</tbody></table>
+  <h3 style="margin:16px 0 8px">Router mix</h3>
   <table><thead><tr><th>IDE</th><th>Tier</th><th>Recommend</th><th class="num">Fires</th></tr></thead>
   <tbody>{router_mix_tbl}</tbody></table>
   <h3 style="margin:16px 0 8px">By day</h3>

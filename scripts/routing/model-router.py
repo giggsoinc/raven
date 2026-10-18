@@ -212,7 +212,7 @@ def format_turn_toast(tier: str, model: str, reasons: List[str], host: str = "",
         from cost_calc import start_money_line
         money = start_money_line(model, prompt_chars or 0)
     except Exception:
-        money = "💰 total-cost=? last_turn=? est=?"
+        money = "💰 total-cost=? last_turn=? est=? cost_calc_unavailable"
     edu = _educate_mode()
     return (
         f"🔀 Router · host={host} · {tier} → recommend {model} "
