@@ -11,10 +11,25 @@ AI codes fast. Raven enforces Discipline — Strategic Thinking, Scalable Struct
 - **Strategic Thinking** — done by two orchestrators, picked automatically based on what you're doing:
   - **Andie** — for an enhancement or a new feature. Validates first, then the guided explanation, then waits for your go before touching code.
   - **Andie-Jr** — for a bug, error, or fix. Finds the root cause first, then the guided explanation. It does not take new design.
-- **Scalable Structure** — every prompt is routed to the right expert automatically. 61 specialists, one per domain, picked by deterministic rules — and you always see a one-line note saying who's handling it and why. Works the same on one repo or a hundred.
+- **Scalable Structure** — Jev, TypeSafe System 1, picks the approved model for the prompt. 61 specialists, one per domain, are still named in a one-line note saying who is handling the work and why. If Jev does not answer, the keyword tier is used. Works the same on one repo or a hundred.
 - **Security at Source** — guards run on your machine, at the moment code is written and committed: secrets are blocked, vulnerable libraries are blocked, and edits are blocked until the thinking actually happened. Not a report after the damage — a gate before it.
 
 All local. Zero telemetry. MIT.
+
+## Jev
+
+Jev is [TypeSafe System 1](https://docs.typesafe.ai/concepts/system-one), a hosted decision model. It does not write code, edit files, or call tools. You send it text and a closed list of choices. It returns one choice and a confidence score. Raven decides what to do with that answer.
+
+**What Raven uses it for.** On every prompt, the router asks Jev which approved model should handle the message. The choices are this host's SIMPLE, MEDIUM, and COMPLEX models. Opus and Fable are not in the list. If Jev's confidence is at least 0.55 and the choice is on the list, that model is the recommendation and the router line includes `jev`. If the key is missing, the call fails, or the confidence is low, Raven keeps the keyword tier. A prompt that looks like it contains a secret is not sent to Jev.
+
+**How you give it the key.** `raven-setup` asks for this before any project question. A local page opens at `127.0.0.1`.
+
+- Create a key at https://console.typesafe.ai/keys. TypeSafe calls it `TYPESAFE_API_KEY`.
+- Paste it into the page, or into the field `typesafe_api_key` in `.raven/manifest.secrets.json`.
+- That file is gitignored and mode 600. The key is not printed and is not committed.
+- If a key is already stored, setup skips the page.
+
+The call is `POST https://api.typesafe.ai/v1/systemone`. The key is read from `TYPESAFE_API_KEY` in the environment, or from that secrets file.
 
 `#comprehension_debt` `#ai_coding` `#claude_code` `#grok` `#codex` `#cursor` `#discipline_engine` `#token_cost` `#secret_scan` `#cve` `#mcp` `#obsidian` `#agent_memory`
 
@@ -26,7 +41,7 @@ One current plugin zip is in the repo: [`plugin/raven-plugin-v6.0.zip`](plugin/r
 |---|---|
 | Plan new work | **Andie** — 3-angle plan, wait for go-ahead |
 | Debug existing code | **Andie-Jr** — 2-round root cause → fix |
-| Route every prompt | `model-router.py` — visible `🔀` + cheapest adequate tier |
+| Route every prompt | Jev picks the approved model; `model-router.py` prints `🔀` and falls back to the keyword tier |
 | See spend | Local dashboard + `/run-costs` (calculator; billed $ if API keys in env) |
 | See the repo | OKF **Graph** (files/commits, search, open file) |
 | Stop secrets / CVEs | Pre-commit + skills: secret scan, CVE gate |
@@ -240,12 +255,7 @@ diagrams: [business view](docs/Agent_token_architecture_business.html) ·
 
 Raven 6.0 is the current release. One plugin covers Claude, Grok, Codex, Cursor, Windsurf, VS Code, AntiGravity, Gemini, and Replit.
 
-**How Jev works.** The first time you set up a project, in a terminal, Raven asks one question: do you have a Jev TypeSafe key?
-
-- **Yes.** You paste the key. Raven tells you the storage path before the paste and again after the save. The value is hidden while you type and is never printed. Get or create the key at https://console.typesafe.ai/keys. TypeSafe calls it `TYPESAFE_API_KEY`. It is saved as `typesafe_api_key` in `.raven/manifest.secrets.json` (gitignored, mode 600).
-- **No.** Raven keeps its normal routing. You are not blocked. A session that is not a terminal, including every automated prompt, does not ask and does not stop.
-
-Raven does not call TypeSafe to run a prompt, and it does not read or bill a token balance. The key is stored for you. Routing uses the model names you choose next.
+**How Jev works.** See [Jev](#jev) above. Setup opens the local key page first. After the key is stored, each prompt is sent to System 1. Jev only chooses an approved model. It does not run the prompt, and Raven does not read a TypeSafe token balance.
 
 **What you can do after that question.** Raven asks what you prefer:
 
