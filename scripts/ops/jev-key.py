@@ -423,6 +423,11 @@ def main(argv: list[str] | None = None) -> int:
         i = args.index("--file")
         path = Path(args[i + 1])
     root = project_root(path)
+    if "--ensure" in args:
+        if stored_key(path):
+            print("jev-key: already stored")
+            return 0
+        return serve_page(path, open_browser="--no-open" not in args)
     if "--page" in args:
         return serve_page(path, open_browser="--no-open" not in args)
     if "--set" in args:

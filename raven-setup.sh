@@ -9,8 +9,11 @@ W='\033[1m' N='\033[0m'
 
 echo ""
 echo -e "${W}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
-echo -e "${W}  Raven — Setup v4.0${N}"
+echo -e "${W}  Raven — Setup v6.0${N}"
 echo -e "${W}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}\n"
+
+# First ask. Jev key before project questions. Skip when it is already stored.
+python3 "$SR_REPO_DIR/scripts/ops/jev-key.py" --ensure --file "$(pwd)/.raven/manifest.secrets.json" || true
 
 source "$SR_REPO_DIR/setup/sr-00-preflight.sh"  || exit 1
 

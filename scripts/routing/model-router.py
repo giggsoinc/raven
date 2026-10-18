@@ -17,7 +17,9 @@ import json
 import hashlib
 import os
 import re
+import subprocess
 import sys
+import urllib.request
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Tuple, List, Dict
@@ -322,8 +324,127 @@ def classify(
     host = detect_host()
     models = _load_model_env(host)
     model_string = models.get(tier, models.get("MEDIUM", "session-default"))
+    if tier != "LOCAL_ONLY":
+        picked = _jev_model(prompt, _jev_criteria(models))
+        if picked:
+            model_string = picked
+            reasons = reasons + ["jev"]
+            for name, mid in models.items():
+                if mid == picked and name in ("SIMPLE", "MEDIUM", "COMPLEX", "LOCAL_ONLY"):
+                    tier = name
+                    break
 
     return tier, score, reasons, model_string
+
+
+def _typesafe_key() -> str:
+    """Env first, then the gitignored secrets file. Never log the value."""
+    env = (os.environ.get("TYPESAFE_API_KEY") or "").strip()
+    if env:
+        return env
+    path = _find_project_root() / ".raven" / "manifest.secrets.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return ""
+    value = data.get("typesafe_api_key") if isinstance(data, dict) else ""
+    if not isinstance(value, str):
+        return ""
+    value = value.strip()
+    if value in ("", "REPLACE_WITH_TYPESAFE_API_KEY"):
+        return ""
+    return value
+
+
+def _jev_criteria(models: Dict[str, str]) -> Dict[str, str]:
+    """Approved model ids only. Opus and Fable are never offered to Jev."""
+    described = {
+        "SIMPLE": "One fact, a short read, or a small edit. No design and no debugging.",
+        "MEDIUM": "Several steps, a real bug, or more than one file. Not a new architecture.",
+        "COMPLEX": "Architecture, security review, or a new design.",
+    }
+    criteria: Dict[str, str] = {}
+    for tier, sentence in described.items():
+        model_id = (models.get(tier) or "").strip()
+        lowered = model_id.lower()
+        if not model_id or "opus" in lowered or "fable" in lowered:
+            continue
+        criteria[model_id] = sentence
+    return criteria
+
+
+def _post_systemone(key: str, body: Dict) -> Optional[Dict]:
+    """POST /v1/systemone. Curl is the fallback when Python trust store fails."""
+    raw = json.dumps(body).encode("utf-8")
+    request = urllib.request.Request(
+        "https://api.typesafe.ai/v1/systemone",
+        data=raw,
+        headers={
+            "Authorization": "Bearer " + key,
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=8) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except Exception:
+        pass
+    try:
+        proc = subprocess.run(
+            [
+                "curl", "-sS", "-m", "8", "-w", "\n%{http_code}",
+                "-H", "Authorization: Bearer " + key,
+                "-H", "Content-Type: application/json",
+                "-d", raw.decode("utf-8"),
+                "https://api.typesafe.ai/v1/systemone",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=12,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if proc.returncode != 0:
+        return None
+    lines = proc.stdout.splitlines()
+    if not lines or lines[-1] != "200":
+        return None
+    try:
+        return json.loads("\n".join(lines[:-1]))
+    except json.JSONDecodeError:
+        return None
+
+
+def _jev_model(prompt: str, criteria: Dict[str, str]) -> Optional[str]:
+    """Ask System 1 which approved model should handle this prompt."""
+    key = _typesafe_key()
+    text = (prompt or "").strip()
+    if not key or not criteria or not text:
+        return None
+    body = {
+        "model": "jev-latest",
+        "state": text[:8000],
+        "questions": {
+            "model_level": {
+                "type": "choice",
+                "instructions": "Which approved model level should handle this message?",
+                "criteria": criteria,
+            }
+        },
+    }
+    payload = _post_systemone(key, body)
+    if payload is None:
+        return None
+    answer = (payload.get("answers") or {}).get("model_level") or {}
+    choice = str(answer.get("choice") or "")
+    try:
+        confidence = float(answer.get("confidence") or 0)
+    except (TypeError, ValueError):
+        confidence = 0.0
+    if choice in criteria and confidence >= 0.55:
+        return choice
+    return None
 
 
 def write_session_json(tier: str, score: int, reasons: List[str], model: str, prompt: str, source: str = "user_work") -> Path:
