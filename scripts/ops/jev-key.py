@@ -6,6 +6,7 @@ That file is gitignored. This script never prints the key.
 """
 from __future__ import annotations
 
+import datetime
 import getpass
 import json
 import os
@@ -72,6 +73,24 @@ def setup_marker(root: Path) -> Path:
 
 def setup_done(root: Path) -> bool:
     return setup_marker(root).is_file()
+
+
+def log_jev(event: str, typesafe: str = "", preference: str = "") -> None:
+    """Append one Jev event. The API key is never included."""
+    vault = Path(os.environ.get("RAVEN_VAULT", str(Path.home() / "RavenVault")))
+    path = vault / "jev-calls.jsonl"
+    rec = {
+        "ts": datetime.datetime.now().isoformat(timespec="seconds"),
+        "event": event,
+        "typesafe": typesafe,
+        "preference": preference,
+    }
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(rec) + "\n")
+    except OSError:
+        return
 
 
 def mark_setup(root: Path, typesafe: str, preference: str) -> None:
@@ -264,6 +283,7 @@ def offer(root: Path) -> int:
         print("Raven keeps its current default routing.")
         preference = "defaults"
     mark_setup(root, typesafe, preference)
+    log_jev("setup", typesafe, preference)
     print("After this step:")
     print(where_stored(root))
     return 0
@@ -410,6 +430,7 @@ def main(argv: list[str] | None = None) -> int:
         print(where_stored(root))
         typed = getpass.getpass("Paste the Jev TypeSafe key (input hidden): ")
         save_key(path, typed)
+        log_jev("set", "yes", "")
         print("After the save:")
         print(where_stored(root))
         return 0
@@ -417,6 +438,7 @@ def main(argv: list[str] | None = None) -> int:
         print("Before the save:")
         print(where_stored(root))
         save_key(path, os.environ.get("TYPESAFE_API_KEY") or "")
+        log_jev("save-env", "yes", "")
         print("After the save:")
         print(where_stored(root))
         return 0
