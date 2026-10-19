@@ -2,7 +2,7 @@
   <img src="./assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
 </p>
 
-# Raven v6.0 — The Open-Source Solution to AI Comprehension Debt.
+# Raven v6.1 — The Open-Source Solution to AI Comprehension Debt.
 
 AI Engineering Discipline for Comprehension Debt. Andie, the multi-dimensional thinking agent, pressure-tests the change from every angle before a line is written.
 
@@ -37,7 +37,7 @@ The call is `POST https://api.typesafe.ai/v1/systemone`. The key is read from `T
 
 ## Plugin — what you can do
 
-One current plugin zip is in the repo: [`plugin/raven-plugin-v6.0.zip`](plugin/raven-plugin-v6.0.zip). It is the only install zip. Older plugin zips (v4.1.0 and v5.5.0 through v5.5.7) are packed in [`plugin/version.archive.zip`](plugin/version.archive.zip). Same current zip for Claude Code, Claude Desktop, and the other hosts (`install-host.sh`).
+One current plugin zip is in the repo: [`plugin/raven-plugin-v6.1.zip`](plugin/raven-plugin-v6.1.zip). It is the only install zip. Older plugin zips (v4.1.0 and v5.5.0 through v5.5.7) are packed in [`plugin/version.archive.zip`](plugin/version.archive.zip). Same current zip for Claude Code, Claude Desktop, and the other hosts (`install-host.sh`).
 
 | You want to | In the plugin |
 |---|---|
@@ -57,7 +57,7 @@ Calculator spend is local. Check **actual billed** cost on the Costs pane or `/r
 Raven is **not** in an Anthropic-hosted plugin marketplace — `/plugin marketplace add giggsoinc/raven` will not work. Pick one:
 
 1. **Clone + install (Claude Code)** — `git clone https://github.com/giggsoinc/raven.git && claude plugin install ./raven/plugin`
-2. **Current zip** — [`plugin/raven-plugin-v6.0.zip`](plugin/raven-plugin-v6.0.zip). Claude: unzip then `claude plugin install <dir>`. Other hosts: `bash install-host.sh /path/to/project` (see [plugin/HOSTS.md](plugin/HOSTS.md)). Rebuild it with `bash plugin/make-plugin.sh` after you change the plugin. Older zips are not installed. They sit in [`plugin/version.archive.zip`](plugin/version.archive.zip).
+2. **Current zip** — [`plugin/raven-plugin-v6.1.zip`](plugin/raven-plugin-v6.1.zip). Claude: unzip then `claude plugin install <dir>`. Other hosts: `bash install-host.sh /path/to/project` (see [plugin/HOSTS.md](plugin/HOSTS.md)). Rebuild it with `bash plugin/make-plugin.sh` after you change the plugin. Older zips are not installed. They sit in [`plugin/version.archive.zip`](plugin/version.archive.zip).
 3. **Let Claude do it** — inside a Claude Code session, ask Claude to clone the repo and run the install command for you (same two steps as Option 1, just delegated)
 
 Full walkthrough (enterprise admin upload, org-wide managed deployment, troubleshooting): [claude_plugin_readme.md](./claude_plugin_readme.md)
@@ -253,9 +253,9 @@ diagrams: [business view](docs/Agent_token_architecture_business.html) ·
 
 ---
 
-## Raven 6.0
+## Raven 6.1
 
-Raven 6.0 is the current release. One plugin covers Claude, Grok, Codex, Cursor, Windsurf, VS Code, AntiGravity, Gemini, and Replit.
+Raven 6.1 is the current release. The 6.0 zip is removed so the updater sees this build. One plugin covers Claude, Grok, Codex, Cursor, Windsurf, VS Code, AntiGravity, Gemini, and Replit.
 
 **How Jev works.** See [Jev](#jev) above. Setup opens the local key page first. After the key is stored, each prompt is sent to System 1. Jev only chooses an approved model. It does not run the prompt, and Raven does not read a TypeSafe token balance.
 
@@ -269,19 +269,19 @@ Run it again with `python3 scripts/ops/jev-key.py`. `python3 scripts/ops/jev-key
 
 **Ask order.** A bug, error, or fix goes to Andie Jr, then the guided explanation. An enhancement or new feature goes to Andie, then the guided explanation. The skill gate blocks an edit until that reviewer and Guided are both stamped. The other reviewer does not unlock the edit.
 
-**What this repo holds now.** `main` is the only branch. The install file is `plugin/raven-plugin-v6.0.zip`. The nine older plugin zips are not loose files. They are inside `plugin/version.archive.zip`. Secret and CVE blocks, local token and cost metering, the dashboard, and cross-session memory are still in this release. The written history of older releases stays in [VERSIONLOG.md](VERSIONLOG.md).
+**What this repo holds now.** `main` is the only branch. The install file is `plugin/raven-plugin-v6.1.zip`. The nine older plugin zips are not loose files. They are inside `plugin/version.archive.zip`. Secret and CVE blocks, local token and cost metering, the dashboard, and cross-session memory are still in this release. The written history of older releases stays in [VERSIONLOG.md](VERSIONLOG.md).
 
 ---
 
 ## Other Install Paths
 
-**Current ZIP (all hosts):** [`plugin/raven-plugin-v6.0.zip`](plugin/raven-plugin-v6.0.zip). Claude Desktop: Settings → Extensions → Add plugin. Other IDEs: `bash install-host.sh` (see [plugin/HOSTS.md](plugin/HOSTS.md)). Older zips: [`plugin/version.archive.zip`](plugin/version.archive.zip).
+**Current ZIP (all hosts):** [`plugin/raven-plugin-v6.1.zip`](plugin/raven-plugin-v6.1.zip). Claude Desktop: Settings → Extensions → Add plugin. Other IDEs: `bash install-host.sh` (see [plugin/HOSTS.md](plugin/HOSTS.md)). Older zips: [`plugin/version.archive.zip`](plugin/version.archive.zip).
 
 **From source:**
 
 ```bash
 git clone https://github.com/giggsoinc/raven.git
-cd raven && bash plugin/make-plugin.sh   # rebuilds plugin/raven-plugin-v6.0.zip
+cd raven && bash plugin/make-plugin.sh   # rebuilds plugin/raven-plugin-v6.1.zip
 ```
 
 ---
@@ -318,7 +318,7 @@ This repo is the **free tier — everything runs local**, MIT-licensed, complete
   <strong>Built by <a href="https://giggso.com">Giggso</a> · <a href="https://github.com/giggsoinc/raven">GitHub</a> · MIT License</strong>
 </p>
 
-*Raven 6.0 — one plugin, every host.*
+*Raven 6.1 — one plugin, every host.*
 
 
-*Raven 6.0 — Governance for AI coding at the speed of thought.*
+*Raven 6.1 — Governance for AI coding at the speed of thought.*
