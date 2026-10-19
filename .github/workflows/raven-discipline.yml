@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Engine drift check (scripts/ vs raven-core/ vs .claude/scripts/)
-        run: python3 scripts/check-engine-drift.py
+        run: python3 scripts/ops/check-engine-drift.py
 
   raven-docs-reality-check:
     name: raven-docs-reality-check
@@ -32,7 +32,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Docs-vs-reality check (CLAUDE.md hook claims vs settings.json)
-        run: python3 scripts/check-docs-vs-reality.py
+        run: python3 scripts/ops/check-docs-vs-reality.py
 
   raven-config-canon-check:
     name: raven-config-canon-check
@@ -44,7 +44,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Config canon check (distribution configs generated from .claude/settings.json)
-        run: python3 scripts/export-hook-configs.py --check
+        run: python3 scripts/ops/export-hook-configs.py --check
 
   raven-skill-manifest-check:
     name: raven-skill-manifest-check
@@ -56,7 +56,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Skill manifest lint (registry, overlap resolutions, core/skills drift)
-        run: python3 scripts/build-skill-manifest.py --check
+        run: python3 scripts/ops/build-skill-manifest.py --check
 
   raven-version-consistency-check:
     name: raven-version-consistency-check
@@ -68,4 +68,4 @@ jobs:
         with:
           python-version: "3.12"
       - name: Version consistency (raven-core/VERSION vs every current-version claim)
-        run: python3 scripts/check-version-consistency.py
+        run: python3 scripts/ops/check-version-consistency.py
