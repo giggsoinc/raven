@@ -23,12 +23,16 @@ for _d in (__import__('pathlib').Path(__file__).resolve().parent.parent / 'memor
     if str(_d) not in sys.path:
         sys.path.insert(0, str(_d))
 try:
-    from router_common import force_intent, semantic_fallback, log_overhead, save_andie_offer
+    from router_common import (
+        force_intent, semantic_fallback, log_overhead, save_andie_offer,
+        is_andie_reply,
+    )
 except Exception:  # fail-soft: routing still works without the shared helper
     def force_intent(_p): return None
     def semantic_fallback(_p, _k): return False
     def log_overhead(_s, _t): return None
     def save_andie_offer(_s, _r): return None
+    def is_andie_reply(_p): return False
 
 # ── DECISION intent — any one match triggers (a) ──────────────────────────────
 DECISION = re.compile(
@@ -130,6 +134,8 @@ def main():
             prompt = sys.stdin.read()
         except Exception:
             return
+    if is_andie_reply(prompt):
+        return  # triage-router owns andie 1 / andie 2. Do not open a new offer.
     forced = force_intent(prompt)
     if forced == "andie-jr":
         return  # explicit andie-jr force is exclusive — triage-router owns it
@@ -143,7 +149,7 @@ def main():
             "[ANDIE RECOMMENDED] This prompt is architecture-class — it involves "
             "design decisions, multi-component scope, or strategic tradeoffs. "
             "Andie is not force-loaded. Load `andie` for the triad plan, or stop "
-            "and offer 1 load Andie and re-route, or 2 continue without Andie. "
+            "and offer `andie 1` to load Andie, or `andie 2` to continue without Andie. "
             "Wait. Do not pick. Do not free-style the design while that choice is open.\n"
         )
         why = "forced via /andie" if forced == "andie" else "architecture-class prompt detected"

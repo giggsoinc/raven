@@ -27,7 +27,7 @@
 - **direct** → answer/execute; still 🔀 + session=. Never skip as “quick X.”
 - Unsure → plan or debug, not skip. Plan vs debug unclear → ask.
 - If intent/gate state is contradictory: `Routing state is unclear — I will not guess. [ambiguous]. How do you want me to proceed?` Wait. Does not override Lucky / Educate / Rule 8.
-- **Andie HITL:** Andie is not force-loaded. If this turn does not load the Andie skill, stop before the work and show the reason plus an override: `1` load Andie and re-route, `2` continue without Andie. Wait. Do not pick for the user. `Lucky` is still the only full opt-out, and only when the user typed it.
+- **Andie HITL:** Andie is not force-loaded. If this turn does not load the Andie skill, stop before the work and show the reason plus an override: `andie 1` loads Andie and re-routes, `andie 2` continues without Andie. Wait. A bare `1` or `2` is not that choice. Do not pick for the user. A plain prompt does not open a hook offer, so this line is the only stop for that prompt. `Lucky` is still the only full opt-out, and only when the user typed it.
 
 1. Code map: `graph_cli` / `mcp=` when they ask about code. Do not dump OKF at boot.
 2. If `educate=guided` (default): briefing (WHAT/HOW/files, ≤200 words) then **STOP**. No Write/Edit/`spawn_subagent` that mutates until the user says **go ahead** / **approved** / **proceed**. `educate off` / Lucky persist in `.raven/educate.json`. Grok/Codex/Cursor/Windsurf/VS Code have no PreToolUse — skipping this loop is the same failure as empty dashboard Logs.

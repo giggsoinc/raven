@@ -832,7 +832,7 @@ def main():
                 f"cannot swap. If context-bound, stay on session and say why in one line. "
                 f"Never claim model_for_tier is what you ran. "
                 f"ANDIE_HITL: do not force-load Andie. If you do not load it, stop and offer "
-                f"1 load Andie and re-route, or 2 continue without Andie. Wait."
+                f"`andie 1` loads Andie, or `andie 2` continues without Andie. Wait. A bare 1 or 2 is not a choice."
             )
         else:
             host = detect_host()
@@ -845,7 +845,7 @@ def main():
                 f"subagent actually runs on that model. "
                 f"Do not say you are anthropic/claude-* unless host=claude. "
                 f"ANDIE_HITL: do not force-load Andie. If you do not load it, stop and offer "
-                f"1 load Andie and re-route, or 2 continue without Andie. Wait. "
+                f"`andie 1` loads Andie, or `andie 2` continues without Andie. Wait. A bare 1 or 2 is not a choice. "
                 + ("SECRETS DETECTED: do NOT spawn cloud agents; local model only."
                    if tier == "LOCAL_ONLY" else "")
             )

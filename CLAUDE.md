@@ -1,4 +1,4 @@
-# CLAUDE.md — Raven Discipline Engine v6.1.1
+# CLAUDE.md — Raven Discipline Engine v6.1.2
 
 > **This file is the contract.** Claude reads this on every turn. The rules below are not aspirational — they are how Claude must behave in this project.
 
@@ -44,7 +44,9 @@ Unsure → pick **plan** or **debug**, never skip. Ambiguous plan vs debug → a
 
 **HITL (intent/gate only):** If you cannot tell whether intent was stated this turn, or two rules contradict: do not guess. Say `Routing state is unclear — I will not guess. [what is ambiguous]. How do you want me to proceed?` Wait. Does **not** override Lucky, Educate wait-for-go-ahead, or Rule 8.
 
-**Andie HITL (strict):** Andie is not force-loaded. When this turn does not load the Andie skill, stop before the work. State the reason in one line, then offer `1` load Andie and re-route, or `2` continue without Andie. Wait for the user. Do not pick. `Lucky` remains the only full opt-out, and only when the user typed that word.
+**Andie HITL (strict):** Andie is not force-loaded. When this turn does not load the Andie skill, stop before the work. State the reason in one line, then offer `andie 1` to load Andie and re-route, or `andie 2` to continue without Andie. Wait. A bare `1` or `2` is not that choice. `Lucky` remains the only full opt-out, and only when the user typed that word.
+
+The hook opens that offer only when triage or architect recommends Andie or Andie-jr. A plain prompt opens no hook offer, so for a plain prompt this contract is the only stop. The hook does not log a skip unless the user replies `andie 2` while an offer is open. `andie 1` clears the offer and says `load andie now`. It does not ask again. Any other message clears the offer and writes no skip.
 
 ### Step 1 — Gate Check (Default = Raven, Opt-Out = Lucky)
 
@@ -146,7 +148,7 @@ These are the **real Claude Code hooks** wired in this project. `PostEdit` and `
 | Hook Event | Fires When | Action |
 |---|---|---|
 | `SessionStart` | New Claude session opens | `session-start.py` (brownfield/greenfield, models) + **`model-router.py --session-start`** (base routing ON). **No vault-load.** Memory: `ide-boot.py` then Read card if `load=1`. |
-| `UserPromptSubmit` | Every user message arrives | `triage-router.py` → `architect-router.py` → `model-router.py` → `cve-prompt-guard.py` |
+| `UserPromptSubmit` | Every user message arrives | `hook-run.py` → `triage-router.py` → `architect-router.py` → `model-router.py` → `cve-prompt-guard.py`. A missing script writes `.raven/audit/` and exits 0. It does not block the prompt. |
 | `PostToolUse` (matcher: `Write\|Edit\|MultiEdit`) | After any file write/edit | `db-guard.py` (reads hook stdin natively) + `secret-scan.py` `--changed-files-only` (async) |
 | `Stop` | Fires at the end of every turn (not just session end) | `token-meter-write.py` → `token-guard.py` → `dashboard.py` `--if-stale 15` → `raven-xray.py` `--build --if-stale 15` → `obsidian-log.py` → `knowledge-extract.py` → `session-gate.py` (all async) |
 
@@ -306,4 +308,4 @@ python3 scripts/ops/install-claudemd.py --source path/to/new/CLAUDE.md --target 
 
 ---
 
-*Raven v6.1 — MIT — github.com/giggsoinc/raven*
+*Raven v6.1.2 — MIT — github.com/giggsoinc/raven*

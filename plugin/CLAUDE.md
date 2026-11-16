@@ -1,4 +1,4 @@
-# CLAUDE.md — Raven Discipline Engine v6.1.1
+# CLAUDE.md — Raven Discipline Engine v6.1.2
 
 > **This file is the contract.** Claude reads this on every turn. The rules below are not aspirational — they are how Claude must behave in this project.
 
@@ -17,6 +17,8 @@ These steps run **on every user message**, before generating any response, file 
 | Literally `Raven` | 🪶 **Raven** | Same as default — explicit confirmation. |
 
 **No silent discretion.** If you cannot tell the mode from the user's message, default to Raven. Never decide on Lucky on the user's behalf.
+
+**Andie HITL (strict):** Andie is not force-loaded. When this turn does not load the Andie skill, stop before the work. State the reason, then offer `andie 1` to load Andie and re-route, or `andie 2` to continue without Andie. Wait. A bare `1` or `2` is not that choice. The hook opens that offer only for an Andie or Andie-jr recommendation. A plain prompt opens no hook offer, so this contract is the only stop. `andie 1` clears the offer and says `load andie now`. It does not ask again. `andie 2` is the only reply that logs a skip, and only while an offer is open.
 
 ### Step 2 — Name the Specialist (Mandatory Before Any Tool Call)
 
@@ -85,7 +87,7 @@ These are the **real Claude Code hooks** wired in this project. `PostEdit` and `
 | Hook Event | Fires When | Action |
 |---|---|---|
 | `SessionStart` | New Claude session opens | `session-start.py` only. Memory: `ide-boot.py` then Read `.raven/memory/CARD.md` if `load=1`. |
-| `UserPromptSubmit` | Every user message arrives | `triage-router.py` → `architect-router.py` → `model-router.py` → `cve-prompt-guard.py` |
+| `UserPromptSubmit` | Every user message arrives | `hook-run.py` runs each script (`triage-router.py` → `architect-router.py` → `model-router.py` → `cve-prompt-guard.py`). A missing script writes `.raven/audit/` and exits 0. It does not block the prompt. |
 | `PostToolUse` (matcher: `Write\|Edit\|MultiEdit`) | After any file write/edit | `secret-scan.py` + `db-guard.py` (async) |
 | `Stop` | Session ends | `token-guard.py` + `obsidian-log.py` (hub + trimmed session) + `knowledge-extract.py` (async) |
 
@@ -245,4 +247,4 @@ python3 scripts/install-claudemd.py --source path/to/new/CLAUDE.md --target ./CL
 
 ---
 
-*Raven v6.1 — MIT — github.com/giggsoinc/raven*
+*Raven v6.1.2 — MIT — github.com/giggsoinc/raven*

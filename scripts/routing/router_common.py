@@ -37,17 +37,24 @@ def _state_dir() -> Path:
 
 
 def _choice(prompt: str) -> tuple:
-    """Return (1|2|None, extra reason from the reply). Bare digits only count alone."""
-    text = (prompt or "").strip()
-    low = text.lower().rstrip(".")
-    if low in {"1", "load andie", "load andie and re-route"}:
+    """Return (1|2|None, extra reason). Only the tokens `andie 1` and `andie 2` count.
+
+    A bare 1 or 2 is not a choice. Another numbered menu in the same window
+    must not become a skip. The whole message must be the token. Words after
+    `andie 2` are the skip reason.
+    """
+    text = re.sub(r"[.!?]+$", "", (prompt or "").strip()).strip()
+    if re.fullmatch(r"andie\s+1(?:\s+.*)?", text, re.I):
         return 1, ""
-    if low in {"2", "continue without andie"}:
-        return 2, ""
-    match = re.match(r"^2\b[:\-\s]+(.+)$", text, re.I)
+    match = re.fullmatch(r"andie\s+2(?:\s+(.*))?", text, re.I)
     if match:
-        return 2, match.group(1).strip()
+        return 2, (match.group(1) or "").strip()
     return None, ""
+
+
+def is_andie_reply(prompt: str) -> bool:
+    """True when the message is an andie 1 / andie 2 token, even if no offer is open."""
+    return _choice(prompt)[0] is not None
 
 
 def save_andie_offer(skill: str, reason: str) -> None:
@@ -70,23 +77,36 @@ def _open_offer() -> Optional[dict]:
         return None
 
 
-def record_user_choice(prompt: str) -> Optional[int]:
-    """Record a skip only when the user replied 2 to an open offer.
+def pending_offer_skill() -> str:
+    """Skill named on the open offer, before a reply clears that file."""
+    offer = _open_offer()
+    if not offer:
+        return "andie"
+    return str(offer.get("skill") or "andie")
 
-    Choice 1 clears the offer and writes no skip. A 2 with no offer in the
-    last 10 minutes writes nothing. The row reason is the offer reason, or
-    the words the user typed after 2.
+
+def record_user_choice(prompt: str) -> Optional[int]:
+    """Record a skip only when the user replied `andie 2` to an open offer.
+
+    `andie 1` clears the offer and writes no skip. Any other message also
+    clears the offer and writes no skip, so a later bare 2 cannot match it.
+    `andie 2` with no offer in the last 10 minutes writes nothing. The row
+    reason is the words after the token, or the offer reason.
     """
     choice, extra = _choice(prompt)
-    if choice is None:
-        return None
     offer_path = _state_dir() / "andie-offer.json"
-    offer = _open_offer()
-    if choice == 1:
+    if choice is None:
         try:
             offer_path.unlink()
         except OSError:
             pass
+        return None
+    offer = _open_offer()
+    try:
+        offer_path.unlink()
+    except OSError:
+        pass
+    if choice == 1:
         return 1
     if offer is None:
         return None
@@ -104,10 +124,6 @@ def record_user_choice(prompt: str) -> Optional[int]:
     }
     with (state / "andie-skip.jsonl").open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(row) + "\n")
-    try:
-        offer_path.unlink()
-    except OSError:
-        pass
     return 2
 
 

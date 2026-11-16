@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "description": "Raven v5.0 \u2014 Automated governance gate via Andie",
+  "description": "Raven v6.1.2 — Automated governance gate via Andie",
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -8,32 +8,32 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/memory/memory-card-hook.py\" --event turn",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/memory/memory-card-hook.py --event turn",
             "timeout": 15
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/routing/triage-router.py\"",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/routing/triage-router.py",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/routing/architect-router.py\"",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/routing/architect-router.py",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/routing/model-router.py\" --hook",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/routing/model-router.py --hook",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/routing/cve-prompt-guard.py\"",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/routing/cve-prompt-guard.py",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/guards/push-approve.py\"",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/guards/push-approve.py",
             "timeout": 5
           }
         ]
@@ -62,25 +62,25 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/session/session-start.py\"",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/session/session-start.py",
             "timeout": 10,
             "async": false
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/memory/ide-boot.py\" --session-start",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/memory/ide-boot.py --session-start",
             "timeout": 8,
             "async": true
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/routing/model-router.py\" --session-start",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/routing/model-router.py --session-start",
             "timeout": 5,
             "async": false
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/session/run_costs.py\" --session-start",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/session/run_costs.py --session-start",
             "timeout": 8,
             "async": true
           },
@@ -99,12 +99,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/guards/db-guard.py\"",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/guards/db-guard.py",
             "async": true
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/guards/secret-scan.py\" --changed-files-only </dev/null",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/guards/secret-scan.py --changed-files-only </dev/null",
             "async": true
           }
         ]
@@ -116,43 +116,43 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/token-meter-write.py\" || python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/session/token-meter-write.py\"",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/session/token-meter-write.py",
             "timeout": 30,
             "async": false
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/guards/token-guard.py\"",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/guards/token-guard.py",
             "async": true
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.claude/scripts/dashboard.py\" --html --current-project --if-stale 15 || python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/dashboard.py\" --html --current-project --if-stale 15",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/dashboard.py --html --current-project --if-stale 15",
             "async": true
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/memory/obsidian-log.py\"",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/memory/obsidian-log.py",
             "async": true
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/memory/knowledge-extract.py\" --quiet",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/memory/knowledge-extract.py --quiet",
             "async": true
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/guards/session-gate.py\"",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/guards/session-gate.py",
             "async": true
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/code-xray.py\" --delta --session \"$(date +%Y-%m-%d)-$(basename \"${CLAUDE_PROJECT_DIR:-$PWD}\")\"; python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/code-xray.py\" --html",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/code-xray.py --delta --session \"$(date +%Y-%m-%d)-$(basename \"${CLAUDE_PROJECT_DIR:-$PWD}\")\"; python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/code-xray.py --html",
             "async": true
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/memory/memory-card-hook.py\" --event exit",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/ops/hook-run.py\" scripts/memory/memory-card-hook.py --event exit",
             "timeout": 15,
             "async": true
           }

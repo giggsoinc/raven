@@ -82,7 +82,7 @@ def _script_index() -> dict:
 
 
 def _unsilence(command: str) -> str:
-    """Drop stderr dumps and trailing || true so a missing script fails the hook."""
+    """Drop stderr dumps and trailing || true. hook-run exits 0 when the script is missing."""
     command = command.replace(" 2>/dev/null", "")
     command = re.sub(r"\s*\|\|\s*true\s*$", "", command.strip())
     return command
@@ -111,12 +111,22 @@ def _plugin_root_command(command: str, index: dict) -> str:
     return "; ".join(rewritten)
 
 
+def _merge_hook_events(base: dict, extra: dict) -> dict:
+    """Append plugin-only matchers. A dict merge would replace the whole event."""
+    merged = {event: list(groups) for event, groups in base.items()}
+    for event, groups in extra.items():
+        merged.setdefault(event, [])
+        merged[event] = list(merged[event]) + list(groups)
+    return merged
+
+
 def build_outputs(canonical: dict) -> dict:
     hooks = canonical["hooks"]
     index = _script_index()
+    plugin_hooks = _merge_hook_events(hooks, PLUGIN_EXTRA_HOOKS)
 
     marketplace = {"hooks": {}}
-    for event, groups in hooks.items():
+    for event, groups in plugin_hooks.items():
         marketplace["hooks"][event] = [
             {
                 "matcher": g.get("matcher", "*"),
@@ -133,7 +143,7 @@ def build_outputs(canonical: dict) -> dict:
         "_generated": GEN_NOTE,
         "version": canonical.get("version", "1.0"),
         "description": canonical.get("description", ""),
-        "hooks": {**hooks, **PLUGIN_EXTRA_HOOKS},
+        "hooks": plugin_hooks,
         "permissions": canonical.get("permissions", {}),
         "governance": canonical.get("governance", {}),
     }

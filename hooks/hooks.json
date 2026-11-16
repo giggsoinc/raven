@@ -7,32 +7,32 @@
           {
             "type": "command",
             "timeout": 15,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/memory/memory-card-hook.py\" --event turn"
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/memory/memory-card-hook.py --event turn"
           },
           {
             "type": "command",
             "timeout": 10,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/routing/triage-router.py\""
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/routing/triage-router.py"
           },
           {
             "type": "command",
             "timeout": 10,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/routing/architect-router.py\""
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/routing/architect-router.py"
           },
           {
             "type": "command",
             "timeout": 10,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/routing/model-router.py\" --hook"
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/routing/model-router.py --hook"
           },
           {
             "type": "command",
             "timeout": 10,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/routing/cve-prompt-guard.py\""
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/routing/cve-prompt-guard.py"
           },
           {
             "type": "command",
             "timeout": 5,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/guards/push-approve.py\""
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/guards/push-approve.py"
           }
         ]
       }
@@ -52,6 +52,15 @@
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/guards/push-gate.py"
           }
         ]
+      },
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/ops/raven-skill-gate.py"
+          }
+        ]
       }
     ],
     "SessionStart": [
@@ -62,25 +71,25 @@
             "type": "command",
             "timeout": 10,
             "async": false,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/session/session-start.py\""
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/session/session-start.py"
           },
           {
             "type": "command",
             "timeout": 8,
             "async": true,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/memory/ide-boot.py\" --session-start"
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/memory/ide-boot.py --session-start"
           },
           {
             "type": "command",
             "timeout": 5,
             "async": false,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/routing/model-router.py\" --session-start"
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/routing/model-router.py --session-start"
           },
           {
             "type": "command",
             "timeout": 8,
             "async": true,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/session/run_costs.py\" --session-start"
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/session/run_costs.py --session-start"
           },
           {
             "type": "command",
@@ -98,12 +107,12 @@
           {
             "type": "command",
             "async": true,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/guards/db-guard.py\""
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/guards/db-guard.py"
           },
           {
             "type": "command",
             "async": true,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/guards/secret-scan.py\" --changed-files-only </dev/null"
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/guards/secret-scan.py --changed-files-only </dev/null"
           }
         ]
       }
@@ -116,43 +125,43 @@
             "type": "command",
             "timeout": 30,
             "async": false,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/session/token-meter-write.py\""
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/session/token-meter-write.py"
           },
           {
             "type": "command",
             "async": true,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/guards/token-guard.py\""
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/guards/token-guard.py"
           },
           {
             "type": "command",
             "async": true,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/dashboard.py\" --html --current-project --if-stale 15"
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/dashboard.py --html --current-project --if-stale 15"
           },
           {
             "type": "command",
             "async": true,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/memory/obsidian-log.py\""
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/memory/obsidian-log.py"
           },
           {
             "type": "command",
             "async": true,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/memory/knowledge-extract.py\" --quiet"
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/memory/knowledge-extract.py --quiet"
           },
           {
             "type": "command",
             "async": true,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/guards/session-gate.py\""
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/guards/session-gate.py"
           },
           {
             "type": "command",
             "async": true,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/code-xray.py\" --delta --session \"$(date +%Y-%m-%d)-$(basename \"${CLAUDE_PROJECT_DIR:-$PWD}\")\"; python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/code-xray.py\" --html"
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/code-xray.py --delta --session \"$(date +%Y-%m-%d)-$(basename \"${CLAUDE_PROJECT_DIR:-$PWD}\")\"; python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/code-xray.py --html"
           },
           {
             "type": "command",
             "timeout": 15,
             "async": true,
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/memory/memory-card-hook.py\" --event exit"
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/memory/memory-card-hook.py --event exit"
           }
         ]
       }

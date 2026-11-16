@@ -62,7 +62,7 @@ VAULT_METRICS = VAULT / ".metrics"
 VAULT_DASHBOARD_MD = VAULT / "Dashboard.md"
 VAULT_DASHBOARD_HTML = VAULT / "dashboard.html"
 
-PLUGIN_VERSION = "6.1.1"
+PLUGIN_VERSION = "6.1.2"
 
 
 # ── Metadata Collection ────────────────────────────────────────────────────────

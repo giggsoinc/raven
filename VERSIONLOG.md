@@ -5,6 +5,16 @@ adds an entry here (newest first), and must pass `scripts/check-version-consiste
 (CI: `raven-version-consistency-check`). Historical changelogs in `docs/` are
 never rewritten — this file is the roll-up index.
 
+## v6.1.2 — 2026-11-16 — Andie reply tokens, hook-run on every script
+
+`andie 1` clears the open offer and says `load andie now`. It does not ask again.
+`andie 2` is the only skip. A bare `1` or `2`, or any other message, clears the
+offer and writes no skip. A plain prompt still opens no hook offer. That stop
+lives in CLAUDE.md and AGENTS.md. Every python hook runs through `hook-run.py`.
+A missing script audits and exits 0. The previous zip is
+`plugin/raven-plugin-v6.1.1_old.zip`. The current zip is
+`plugin/raven-plugin-v6.1.2.zip`.
+
 ## v6.1.1 — 2026-11-16 — Hook paths, Andie HITL, local repo list
 
 Patch on 6.1. Plugin hooks use the real script subfolders. A missing PreToolUse

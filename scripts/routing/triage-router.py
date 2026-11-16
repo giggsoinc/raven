@@ -38,7 +38,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 try:
     from router_common import (
         force_intent, semantic_fallback, log_overhead,
-        record_user_choice, save_andie_offer,
+        record_user_choice, save_andie_offer, is_andie_reply,
+        pending_offer_skill,
     )
 except Exception:  # fail-soft: routing still works without the shared helper
     def force_intent(_p): return None
@@ -46,6 +47,8 @@ except Exception:  # fail-soft: routing still works without the shared helper
     def log_overhead(_s, _t): return None
     def record_user_choice(_p): return None
     def save_andie_offer(_s, _r): return None
+    def is_andie_reply(_p): return False
+    def pending_offer_skill(): return "andie"
 
 
 def is_brownfield() -> bool:
@@ -180,11 +183,11 @@ def main() -> None:
         except Exception:
             return
 
+    skill = pending_offer_skill()
     choice = record_user_choice(prompt)
-    if choice == 2:
-        return
-    if choice == 1:
-        _emit_andie(reason="user chose 1 — load Andie and re-route")
+    if is_andie_reply(prompt):
+        if choice == 1:
+            _emit_load_now(skill)
         return
 
     # T3.1: explicit force always wins
@@ -209,11 +212,21 @@ def _emit_andie_jr(reason: str = "issue/existing-code prompt detected") -> None:
     emission = (
         "[ANDIE-JR RECOMMENDED] Issue or existing-code work detected. Load "
         "`andie-jr` before diagnosis. Andie is not force-loaded. If you do not "
-        "load it, stop and offer the user 1 load Andie / Andie-jr and re-route, "
-        "or 2 continue without it. Wait. Do not pick.\n"
+        "load it, stop and offer `andie 1` to load Andie-jr, or `andie 2` to "
+        "continue without it. Wait. Do not pick. A bare 1 or 2 is not a choice.\n"
     )
     save_andie_offer("andie-jr", reason)
     _emit(emission, f"🪶 Raven → andie-jr · {reason} · debug flow: triage → root cause → fix")
+    log_overhead("triage-router", emission)
+
+
+def _emit_load_now(skill: str = "andie") -> None:
+    """User already chose andie 1. Do not open another offer."""
+    emission = (
+        f"[ANDIE LOAD] User replied andie 1. Load `{skill}` now. "
+        "Do not offer andie 1 / andie 2 again.\n"
+    )
+    _emit(emission, "load andie now")
     log_overhead("triage-router", emission)
 
 
@@ -221,8 +234,9 @@ def _emit_andie(reason: str = "ideation/planning prompt detected") -> None:
     """Emit [ANDIE REQUIRED] injection + user-visible toaster."""
     emission = (
         "[ANDIE RECOMMENDED] Ideation/planning prompt detected. Andie is not "
-        "force-loaded. Load `andie` for the plan, or stop and offer 1 load Andie "
-        "and re-route, or 2 continue without Andie. Wait. Do not pick.\n"
+        "force-loaded. Load `andie` for the plan, or stop and offer `andie 1` "
+        "to load Andie, or `andie 2` to continue without Andie. Wait. Do not pick. "
+        "A bare 1 or 2 is not a choice.\n"
     )
     save_andie_offer("andie", reason)
     _emit(emission, f"🪶 Raven → andie · {reason} · planning flow: problem → angles → plan")
