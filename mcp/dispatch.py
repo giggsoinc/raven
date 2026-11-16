@@ -112,12 +112,21 @@ def call_tool(name: str, args: dict) -> dict:
     return _text(f"Unknown tool: {name}")
 
 
+def server_version() -> str:
+    """Raven version from raven-core/VERSION, so the server never reports a stale number."""
+    try:
+        text = (Path(__file__).resolve().parent.parent / "raven-core" / "VERSION").read_text(encoding="utf-8")
+        return text.strip() or "unknown"
+    except OSError:
+        return "unknown"
+
+
 def handle(method: str, params: dict) -> dict:
     if method == "initialize":
         return {
             "protocolVersion": "2024-11-05",
             "capabilities": {"tools": {}},
-            "serverInfo": {"name": "raven", "version": "5.5.6"},
+            "serverInfo": {"name": "raven", "version": server_version()},
         }
     if method == "tools/list":
         return {"tools": TOOLS}

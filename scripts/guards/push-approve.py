@@ -44,6 +44,17 @@ def set_educate(mode: str) -> None:
     write_file(raven_path("educate.json"), json.dumps({"mode": mode}, indent=2) + "\n")
 
 
+def current_mode() -> str:
+    """'off' when .raven/educate.json says off/auto/lucky, else 'guided' (the default)."""
+    try:
+        with open(raven_path("educate.json"), encoding="utf-8") as fh:
+            data = json.load(fh)
+        mode = str(data.get("mode") if isinstance(data, dict) else data).strip().lower()
+    except (OSError, ValueError):
+        return "guided"
+    return "off" if mode in ("off", "auto", "lucky") else "guided"
+
+
 def main() -> None:
     payload = json.load(sys.stdin)
     prompt = payload.get("prompt", "") or ""
@@ -66,8 +77,10 @@ def main() -> None:
 
     if APPROVAL_PATTERN.search(prompt):
         write_file(raven_path(".push-approved"), prompt[:200])
-        print("✅ EDUCATE: go-ahead — write gate OPEN this turn. "
-              "Execute the briefing, then confirm in max 150 words.")
+        # When educate is off the gate is always open, so a "go-ahead" banner is noise.
+        if current_mode() == "guided":
+            print("✅ EDUCATE: go-ahead — write gate OPEN this turn. "
+                  "Execute the briefing, then confirm in max 150 words.")
     else:
         try:
             os.remove(raven_path(".push-approved"))
