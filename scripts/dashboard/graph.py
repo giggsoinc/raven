@@ -13,9 +13,11 @@ from __future__ import annotations
 import argparse
 import datetime
 import json
+import os
 import pathlib
 import re
 import sys
+import time
 
 _PKG_DIR = pathlib.Path(__file__).resolve().parent
 _SCRIPT_DIR = _PKG_DIR.parent  # scripts/ — vault_common lives here
@@ -63,6 +65,117 @@ def _session_too_old(path: pathlib.Path, days: int | None) -> bool:
         return mtime < datetime.datetime.now() - datetime.timedelta(days=days)
     except OSError:
         return False
+
+
+_LOCAL_ROOTS = (
+    "AntiGravity_Projects",
+    "Projects",
+    "Developer",
+    "src",
+    "code",
+)
+_SKIP_DIRS = {
+    ".git",
+    "node_modules",
+    ".venv",
+    "venv",
+    "dist",
+    "build",
+    "__pycache__",
+    ".tox",
+    "site-packages",
+}
+
+
+_DISCOVERY_CACHE: dict = {"at": 0.0, "depth": None, "rows": None, "error": ""}
+LAST_DISCOVERY_ERROR = ""
+
+
+def discovery_error() -> str:
+    """Empty when the last local-repo scan succeeded."""
+    return LAST_DISCOVERY_ERROR
+
+
+def list_local_git_repos(max_depth: int = 3) -> list[dict]:
+    """Git repos and Raven projects under the known local roots, plus the registry.
+
+    A directory counts when it has `.git` or `.raven/manifest.json`. Results are
+    cached for 60 seconds so one dashboard render does not walk the tree three times.
+    One row per case-insensitive folder name. Shallower path wins.
+    """
+    global LAST_DISCOVERY_ERROR
+    now = time.monotonic()
+    cached = _DISCOVERY_CACHE
+    if cached["rows"] is not None and cached["depth"] == max_depth and now - cached["at"] < 60:
+        LAST_DISCOVERY_ERROR = cached["error"]
+        return list(cached["rows"])
+    try:
+        rows = _scan_local_repos(max_depth)
+    except Exception as exc:
+        LAST_DISCOVERY_ERROR = f"{type(exc).__name__}: {exc}"
+        cached.update(at=now, depth=max_depth, rows=[], error=LAST_DISCOVERY_ERROR)
+        return []
+    LAST_DISCOVERY_ERROR = ""
+    cached.update(at=now, depth=max_depth, rows=rows, error="")
+    return list(rows)
+
+
+def _scan_local_repos(max_depth: int) -> list[dict]:
+    found: dict[str, dict] = {}
+
+    def consider(path: pathlib.Path) -> None:
+        has_git = (path / ".git").exists()
+        has_raven = (path / ".raven" / "manifest.json").is_file()
+        if not has_git and not has_raven:
+            return
+        key = path.name.casefold()
+        row = {"name": path.name, "path": str(path.resolve())}
+        current = found.get(key)
+        if current is None or len(pathlib.Path(row["path"]).parts) < len(pathlib.Path(current["path"]).parts):
+            found[key] = row
+
+    for root_name in _LOCAL_ROOTS:
+        root = pathlib.Path.home() / root_name
+        if not root.is_dir():
+            continue
+        for dirpath, dirnames, _files in os.walk(root, followlinks=False):
+            current = pathlib.Path(dirpath)
+            try:
+                depth = len(current.relative_to(root).parts)
+            except ValueError:
+                depth = 0
+            dirnames[:] = [d for d in dirnames if d not in _SKIP_DIRS and not d.startswith(".")]
+            if depth > max_depth:
+                dirnames[:] = []
+                continue
+            consider(current)
+
+    registry = pathlib.Path.home() / ".raven" / "registry.json"
+    if registry.is_file():
+        try:
+            payload = json.loads(registry.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            payload = {}
+        projects = payload.get("projects") if isinstance(payload, dict) else None
+        rows = []
+        if isinstance(projects, dict):
+            rows = list(projects.values())
+        elif isinstance(projects, list):
+            rows = projects
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            raw = row.get("path") or row.get("root") or ""
+            if not raw:
+                continue
+            registered = pathlib.Path(raw).expanduser()
+            if (registered / ".git").exists():
+                consider(registered)
+            elif registered.is_dir():
+                key = registered.name.casefold()
+                found.setdefault(key, {"name": registered.name, "path": str(registered.resolve())})
+
+    return sorted(found.values(), key=lambda item: item["name"].casefold())
 
 
 def build_graph(project_filter: str | None = None, session_days: int | None = 30) -> dict:
@@ -162,6 +275,21 @@ def build_graph(project_filter: str | None = None, session_days: int | None = 30
                         edges.append(
                             {"source": rel_id, "target": t, "rel": "related"}
                         )
+
+    # Local clones that never got a RavenVault hub still appear as project nodes.
+    if not project_filter:
+        known = {nid.split("/")[-1].casefold() for nid in nodes if nid.startswith("projects/")}
+        for repo in list_local_git_repos():
+            if repo["name"].casefold() in known:
+                continue
+            add_node(
+                f"projects/{repo['name']}",
+                "project",
+                repo["path"],
+                label=repo["name"],
+                tags=["project", "local-repo"],
+            )
+            known.add(repo["name"].casefold())
 
     # Attach vibe-coder icons (data-URI + emoji) for dashboard / exporters
     try:

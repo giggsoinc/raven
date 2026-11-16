@@ -23,11 +23,12 @@ for _d in (__import__('pathlib').Path(__file__).resolve().parent.parent / 'memor
     if str(_d) not in sys.path:
         sys.path.insert(0, str(_d))
 try:
-    from router_common import force_intent, semantic_fallback, log_overhead
+    from router_common import force_intent, semantic_fallback, log_overhead, save_andie_offer
 except Exception:  # fail-soft: routing still works without the shared helper
     def force_intent(_p): return None
     def semantic_fallback(_p, _k): return False
     def log_overhead(_s, _t): return None
+    def save_andie_offer(_s, _r): return None
 
 # ── DECISION intent — any one match triggers (a) ──────────────────────────────
 DECISION = re.compile(
@@ -139,13 +140,14 @@ def main():
         trigger = True
     if trigger:
         emission = (
-            "[ANDIE REQUIRED] This prompt is architecture-class — it involves "
+            "[ANDIE RECOMMENDED] This prompt is architecture-class — it involves "
             "design decisions, multi-component scope, or strategic tradeoffs. "
-            "MANDATORY: invoke `andie` skill BEFORE responding. Andie runs the "
-            "Functional/Technical/Data triad, HITL-gates proposals, OODA loops, "
-            "and hands off a crisp plan. Do not free-style the design.\n"
+            "Andie is not force-loaded. Load `andie` for the triad plan, or stop "
+            "and offer 1 load Andie and re-route, or 2 continue without Andie. "
+            "Wait. Do not pick. Do not free-style the design while that choice is open.\n"
         )
         why = "forced via /andie" if forced == "andie" else "architecture-class prompt detected"
+        save_andie_offer("andie", why)
         # Hook JSON: additionalContext for the model, systemMessage toaster the
         # user actually sees — Raven never routes silently.
         sys.stdout.write(json.dumps({

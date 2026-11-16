@@ -827,8 +827,12 @@ def main():
                 f"RAVEN_MODEL_TIER=SIMPLE host={host} recommend={model} applied=false. "
                 f"Your first written lines MUST be Intent: plan|debug|direct and session=<your model>. "
                 f"The UserPromptSubmit toaster is not enough. git/status/log is not an exemption. "
-                f"If self-contained, spawn a subagent on {model}. If context-bound, stay on session "
-                f"and say why in one line. Never claim model_for_tier is what you ran."
+                f"If self-contained, spawn a subagent on {model}. If the spawn tool has no model "
+                f"argument, the session model did not change: say applied=false and the host "
+                f"cannot swap. If context-bound, stay on session and say why in one line. "
+                f"Never claim model_for_tier is what you ran. "
+                f"ANDIE_HITL: do not force-load Andie. If you do not load it, stop and offer "
+                f"1 load Andie and re-route, or 2 continue without Andie. Wait."
             )
         else:
             host = detect_host()
@@ -836,8 +840,12 @@ def main():
                 f"RAVEN_MODEL_TIER={tier} host={host} recommend={model} applied=false. "
                 f"Your first written lines MUST be Intent: plan|debug|direct and session=<your model>. "
                 f"The toaster is not a skip. git/status is not outside the router. "
-                f"You are still the session model. Recommend {model} for subagents. "
+                f"You are still the session model. This host cannot swap the primary model from a "
+                f"prompt hook. Recommend {model} for subagents and say applied=false until a "
+                f"subagent actually runs on that model. "
                 f"Do not say you are anthropic/claude-* unless host=claude. "
+                f"ANDIE_HITL: do not force-load Andie. If you do not load it, stop and offer "
+                f"1 load Andie and re-route, or 2 continue without Andie. Wait. "
                 + ("SECRETS DETECTED: do NOT spawn cloud agents; local model only."
                    if tier == "LOCAL_ONLY" else "")
             )

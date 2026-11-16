@@ -277,10 +277,13 @@ CLOUD_PROVIDERS = {
         # Rule 8 (CLAUDE.md): they must never be auto-picked by build_routing —
         # only sonnet is used for the "high" auto-tier; Opus/Fable require an
         # explicit user ask every time, regardless of complexity score.
-        "models":   ["claude-haiku-4-5", "claude-sonnet-4-5"],
-        # No model is tagged "high" — complex_pick falls back to medium_pick
-        # (sonnet) via build_routing's fallback chain instead of reaching opus.
-        "tiers":    {"claude-haiku-4-5": "low", "claude-sonnet-4-5": "medium"},
+        "models":   ["claude-haiku-4-5", "claude-sonnet-5", "claude-sonnet-5-high"],
+        # sonnet-5-high is an auto tier (Rule 8). Opus and Fable stay out.
+        "tiers":    {
+            "claude-haiku-4-5": "low",
+            "claude-sonnet-5": "medium",
+            "claude-sonnet-5-high": "high",
+        },
     },
     "openai": {
         "env_keys": ["OPENAI_API_KEY"],
@@ -369,7 +372,7 @@ def build_routing(providers: list[dict]) -> dict:
     medium_pick  = pick(medium, simple_pick)
     complex_pick = pick(high,   medium_pick)
 
-    def fmt(t): return f"{t[0]}/{t[1]}" if t else "anthropic/claude-sonnet-4-5"
+    def fmt(t): return f"{t[0]}/{t[1]}" if t else ""
 
     return {
         "LOCAL_ONLY": fmt(local_pick),

@@ -11,7 +11,8 @@ import os
 import sys
 import time
 
-STAMP = os.path.join(os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd(), ".raven", ".route-stamp")
+ROOT = os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()
+STAMP = os.path.join(ROOT, ".raven", ".route-stamp")
 TTL = 600
 ALLOW_SUBSTR = ("model-router.py", "cost_calc.py --end", "cost_calc.py --start")
 
@@ -39,7 +40,8 @@ def main() -> None:
         "systemMessage": (
             "🪶 Router not fired this turn. Run "
             "python3 scripts/routing/model-router.py --prompt \"<user message>\" "
-            "before any other tool. git/status is not an exemption."
+            "before any other tool. git/status is not an exemption. "
+            "This gate checks the router stamp only. It does not force-load Andie."
         ),
         "hookSpecificOutput": {
             "hookEventName": "PreToolUse",

@@ -5,6 +5,14 @@ adds an entry here (newest first), and must pass `scripts/check-version-consiste
 (CI: `raven-version-consistency-check`). Historical changelogs in `docs/` are
 never rewritten — this file is the roll-up index.
 
+## v6.1.1 — 2026-11-16 — Hook paths, Andie HITL, local repo list
+
+Patch on 6.1. Plugin hooks use the real script subfolders. A missing PreToolUse
+script reports itself and exits 0, so it does not block every tool. `push-gate.py`
+and `push-approve.py` ship in `scripts/guards/`. Andie is recommended, not
+force-loaded. The tier map stays recommend-only: this host cannot swap the
+session model from a prompt.
+
 ## v6.0 — 2026-10-17 — Jev, local models, and the ask gate (major)
 
 Current version is 6.0. A new user is asked for a Jev TypeSafe key. No key keeps

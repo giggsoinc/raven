@@ -11,6 +11,7 @@
     "find_gaps"
   ],
   "default_rules": "AGENTS.md",
+  "model_switch": "recommend-only",
   "hosts": {
     "claude": {
       "env_any": ["CLAUDECODE", "CLAUDE_PLUGIN_ROOT"],

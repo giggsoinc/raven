@@ -1,4 +1,4 @@
-# CLAUDE.md — Raven Discipline Engine v6.1
+# CLAUDE.md — Raven Discipline Engine v6.1.1
 
 > **This file is the contract.** Claude reads this on every turn. The rules below are not aspirational — they are how Claude must behave in this project.
 
@@ -43,6 +43,8 @@ Intent: direct — {why}
 Unsure → pick **plan** or **debug**, never skip. Ambiguous plan vs debug → ask. Never “this is just a quick X.”
 
 **HITL (intent/gate only):** If you cannot tell whether intent was stated this turn, or two rules contradict: do not guess. Say `Routing state is unclear — I will not guess. [what is ambiguous]. How do you want me to proceed?` Wait. Does **not** override Lucky, Educate wait-for-go-ahead, or Rule 8.
+
+**Andie HITL (strict):** Andie is not force-loaded. When this turn does not load the Andie skill, stop before the work. State the reason in one line, then offer `1` load Andie and re-route, or `2` continue without Andie. Wait for the user. Do not pick. `Lucky` remains the only full opt-out, and only when the user typed that word.
 
 ### Step 1 — Gate Check (Default = Raven, Opt-Out = Lucky)
 

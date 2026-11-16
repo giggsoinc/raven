@@ -2,7 +2,7 @@
   <img src="./assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
 </p>
 
-# Raven v6.1 — The Open-Source Solution to AI Comprehension Debt.
+# Raven v6.1.1 — The Open-Source Solution to AI Comprehension Debt.
 
 AI Engineering Discipline for Comprehension Debt. Andie, the multi-dimensional thinking agent, pressure-tests the change from every angle before a line is written.
 

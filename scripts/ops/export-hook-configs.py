@@ -36,7 +36,7 @@ PLUGIN_EXTRA_HOOKS = {
             "hooks": [
                 {
                     "type": "command",
-                    "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/raven-skill-gate.py\" 2>/dev/null || true",
+                    "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ops/hook-run.py\" scripts/ops/raven-skill-gate.py",
                 }
             ],
         }
@@ -49,17 +49,71 @@ GEN_NOTE = (
 )
 
 
-def _plugin_root_command(command: str) -> str:
-    """Rewrite the canonical dual-fallback command to plugin-root form."""
-    scripts = re.findall(r"([a-z0-9_-]+\.py)((?:\s+--?[a-z0-9-]+(?:\s+\d+)?)*)", command)
-    if not scripts:
-        return command
-    name, args = scripts[0]
-    return f'python3 "${{CLAUDE_PLUGIN_ROOT}}/scripts/{name}"{args} 2>/dev/null || true'
+_PREFER = (
+    "scripts/routing/",
+    "scripts/session/",
+    "scripts/memory/",
+    "scripts/guards/",
+    "scripts/ops/",
+    "scripts/",
+    ".claude/scripts/",
+)
+
+
+def _script_index() -> dict:
+    """Basename → repo-relative path. Prefer the live subfolder over a stale flat path."""
+    found: dict = {}
+    for path in REPO.rglob("*.py"):
+        if any(part in {".git", "node_modules", "__pycache__"} for part in path.parts):
+            continue
+        rel = path.relative_to(REPO).as_posix()
+        found.setdefault(path.name, []).append(rel)
+
+    chosen = {}
+    for name, rels in found.items():
+        def rank(rel: str) -> tuple:
+            for i, prefix in enumerate(_PREFER):
+                if rel.startswith(prefix):
+                    return (i, len(rel))
+            return (len(_PREFER), len(rel))
+
+        chosen[name] = sorted(rels, key=rank)[0]
+    return chosen
+
+
+def _unsilence(command: str) -> str:
+    """Drop stderr dumps and trailing || true so a missing script fails the hook."""
+    command = command.replace(" 2>/dev/null", "")
+    command = re.sub(r"\s*\|\|\s*true\s*$", "", command.strip())
+    return command
+
+
+def _plugin_root_command(command: str, index: dict) -> str:
+    """Rewrite the canonical command to plugin-root paths. No swallowed errors.
+
+    A ``||`` fallback is dropped (the plugin has one tree). ``;`` keeps each call.
+    Flags after the quoted script path are preserved.
+    """
+    command = _unsilence(command)
+    rewritten = []
+    for segment in re.split(r"\s*;\s*", command):
+        primary = segment.split("||")[0].strip()
+        match = re.search(r"([A-Za-z0-9_-]+\.py)\"?\s*(.*)$", primary)
+        if not match or match.group(1) not in index:
+            rewritten.append(primary)
+            continue
+        rel = index[match.group(1)]
+        args = match.group(2).strip()
+        piece = f'python3 "${{CLAUDE_PLUGIN_ROOT}}/{rel}"'
+        if args:
+            piece = f"{piece} {args}"
+        rewritten.append(piece)
+    return "; ".join(rewritten)
 
 
 def build_outputs(canonical: dict) -> dict:
     hooks = canonical["hooks"]
+    index = _script_index()
 
     marketplace = {"hooks": {}}
     for event, groups in hooks.items():
@@ -68,7 +122,7 @@ def build_outputs(canonical: dict) -> dict:
                 "matcher": g.get("matcher", "*"),
                 "hooks": [
                     {**{k: v for k, v in h.items() if k != "command"},
-                     "command": _plugin_root_command(h["command"])}
+                     "command": _plugin_root_command(h["command"], index)}
                     for h in g["hooks"]
                 ],
             }

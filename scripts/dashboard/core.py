@@ -62,7 +62,7 @@ VAULT_METRICS = VAULT / ".metrics"
 VAULT_DASHBOARD_MD = VAULT / "Dashboard.md"
 VAULT_DASHBOARD_HTML = VAULT / "dashboard.html"
 
-PLUGIN_VERSION = "6.0"
+PLUGIN_VERSION = "6.1.1"
 
 
 # ── Metadata Collection ────────────────────────────────────────────────────────
@@ -2074,6 +2074,24 @@ def build_node_briefings(graph: dict, metrics: dict, metadata: dict) -> dict:
     cur = metrics.get("current_project") or metadata.get("project") or ""
     # Collect all graph project links for center drill-down
     graph_projects = []
+    from graph import discovery_error, list_local_git_repos
+    known_ids = {
+        str(n.get("id") or "").split("/")[-1].casefold()
+        for n in nodes
+        if (n.get("type") or "") == "project" or str(n.get("id", "")).startswith("projects/")
+    }
+    for repo in list_local_git_repos():
+        if repo["name"].casefold() in known_ids:
+            continue
+        nodes.append({
+            "id": f"projects/{repo['name']}",
+            "label": repo["name"],
+            "type": "project",
+            "path": repo["path"],
+            "tags": ["project", "local-repo"],
+        })
+    if discovery_error():
+        print(f"dashboard local-repo scan: {discovery_error()}", file=sys.stderr)
     for n in nodes:
         if (n.get("type") or "") == "project" or str(n.get("id", "")).startswith("projects/"):
             pid = n.get("id") or ""
@@ -4354,7 +4372,11 @@ def render_html(
                 pass
         return datetime.fromtimestamp(best).strftime("%Y-%m-%d %H:%M") if best else ""
 
-    all_repo_names = {p.stem for p in (VAULT / "projects").glob("*.md")} | set(bp.keys())
+    from graph import discovery_error, list_local_git_repos
+    local_repos = list_local_git_repos()
+    local_names = {repo["name"] for repo in local_repos}
+    discovery_note = discovery_error()
+    all_repo_names = {p.stem for p in (VAULT / "projects").glob("*.md")} | set(bp.keys()) | local_names
     repo_entries = []
     for pname in all_repo_names:
         touch = _last_touch(pname)
@@ -4365,6 +4387,12 @@ def render_html(
     repo_entries.sort(reverse=True)  # latest touch first
 
     bp_rows = ""
+    if discovery_note:
+        bp_rows += (
+            "<tr><td colspan='6' style='color:#f59e0b'>"
+            f"Local repo scan failed: {discovery_note}"
+            "</td></tr>\n"
+        )
     for touch, pname, st, active_30d in repo_entries:
         url = f"https://github.com/giggsoinc/{pname}"
         local = ""

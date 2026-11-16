@@ -2,7 +2,7 @@
 """
 Raven — Triage Router (v5.0)
 
-Deterministic routing: brownfield default = Andie-jr, greenfield default = Andie.
+Deterministic routing: Andie is not the default. A plain prompt stays silent.
 
 Precedence (mutually exclusive with architect-router — no double-fire):
   1. Force overrides: /andie, /andie-jr always win (T3.1)
@@ -11,7 +11,7 @@ Precedence (mutually exclusive with architect-router — no double-fire):
      architect-router owns it and routes to Andie
   4. Symptom language (broken/failing/error...) → Andie-jr
   5. Change-to-existing-code verb (fix/update/modify...) + brownfield → Andie-jr
-  6. Everything else (plain prompt, no symptom) → Andie (ideation/planning)
+  6. Everything else (plain prompt, no symptom) → silent. Andie is not force-loaded.
 
 Prompt intent is the signal for 4-6 — repo state only qualifies rule 5.
 Mid-session escalation to Andie when a bug turns out architectural is
@@ -36,11 +36,16 @@ _TRIVIAL = re.compile(
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 try:
-    from router_common import force_intent, semantic_fallback, log_overhead
+    from router_common import (
+        force_intent, semantic_fallback, log_overhead,
+        record_user_choice, save_andie_offer,
+    )
 except Exception:  # fail-soft: routing still works without the shared helper
     def force_intent(_p): return None
     def semantic_fallback(_p, _k): return False
     def log_overhead(_s, _t): return None
+    def record_user_choice(_p): return None
+    def save_andie_offer(_s, _r): return None
 
 
 def is_brownfield() -> bool:
@@ -160,7 +165,7 @@ def classify(prompt: str) -> Optional[str]:
     if is_brownfield() and _EXISTING_CODE_CHANGE.search(prompt):
         return "andie-jr"  # change to existing code = debug/fix mode
 
-    return "andie"  # plain prompt, no symptom = ideation/planning mode
+    return None  # plain prompt is not an Andie force — HITL if the model skips Andie
 
 
 def main() -> None:
@@ -174,6 +179,13 @@ def main() -> None:
             prompt = sys.stdin.read()
         except Exception:
             return
+
+    choice = record_user_choice(prompt)
+    if choice == 2:
+        return
+    if choice == 1:
+        _emit_andie(reason="user chose 1 — load Andie and re-route")
+        return
 
     # T3.1: explicit force always wins
     forced = force_intent(prompt)
@@ -195,11 +207,12 @@ def main() -> None:
 def _emit_andie_jr(reason: str = "issue/existing-code prompt detected") -> None:
     """Emit [ANDIE-JR REQUIRED] injection + user-visible toaster."""
     emission = (
-        "[ANDIE-JR REQUIRED] Issue or existing-code work detected. MANDATORY: invoke "
-        "`andie-jr` skill BEFORE any diagnosis, file read, bash command, or "
-        "response. Andie-jr structures the debug flow: problem → root cause → "
-        "fix → why → audit note.\n"
+        "[ANDIE-JR RECOMMENDED] Issue or existing-code work detected. Load "
+        "`andie-jr` before diagnosis. Andie is not force-loaded. If you do not "
+        "load it, stop and offer the user 1 load Andie / Andie-jr and re-route, "
+        "or 2 continue without it. Wait. Do not pick.\n"
     )
+    save_andie_offer("andie-jr", reason)
     _emit(emission, f"🪶 Raven → andie-jr · {reason} · debug flow: triage → root cause → fix")
     log_overhead("triage-router", emission)
 
@@ -207,10 +220,11 @@ def _emit_andie_jr(reason: str = "issue/existing-code prompt detected") -> None:
 def _emit_andie(reason: str = "ideation/planning prompt detected") -> None:
     """Emit [ANDIE REQUIRED] injection + user-visible toaster."""
     emission = (
-        "[ANDIE REQUIRED] Ideation/planning prompt detected. MANDATORY: invoke "
-        "`andie` skill BEFORE any coding. Andie structures planning: problem → "
-        "angles → decisions → plan. Then /andie-jr for implementation.\n"
+        "[ANDIE RECOMMENDED] Ideation/planning prompt detected. Andie is not "
+        "force-loaded. Load `andie` for the plan, or stop and offer 1 load Andie "
+        "and re-route, or 2 continue without Andie. Wait. Do not pick.\n"
     )
+    save_andie_offer("andie", reason)
     _emit(emission, f"🪶 Raven → andie · {reason} · planning flow: problem → angles → plan")
     log_overhead("triage-router", emission)
 
