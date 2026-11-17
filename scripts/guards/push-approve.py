@@ -29,6 +29,35 @@ ON_PATTERN = re.compile(
 )
 
 
+# Text the user pasted or quoted is not the user's own instruction. A report
+# that happens to contain "go ahead" or "Lucky" must not open the gate or
+# switch Educate off.
+QUOTED_PATTERN = re.compile(
+    r"<pasted_content\b[^>]*>.*?</pasted_content[^>]*>"
+    r"|<pasted_content\b.*\Z"
+    r"|```.*?```"
+    r"|`[^`\n]*`"
+    r"|\"[^\"\n]*\""
+    r"|“[^”\n]*”"
+    r"|(?m:^[ \t]*>[^\n]*)",
+    re.DOTALL,
+)
+LONG_MESSAGE = 400  # beyond this, a keyword only counts at the start or end
+WINDOW = 120
+
+
+def own_words(prompt: str) -> str:
+    """The prompt minus pasted blocks, code, quotes and blockquote lines."""
+    return QUOTED_PATTERN.sub(" ", prompt).strip()
+
+
+def matches(pattern: "re.Pattern", text: str) -> bool:
+    """Short messages match anywhere. Long ones only at the start or end."""
+    if len(text) <= LONG_MESSAGE:
+        return bool(pattern.search(text))
+    return bool(pattern.search(text[:WINDOW]) or pattern.search(text[-WINDOW:]))
+
+
 def raven_path(*parts: str) -> str:
     root = os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()
     return os.path.join(root, ".raven", *parts)
@@ -58,14 +87,15 @@ def current_mode() -> str:
 def main() -> None:
     payload = json.load(sys.stdin)
     prompt = payload.get("prompt", "") or ""
+    text = own_words(prompt)
 
-    if OFF_PATTERN.search(prompt):
+    if matches(OFF_PATTERN, text):
         set_educate("off")
         write_file(raven_path(".push-approved"), prompt[:200])
         print("⚡ EDUCATE: off (Lucky/auto). Writes allowed. User owns risk. "
               "Persists in .raven/educate.json until educate on.")
         return
-    if ON_PATTERN.search(prompt):
+    if matches(ON_PATTERN, text):
         set_educate("guided")
         try:
             os.remove(raven_path(".push-approved"))
@@ -75,7 +105,7 @@ def main() -> None:
               "Persists in .raven/educate.json.")
         return
 
-    if APPROVAL_PATTERN.search(prompt):
+    if matches(APPROVAL_PATTERN, text):
         write_file(raven_path(".push-approved"), prompt[:200])
         # When educate is off the gate is always open, so a "go-ahead" banner is noise.
         if current_mode() == "guided":

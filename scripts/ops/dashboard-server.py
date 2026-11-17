@@ -191,20 +191,63 @@ def open_local_file(dest: pathlib.Path, app: str = "") -> dict:
         return {"ok": False, "error": str(e)}
 
 
+SENSITIVE_PATHS = ("/api/file", "/api/open")
+
+
+def origin_allowed(origin: str, port: int) -> bool:
+    """Only the dashboard's own page may call the API."""
+    return origin in (f"http://127.0.0.1:{port}", f"http://localhost:{port}")
+
+
+def host_allowed(host: str, port: int) -> bool:
+    """Reject Host headers that are not loopback (DNS rebinding)."""
+    return host in (f"127.0.0.1:{port}", f"localhost:{port}")
+
+
 class DashboardRequestHandler(http.server.SimpleHTTPRequestHandler):
     """HTTP handler for dashboard server."""
 
+    def _port(self) -> int:
+        return int(self.server.server_address[1])
+
+    def _sensitive(self) -> bool:
+        """State-changing or file-serving requests: same-origin only."""
+        path = urllib.parse.urlparse(self.path).path
+        return self.command == "POST" or path in SENSITIVE_PATHS
+
     def _cors(self) -> None:
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        origin = self.headers.get("Origin")
+        if not origin:
+            return
+        if origin_allowed(origin, self._port()) or (origin == "null" and not self._sensitive()):
+            self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Vary", "Origin")
+            self.send_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+
+    def _guard(self) -> bool:
+        """Reject DNS-rebinding hosts, and foreign origins on sensitive routes."""
+        port = self._port()
+        host = self.headers.get("Host")
+        origin = self.headers.get("Origin")
+        ok = (host is None or host_allowed(host, port)) and (
+            origin is None or not self._sensitive() or origin_allowed(origin, port)
+        )
+        if not ok:
+            self.send_response(403)
+            self.end_headers()
+        return ok
 
     def do_OPTIONS(self) -> None:
+        if not self._guard():
+            return
         self.send_response(204)
         self._cors()
         self.end_headers()
 
     def do_POST(self) -> None:
+        if not self._guard():
+            return
         path = urllib.parse.urlparse(self.path).path
         if path != "/api/settings":
             self.send_response(404)
@@ -229,6 +272,8 @@ class DashboardRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self) -> None:
         """Handle GET requests."""
+        if not self._guard():
+            return
         path = urllib.parse.urlparse(self.path).path
 
         if path in ("/", "/raven-dashboard.html"):

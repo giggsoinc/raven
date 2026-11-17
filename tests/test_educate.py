@@ -26,8 +26,9 @@ class TestEducate(unittest.TestCase):
         self.root = Path(self.td.name)
         (self.root / ".raven").mkdir()
         self.edu = _load("educate", ROOT / "scripts" / "memory" / "educate.py")
-        self.gate = _load("push_gate", ROOT / ".claude" / "scripts" / "push-gate.py")
-        self.appr = _load("push_approve", ROOT / ".claude" / "scripts" / "push-approve.py")
+        # The wired hooks run scripts/guards/. Test the live files, not the stale .claude/scripts copies.
+        self.gate = _load("push_gate", ROOT / "scripts" / "guards" / "push-gate.py")
+        self.appr = _load("push_approve", ROOT / "scripts" / "guards" / "push-approve.py")
 
     def tearDown(self):
         self.td.cleanup()
