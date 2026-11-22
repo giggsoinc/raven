@@ -73,3 +73,7 @@ raven-dash-kg.md
 docs/knowledge/internal_raven_ops.md
 docs/observations/security_log.md
 docs/raven-file-map.*
+
+# Local/generated, never commit
+.claude/worktrees/
+.raven/code-xray.html
