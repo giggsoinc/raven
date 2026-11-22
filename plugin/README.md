@@ -1,6 +1,6 @@
 # Raven Plugin — v6.1.4
 
-**One current plugin.** File: `raven-plugin-v6.1.4.zip` (built by `bash plugin/make-plugin.sh`, ideally from a clean clone so uncommitted skills are not packed). The previous zip in this folder is `raven-plugin-v6.1.3_old.zip`. Older plugin zips are in `version.archive.zip`. Do not install from the archive or from an `_old` zip.
+**One current plugin.** File: `raven-plugin-v6.1.4.zip` (built by `bash plugin/make-plugin.sh`, ideally from a clean clone so uncommitted skills are not packed). The previous zip in this folder is `raven-plugin-v6.1.3_old.zip`. Do not install from an `_old` zip.
 
 **This folder is not a plugin root.** The plugin root is the repository root (`.claude-plugin/marketplace.json`, `source: "./"`). `plugin/scripts/*` are symlinks to `../../raven-core/` and `../../scripts/`, so they only resolve inside a full checkout.
 

@@ -37,7 +37,7 @@ The call is `POST https://api.typesafe.ai/v1/systemone`. The key is read from `T
 
 ## Plugin — what you can do
 
-The current plugin zip is [`plugin/raven-plugin-v6.1.4.zip`](plugin/raven-plugin-v6.1.4.zip). The previous zip is [`plugin/raven-plugin-v6.1.3_old.zip`](plugin/raven-plugin-v6.1.3_old.zip). Older plugin zips (v4.1.0 and v5.5.0 through v5.5.7) are packed in [`plugin/version.archive.zip`](plugin/version.archive.zip). Same current zip for Claude Code, Claude Desktop, and the other hosts (`install-host.sh`).
+The current plugin zip is [`plugin/raven-plugin-v6.1.4.zip`](plugin/raven-plugin-v6.1.4.zip). The previous zip is [`plugin/raven-plugin-v6.1.3_old.zip`](plugin/raven-plugin-v6.1.3_old.zip). Same current zip for Claude Code, Claude Desktop, and the other hosts (`install-host.sh`).
 
 | You want to | In the plugin |
 |---|---|
@@ -64,7 +64,7 @@ Raven ships as its **own GitHub-hosted marketplace** (`.claude-plugin/marketplac
    ```
 
    Claude clones the whole repo and uses the repo root as the plugin root. That is why every symlink in this repo must be relative and must stay inside the repo — see [Packaging rules](#packaging-rules-for-publishers).
-2. **Current zip (every host)** — [`plugin/raven-plugin-v6.1.4.zip`](plugin/raven-plugin-v6.1.4.zip). Claude: unzip, then `claude plugin install <extracted-dir>`. Other hosts: `bash install-host.sh /path/to/project` (see [plugin/HOSTS.md](plugin/HOSTS.md)). The zip holds real files only, no symlinks, and does not include the MCP server. The previous zip is [`plugin/raven-plugin-v6.1.3_old.zip`](plugin/raven-plugin-v6.1.3_old.zip). Older zips sit in [`plugin/version.archive.zip`](plugin/version.archive.zip).
+2. **Current zip (every host)** — [`plugin/raven-plugin-v6.1.4.zip`](plugin/raven-plugin-v6.1.4.zip). Claude: unzip, then `claude plugin install <extracted-dir>`. Other hosts: `bash install-host.sh /path/to/project` (see [plugin/HOSTS.md](plugin/HOSTS.md)). The zip holds real files only, no symlinks, and does not include the MCP server. The previous zip is [`plugin/raven-plugin-v6.1.3_old.zip`](plugin/raven-plugin-v6.1.3_old.zip).
 3. **Let Claude do it** — inside a Claude Code session, ask Claude to run the two marketplace commands in Option 1 for you.
 
 Do not install from `./raven/plugin`. That folder is a build and packaging area, not a plugin root: its `scripts/` links point at the repo-level `raven-core/` and `scripts/` folders, which a copy of `plugin/` alone does not contain.
@@ -386,13 +386,13 @@ Run it again with `python3 scripts/ops/jev-key.py`. `python3 scripts/ops/jev-key
 
 **Ask order.** A bug, error, or fix goes to Andie Jr, then the guided explanation. An enhancement or new feature goes to Andie, then the guided explanation. The skill gate blocks an edit until that reviewer and Guided are both stamped. The other reviewer does not unlock the edit.
 
-**What this repo holds now.** `main` is the only branch. The install file is `plugin/raven-plugin-v6.1.4.zip`. The previous zip is `plugin/raven-plugin-v6.1.3_old.zip`. Older plugin zips are inside `plugin/version.archive.zip`. Secret and CVE blocks, local token and cost metering, the dashboard, and cross-session memory are still in this release. The written history of older releases stays in [VERSIONLOG.md](VERSIONLOG.md).
+**What this repo holds now.** `main` is the only branch. The install file is `plugin/raven-plugin-v6.1.4.zip`. The previous zip is `plugin/raven-plugin-v6.1.3_old.zip`. Secret and CVE blocks, local token and cost metering, the dashboard, and cross-session memory are still in this release. The written history of older releases stays in [VERSIONLOG.md](VERSIONLOG.md).
 
 ---
 
 ## Other Install Paths
 
-**Current ZIP (all hosts):** [`plugin/raven-plugin-v6.1.4.zip`](plugin/raven-plugin-v6.1.4.zip). Claude Desktop: Settings → Extensions → Add plugin. Other IDEs: `bash install-host.sh` (see [plugin/HOSTS.md](plugin/HOSTS.md)). Previous zip: [`plugin/raven-plugin-v6.1.3_old.zip`](plugin/raven-plugin-v6.1.3_old.zip). Older zips: [`plugin/version.archive.zip`](plugin/version.archive.zip).
+**Current ZIP (all hosts):** [`plugin/raven-plugin-v6.1.4.zip`](plugin/raven-plugin-v6.1.4.zip). Claude Desktop: Settings → Extensions → Add plugin. Other IDEs: `bash install-host.sh` (see [plugin/HOSTS.md](plugin/HOSTS.md)). Previous zip: [`plugin/raven-plugin-v6.1.3_old.zip`](plugin/raven-plugin-v6.1.3_old.zip).
 
 **From source:**
 

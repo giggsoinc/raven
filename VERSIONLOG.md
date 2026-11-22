@@ -26,7 +26,7 @@ scan of the clone found.
 - Zips: the current zip is `plugin/raven-plugin-v6.1.4.zip`. The one backup is
   `plugin/raven-plugin-v6.1.3_old.zip`. `raven-plugin-v6.1.zip` and
   `raven-plugin-v6.1.2.zip` are removed (tags `v6.1`, `v6.1.2` still point at the
-  commits that built them). Older zips stay in `plugin/version.archive.zip`.
+  commits that built them). Older zips were in `plugin/version.archive.zip`, removed after this release; they stay in git history.
 
 ## v6.1.3 — 2026-11-22 — Marketplace publishing fixes
 
