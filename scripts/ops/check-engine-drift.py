@@ -12,7 +12,7 @@ Exit 0 = no drift. Exit 1 = drift (each divergence listed).
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parent.parent
+REPO = Path(__file__).resolve().parents[2]
 CANONICAL = REPO / "scripts"
 MIRRORS = [REPO / "raven-core", REPO / ".claude" / "scripts"]
 

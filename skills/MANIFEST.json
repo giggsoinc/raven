@@ -494,6 +494,15 @@
       "domain": "db",
       "layering": "Leaf specialist under db-specialist routing."
     },
+    "run-costs": {
+      "name": "run-costs",
+      "paths": [
+        "skills/run-costs"
+      ],
+      "owner": "raven-core-team",
+      "status": "active",
+      "purpose": "Real cloud billed cost (when API keys are in env) plus local calculator. Use when the user says run-costs, /run-costs, actual cost, billed cost, or session cost."
+    },
     "salesforce-specialist": {
       "name": "salesforce-specialist",
       "paths": [

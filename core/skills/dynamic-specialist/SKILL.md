@@ -55,13 +55,15 @@ Pack format: see packs/README.md
 
 ## Step 1 — Skill Lookup First
 
-Before doing anything, run:
+Before doing anything, run the resolver (single funnel — checks `skills/MANIFEST.json`, logs misses to `.raven/audit/skill-misses.jsonl`):
 ```bash
-python3 .claude/scripts/skill-search.py --query "[detected platform]"
+python3 scripts/skill-resolve.py "[detected platform]" --caller dynamic-specialist
 ```
 
-If a curated skill is found → hand off immediately. Do not proceed with dynamic generation.
+If `status: hit` → hand off immediately to the returned skill. Do not proceed with dynamic generation.
 Curated skills always beat dynamic. Dynamic is the fallback only.
+
+If `status: miss` → the miss is now logged (previously silent). Optionally also check `.claude/scripts/skill-search.py --query "[detected platform]"` if you want to offer a web-fetched skill instead of a dynamic answer — that remains a separate, manually-confirmed path.
 
 ---
 

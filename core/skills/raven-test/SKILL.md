@@ -22,3 +22,9 @@ allowed-tools: Read Write Edit Bash
 - Test names: `test_{function}_{scenario}_{expected_outcome}`
 - Mock external calls (S3, DB, APIs) — never hit real services in tests
 - Coverage: happy path + at least 2 edge cases per function
+
+## After the run
+Surface the shared RAVEN Dashboard (not a local pane): print the link from
+`.raven/dashboard-link.md`, or run
+`python3 scripts/dashboard.py --current-project --html --open` if the user
+wants it opened. Never open the standalone per-repo tree page directly.

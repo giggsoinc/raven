@@ -13,11 +13,11 @@ import re
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parent.parent
+REPO = Path(__file__).resolve().parents[2]
 CLAUDE_MD = REPO / "CLAUDE.md"
 SETTINGS = REPO / ".claude" / "settings.json"
 
-HOOK_EVENTS = ("SessionStart", "UserPromptSubmit", "PostToolUse", "Stop")
+HOOK_EVENTS = ("SessionStart", "UserPromptSubmit", "PreToolUse", "PostToolUse", "Stop")
 
 
 def claimed_hooks() -> dict:

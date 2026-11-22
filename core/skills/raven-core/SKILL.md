@@ -24,6 +24,7 @@ Read the incoming prompt. Detect intent. Route accordingly.
 | "review" / "PR" / "code review" | `raven-review` | Manifest-aware review |
 | "refactor" / "clean up" / "too long" | `raven-refactor` | Style enforcement |
 | "test" / "write tests" / "coverage" | `raven-test` | Test-first |
+| "explain this code" / "what does this do" / "walk me through" | Narrate in chat, then surface Code-XRay | 1) Give an actual narrated walkthrough in chat — what the code does, why, how pieces connect. 2) THEN run `python3 scripts/code-xray.py --repo . --build --html` and print this project's scoped dashboard link from `.raven/dashboard-link.md` (`dashboard.html#{project}`) as a supplementary visual map — not a substitute for the narration |
 | "document" / "docstring" / "README" | `raven-document` | Doc enforcement |
 | "drama" / "debate" / "stress-test" / "panel" | `andie` Drama Mode | Expert panel |
 | JSX / React / npm / node_modules in prompt | WARN + block | "Raven: manifest forbids this framework" |

@@ -17,7 +17,7 @@ import re
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parent.parent
+REPO = Path(__file__).resolve().parents[2]
 SKILLS = REPO / "skills"
 CLAUDE_SKILLS = REPO / ".claude" / "skills"
 CORE_SKILLS = REPO / "core" / "skills"

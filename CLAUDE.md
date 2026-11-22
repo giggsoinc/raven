@@ -147,10 +147,11 @@ These are the **real Claude Code hooks** wired in this project. `PostEdit` and `
 
 | Hook Event | Fires When | Action |
 |---|---|---|
-| `SessionStart` | New Claude session opens | `session-start.py` (brownfield/greenfield, models) + **`model-router.py --session-start`** (base routing ON). **No vault-load.** Memory: `ide-boot.py` then Read card if `load=1`. |
-| `UserPromptSubmit` | Every user message arrives | `hook-run.py` → `triage-router.py` → `architect-router.py` → `model-router.py` → `cve-prompt-guard.py`. A missing script writes `.raven/audit/` and exits 0. It does not block the prompt. |
-| `PostToolUse` (matcher: `Write\|Edit\|MultiEdit`) | After any file write/edit | `db-guard.py` (reads hook stdin natively) + `secret-scan.py` `--changed-files-only` (async) |
-| `Stop` | Fires at the end of every turn (not just session end) | `token-meter-write.py` → `token-guard.py` → `dashboard.py` `--if-stale 15` → `raven-xray.py` `--build --if-stale 15` → `obsidian-log.py` → `knowledge-extract.py` → `session-gate.py` (all async) |
+| `SessionStart` | New Claude session opens | `hook-run.py` runs `session-start.py` (brownfield/greenfield, models), `ide-boot.py --session-start`, `model-router.py --session-start` (base routing ON) and `run_costs.py --session-start`. **No vault-load.** Memory: Read the card if `load=1`. |
+| `UserPromptSubmit` | Every user message arrives | `hook-run.py` → `memory-card-hook.py` → `triage-router.py` → `architect-router.py` → `model-router.py` → `cve-prompt-guard.py` → `push-approve.py`. A missing script writes `.raven/audit/` and exits 0. It does not block the prompt. |
+| `PreToolUse` (matcher: `Write\|Edit\|MultiEdit\|NotebookEdit\|Bash`) | Before a mutating tool call | `hook-run.py` → `route-gate.py` + `push-gate.py` (the Educate gate: denies writes until `.raven/.push-approved`). A missing script reports itself and exits 0. |
+| `PostToolUse` (matcher: `Write\|Edit\|MultiEdit`) | After any file write/edit | `hook-run.py` → `db-guard.py` + `secret-scan.py` `--changed-files-only` |
+| `Stop` | Fires at the end of every turn (not just session end) | `hook-run.py` → `token-meter-write.py` → `token-guard.py` → `dashboard.py` `--if-stale 15` → `obsidian-log.py` → `knowledge-extract.py` → `session-gate.py` → `code-xray.py` → `memory-card-hook.py --event exit` |
 
 **Git-level (NOT a Claude Code hook):**
 
