@@ -78,7 +78,8 @@ def main():
     sq = Image.new("RGB", (s, s), bg); sq.paste(b, ((s - b.width) // 2, (s - b.height) // 2))
     sq.resize((512, 512)).save(OUT / ".claude-plugin" / "icon.png", compress_level=6)
     pj = {
-        "name": "raven",
+        "name": "raven-discipline",
+        "displayName": "Raven Discipline",
         "version": VERSION,
         "description": "Discipline layer for AI coding: Andie plan-first orchestration, 61 specialist skills and slash commands for planning, debugging, security review and scaffolding. Instruction-only; runs nothing on your machine.",
         "author": {"name": "Giggso Inc.", "email": "rv@giggso.com", "url": "https://github.com/giggsoinc/raven"},
@@ -91,9 +92,9 @@ def main():
     (OUT / ".claude-plugin" / "plugin.json").write_text(json.dumps(pj, indent=2) + "\n", encoding="utf-8")
     shutil.copy(ROOT / "LICENSE", OUT / "LICENSE")
     (OUT / "README.md").write_text(
-        "# Raven (directory edition)\n\nInstruction-only edition of Raven: skills, slash commands and agents "
+        "# Raven Discipline (directory edition)\n\nInstruction-only edition of Raven: skills, slash commands and agents "
         "(Markdown). It installs no hooks, scripts or local servers and sends no data anywhere.\n\n"
-        "Install: `/plugin install raven --marketplace giggsoinc/raven`\n\nSkills mention hook- and script-based enforcement; that lives in the full Raven install from "
+        "Install: `/plugin install raven-discipline --marketplace giggsoinc/raven`\n\nSkills mention hook- and script-based enforcement; that lives in the full Raven install from "
         "https://github.com/giggsoinc/raven and is not part of this edition.\n\nLicense: MIT.\n",
         encoding="utf-8")
     print("files:", sum(1 for p in OUT.rglob("*") if p.is_file()), "md processed:", n)
