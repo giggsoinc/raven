@@ -1,6 +1,6 @@
 {
-  "name": "raven-discipline",
-  "displayName": "Raven Discipline",
+  "name": "raven-coder",
+  "displayName": "Raven Coder",
   "version": "6.1.4",
   "description": "Discipline layer for AI coding: Andie plan-first orchestration, 61 specialist skills and slash commands for planning, debugging, security review and scaffolding. Instruction-only; runs nothing on your machine.",
   "author": {
