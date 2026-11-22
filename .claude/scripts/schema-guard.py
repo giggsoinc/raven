@@ -1,1 +1,1 @@
-../../scripts/schema-guard.py
+../../raven-core/schema-guard.py
