@@ -2,7 +2,7 @@
   <img src="./assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
 </p>
 
-# Raven v6.1.2 — The Open-Source Solution to AI Comprehension Debt.
+# Raven v6.1.3 — The Open-Source Solution to AI Comprehension Debt.
 
 AI Engineering Discipline for Comprehension Debt. Andie, the multi-dimensional thinking agent, pressure-tests the change from every angle before a line is written.
 
@@ -37,7 +37,7 @@ The call is `POST https://api.typesafe.ai/v1/systemone`. The key is read from `T
 
 ## Plugin — what you can do
 
-The current plugin zip is [`plugin/raven-plugin-v6.1.2.zip`](plugin/raven-plugin-v6.1.2.zip). The previous zip is [`plugin/raven-plugin-v6.1.1_old.zip`](plugin/raven-plugin-v6.1.1_old.zip). Older plugin zips (v4.1.0 and v5.5.0 through v5.5.7) are packed in [`plugin/version.archive.zip`](plugin/version.archive.zip). Same current zip for Claude Code, Claude Desktop, and the other hosts (`install-host.sh`).
+The current plugin zip is [`plugin/raven-plugin-v6.1.3.zip`](plugin/raven-plugin-v6.1.3.zip). The previous zip is [`plugin/raven-plugin-v6.1.2.zip`](plugin/raven-plugin-v6.1.2.zip). Older plugin zips (v4.1.0 and v5.5.0 through v5.5.7) are packed in [`plugin/version.archive.zip`](plugin/version.archive.zip). Same current zip for Claude Code, Claude Desktop, and the other hosts (`install-host.sh`).
 
 | You want to | In the plugin |
 |---|---|
@@ -54,11 +54,20 @@ Calculator spend is local. Check **actual billed** cost on the Costs pane or `/r
 
 ## Install
 
-Raven is **not** in an Anthropic-hosted plugin marketplace — `/plugin marketplace add giggsoinc/raven` will not work. Pick one:
+Raven ships as its **own GitHub-hosted marketplace** (`.claude-plugin/marketplace.json` at the repo root, one plugin, `source: "./"`). It is not listed in Anthropic's official plugin directory. Pick one:
 
-1. **Clone + install (Claude Code)** — `git clone https://github.com/giggsoinc/raven.git && claude plugin install ./raven/plugin`
-2. **Current zip** — [`plugin/raven-plugin-v6.1.2.zip`](plugin/raven-plugin-v6.1.2.zip). Claude: unzip then `claude plugin install <dir>`. Other hosts: `bash install-host.sh /path/to/project` (see [plugin/HOSTS.md](plugin/HOSTS.md)). Rebuild it with `bash plugin/make-plugin.sh` after you change the plugin. The previous zip is [`plugin/raven-plugin-v6.1.1_old.zip`](plugin/raven-plugin-v6.1.1_old.zip). Older zips sit in [`plugin/version.archive.zip`](plugin/version.archive.zip).
-3. **Let Claude do it** — inside a Claude Code session, ask Claude to clone the repo and run the install command for you (same two steps as Option 1, just delegated)
+1. **Marketplace (Claude Code, recommended)**
+
+   ```bash
+   claude plugin marketplace add giggsoinc/raven
+   claude plugin install raven@raven
+   ```
+
+   Claude clones the whole repo and uses the repo root as the plugin root. That is why every symlink in this repo must be relative and must stay inside the repo — see [Packaging rules](#packaging-rules-for-publishers).
+2. **Current zip (every host)** — [`plugin/raven-plugin-v6.1.3.zip`](plugin/raven-plugin-v6.1.3.zip). Claude: unzip, then `claude plugin install <extracted-dir>`. Other hosts: `bash install-host.sh /path/to/project` (see [plugin/HOSTS.md](plugin/HOSTS.md)). The zip holds real files only, no symlinks, and does not include the MCP server. The previous zip is [`plugin/raven-plugin-v6.1.2.zip`](plugin/raven-plugin-v6.1.2.zip). Older zips sit in [`plugin/version.archive.zip`](plugin/version.archive.zip).
+3. **Let Claude do it** — inside a Claude Code session, ask Claude to run the two marketplace commands in Option 1 for you.
+
+Do not install from `./raven/plugin`. That folder is a build and packaging area, not a plugin root: its `scripts/` links point at the repo-level `raven-core/` and `scripts/` folders, which a copy of `plugin/` alone does not contain.
 
 Full walkthrough (enterprise admin upload, org-wide managed deployment, troubleshooting): [claude_plugin_readme.md](./claude_plugin_readme.md)
 
@@ -230,6 +239,112 @@ Fires from pre-commit hook on success or block:
 
 ---
 
+## Plugin anatomy — what is actually wired
+
+Everything below was read from the validated manifests (`claude plugin validate .` passes), not described from memory.
+
+### Hooks (`hooks/hooks.json`)
+
+Every Python hook runs through `scripts/ops/hook-run.py`. If a hook script is missing, `hook-run.py` writes `.raven/audit/` and exits 0, so a missing script never blocks your prompt or a tool call.
+
+| Event | Matcher | What runs |
+|---|---|---|
+| `SessionStart` | all | `session-start.py`, `ide-boot.py --session-start`, `model-router.py --session-start`, `run_costs.py --session-start`; clears stale `.raven/.push-*` markers |
+| `UserPromptSubmit` | all | `memory-card-hook.py` → `triage-router.py` → `architect-router.py` → `model-router.py --hook` → `cve-prompt-guard.py` → `push-approve.py` |
+| `PreToolUse` | `Write\|Edit\|MultiEdit\|NotebookEdit\|Bash` | `route-gate.py`, `push-gate.py` (the Educate gate) |
+| `PreToolUse` | `Skill` | `raven-skill-gate.py` |
+| `PostToolUse` | `Write\|Edit\|MultiEdit` | `db-guard.py`, `secret-scan.py --changed-files-only` |
+| `Stop` | all | `token-meter-write.py`, `token-guard.py`, `dashboard.py --html --if-stale 15`, `obsidian-log.py`, `knowledge-extract.py`, `session-gate.py`, `code-xray.py`, `memory-card-hook.py --event exit` |
+
+The git pre-commit hook is separate and is **not** a Claude Code hook. It is installed into your project's `.git/hooks/` by `raven-setup`.
+
+### MCP server (`.mcp.json` → `mcp/server.py`)
+
+A stdio server, launched as `python3 ${CLAUDE_PLUGIN_ROOT}/mcp/server.py`. `CLAUDE_PLUGIN_ROOT` is the installed plugin directory, so it works for every user. (Earlier builds used `${CLAUDE_PROJECT_DIR}`, which is the *user's* project, so a marketplace install could not find the server.) Tools: `raven_status`, `raven_cve_check`, `raven_sync_libs`, `raven_debug`, `raven_violation`, and the knowledge-graph tools `query_graph`, `get_node`, `get_neighbors`, `shortest_path`, `commit_impact`, `find_gaps`. The zip does not include the MCP server; it ships with the marketplace install and the repo.
+
+### Slash commands (`core/commands/`)
+
+`/andie`, `/andie-jr`, `/raven-init`, `/raven-debug`, `/raven-approve`, `/raven-harden`, `/raven-incident`, `/raven-scaffold`, `/raven-search`, `/raven-sync`, `/raven-registry-register`, `/raven-registry-sync`, `/run-costs`.
+
+### Guard agents (`agents/`)
+
+`architecture-guard`, `claude-mem`, `db-guard`, `guard-git-watch`, `manifest-checker`, `odoo-guard`, `salesforce-guard`, `skill-guard`, `stack-validator`, `style-enforcer`.
+
+### Skills (`skills/`)
+
+One folder per skill, each with a `SKILL.md`. The orchestrators (`andie`, `andie-jr`), the routing and discipline skills (`raven-core`, `raven-plan`, `raven-review`, `raven-security`, …) and the domain specialists (cloud, data, databases, Kubernetes, Terraform, Odoo, Salesforce, Oracle, and more) live here. Domain skills load only when your work matches. `skills/MANIFEST.json` is generated by `scripts/ops/build-skill-manifest.py`.
+
+---
+
+## Repository layout
+
+| Path | What it is |
+|---|---|
+| `.claude-plugin/` | `marketplace.json` and `plugin.json` — the manifests the marketplace reads |
+| `hooks/hooks.json` | Plugin hooks (generated) |
+| `.mcp.json`, `mcp/` | MCP server config and server code |
+| `skills/`, `agents/`, `core/commands/` | Skills, guard agents, slash commands |
+| `scripts/` | Engine: `routing/`, `guards/`, `memory/`, `session/`, `ops/`, `dashboard/` |
+| `raven-core/` | Canonical `VERSION` plus a flat set of script entry points (symlinks into `scripts/`; `schema-guard.py` is a real file here) |
+| `plugin/` | Zip build (`make-plugin.sh`), host installers, built zips. Not a plugin root |
+| `.claude/` | This repo's own Claude settings; `.claude/scripts/*` are symlinks into `scripts/` and `raven-core/` |
+| `tests/` | Regression tests (`python3 -m unittest discover tests`) |
+| `docs/` | Architecture, tokenomics, skill gate, dashboard, memory, deprecations |
+| `.github/workflows/raven-discipline.yml` | CI |
+
+---
+
+## Packaging rules (for publishers)
+
+A marketplace install copies the repo, so the repo must be self-contained. These are the rules that decide whether it can be published:
+
+1. **No dangling symlinks.** `find . -xtype l -not -path './.git/*'` must print nothing.
+2. **No absolute symlink targets.** A link to `/Users/<you>/...` resolves on your machine and nowhere else. Always use relative targets.
+3. **No symlink may leave the repo root.** Links under `.claude/scripts/`, `raven-core/` and `plugin/scripts/` point at `scripts/` or `raven-core/` inside the same repo.
+4. **Use `${CLAUDE_PLUGIN_ROOT}`** for anything a hook or MCP server launches from the plugin. Use `${CLAUDE_PROJECT_DIR}` only for the user's project files.
+5. **Versions agree.** `raven-core/VERSION` is canonical. `python3 scripts/ops/check-version-consistency.py` checks the manifests against it.
+6. **Validate before you push:** `claude plugin validate .`
+
+A one-line check for rules 1–3 against a fresh clone:
+
+```bash
+git clone --no-hardlinks . /tmp/raven-check && cd /tmp/raven-check && find . -xtype l -not -path './.git/*' | wc -l   # expect 0
+```
+
+---
+
+## Release process
+
+1. Write the change. Add a newest-first entry to [VERSIONLOG.md](VERSIONLOG.md).
+2. Bump `raven-core/VERSION`, then the version in `.claude-plugin/marketplace.json` (twice), `.claude-plugin/plugin.json`, `plugin/.claude-plugin/plugin.json`, `plugin/plugin.json`, `plugin/settings.json`, `.claude/settings.json`, `core/hooks/settings.json`, `.raven/manifest.json`, `scripts/dashboard/core.py`, `plugin/make-plugin.sh`, both `CLAUDE.md` files and `plugin/HOSTS.md`. Append the version to `plugin/scripts/releases.json`.
+3. Run `python3 scripts/ops/check-version-consistency.py` and `python3 -m unittest discover tests`.
+4. Run `claude plugin validate .` and the fresh-clone symlink check above.
+5. Build the zip from a **clean checkout** so it cannot pick up uncommitted skills: clone the repo, run `bash plugin/make-plugin.sh` there, copy the zip into `plugin/`.
+6. Commit and push to `main`.
+
+---
+
+## Verify your install
+
+| Check | Expected |
+|---|---|
+| Start a new Claude Code session | A `🪶 Raven` session-start banner and a `🔀 Router` line on each prompt |
+| `claude plugin validate .` in a clone | `Validation passed` (warnings are not failures) |
+| `python3 scripts/ops/ide-boot.py` in your project | Prints `host=`, `rules=`, `load=`, `memory=`, `educate=` |
+| `git commit` with a staged fake key | Blocked by the pre-commit gate |
+
+## Troubleshooting
+
+| Symptom | Cause and fix |
+|---|---|
+| Marketplace rejects or flags the plugin | Run the packaging checks above. The usual cause is a dangling or absolute symlink |
+| `raven` MCP server shows `Connection closed` | The launch path did not resolve. It must be `${CLAUDE_PLUGIN_ROOT}/mcp/server.py`, and `python3` must be on `PATH` |
+| Writes are denied with a go-ahead prompt | The Educate gate is on (default). Reply `go ahead`, or `educate off` / `Lucky` to turn it off |
+| A hook seems to do nothing | `hook-run.py` skips a missing script and logs it under `.raven/audit/` — read the newest log there |
+| `claude plugin install ./raven/plugin` fails or lacks skills | `plugin/` is not a plugin root. Use the marketplace commands or the zip |
+
+---
+
 ## Tokenomics — What Raven Costs Per Message
 
 **Rule: enforcement runs in Python hooks, outside the model — it costs zero
@@ -255,7 +370,7 @@ diagrams: [business view](docs/Agent_token_architecture_business.html) ·
 
 ## Raven 6.1
 
-Raven 6.1 is the current release. The 6.0 zip is removed so the updater sees this build. One plugin covers Claude, Grok, Codex, Cursor, Windsurf, VS Code, AntiGravity, Gemini, and Replit.
+Raven 6.1.3 is the current release; the 6.1 line is described below. The 6.0 zip is removed so the updater sees this build. One plugin covers Claude, Grok, Codex, Cursor, Windsurf, VS Code, AntiGravity, Gemini, and Replit.
 
 **How Jev works.** See [Jev](#jev) above. Setup opens the local key page first. After the key is stored, each prompt is sent to System 1. Jev only chooses an approved model. It does not run the prompt, and Raven does not read a TypeSafe token balance.
 
@@ -269,19 +384,19 @@ Run it again with `python3 scripts/ops/jev-key.py`. `python3 scripts/ops/jev-key
 
 **Ask order.** A bug, error, or fix goes to Andie Jr, then the guided explanation. An enhancement or new feature goes to Andie, then the guided explanation. The skill gate blocks an edit until that reviewer and Guided are both stamped. The other reviewer does not unlock the edit.
 
-**What this repo holds now.** `main` is the only branch. The install file is `plugin/raven-plugin-v6.1.2.zip`. The previous zip is `plugin/raven-plugin-v6.1.1_old.zip`. Older plugin zips are inside `plugin/version.archive.zip`. Secret and CVE blocks, local token and cost metering, the dashboard, and cross-session memory are still in this release. The written history of older releases stays in [VERSIONLOG.md](VERSIONLOG.md).
+**What this repo holds now.** `main` is the only branch. The install file is `plugin/raven-plugin-v6.1.3.zip`. The previous zip is `plugin/raven-plugin-v6.1.2.zip`. Older plugin zips are inside `plugin/version.archive.zip`. Secret and CVE blocks, local token and cost metering, the dashboard, and cross-session memory are still in this release. The written history of older releases stays in [VERSIONLOG.md](VERSIONLOG.md).
 
 ---
 
 ## Other Install Paths
 
-**Current ZIP (all hosts):** [`plugin/raven-plugin-v6.1.2.zip`](plugin/raven-plugin-v6.1.2.zip). Claude Desktop: Settings → Extensions → Add plugin. Other IDEs: `bash install-host.sh` (see [plugin/HOSTS.md](plugin/HOSTS.md)). Previous zip: [`plugin/raven-plugin-v6.1.1_old.zip`](plugin/raven-plugin-v6.1.1_old.zip). Older zips: [`plugin/version.archive.zip`](plugin/version.archive.zip).
+**Current ZIP (all hosts):** [`plugin/raven-plugin-v6.1.3.zip`](plugin/raven-plugin-v6.1.3.zip). Claude Desktop: Settings → Extensions → Add plugin. Other IDEs: `bash install-host.sh` (see [plugin/HOSTS.md](plugin/HOSTS.md)). Previous zip: [`plugin/raven-plugin-v6.1.2.zip`](plugin/raven-plugin-v6.1.2.zip). Older zips: [`plugin/version.archive.zip`](plugin/version.archive.zip).
 
 **From source:**
 
 ```bash
 git clone https://github.com/giggsoinc/raven.git
-cd raven && bash plugin/make-plugin.sh   # rebuilds plugin/raven-plugin-v6.1.2.zip
+cd raven && bash plugin/make-plugin.sh   # rebuilds plugin/raven-plugin-v6.1.3.zip
 ```
 
 ---
@@ -318,7 +433,4 @@ This repo is the **free tier — everything runs local**, MIT-licensed, complete
   <strong>Built by <a href="https://giggso.com">Giggso</a> · <a href="https://github.com/giggsoinc/raven">GitHub</a> · MIT License</strong>
 </p>
 
-*Raven 6.1 — one plugin, every host.*
-
-
-*Raven 6.1 — Governance for AI coding at the speed of thought.*
+*Raven 6.1.3 — one plugin, every host. Governance for AI coding at the speed of thought.*

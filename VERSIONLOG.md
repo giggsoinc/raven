@@ -5,6 +5,31 @@ adds an entry here (newest first), and must pass `scripts/check-version-consiste
 (CI: `raven-version-consistency-check`). Historical changelogs in `docs/` are
 never rewritten — this file is the roll-up index.
 
+## v6.1.3 — 2026-11-22 — Marketplace publishing fixes
+
+Patch on 6.1.2. Claude's marketplace rejected the plugin, and the repo could not
+be installed as a clone. Fixes, all packaging:
+
+- `.claude/scripts/schema-guard.py` was a dangling symlink to
+  `../../scripts/schema-guard.py`, a file that never existed. It now points at
+  `../../raven-core/schema-guard.py`.
+- Seven `plugin/scripts/*` symlinks (`audit-log`, `cve-check`, `cve-prompt-guard`,
+  `db-guard`, `emit-violation`, `schema-guard`, `secret-scan`) used absolute
+  `/Users/<dev>/...` targets that dangle on any other checkout. They are now
+  relative (`../../raven-core/<name>`).
+- `.mcp.json` launched `${CLAUDE_PROJECT_DIR}/mcp/server.py`, the user's own
+  project, so the MCP server could not start after a marketplace install. It now
+  uses `${CLAUDE_PLUGIN_ROOT}/mcp/server.py`. The regression test follows.
+- `plugin/.claude-plugin/plugin.json` is synced to the root manifest. It had a
+  stale "v5.0" description and fields Claude Code ignores.
+- README rewritten in depth: marketplace install, plugin anatomy (hooks, MCP
+  tools, commands, agents), repository layout, packaging rules, release process,
+  verification and troubleshooting.
+
+The current zip is `plugin/raven-plugin-v6.1.3.zip`. The previous zip is
+`plugin/raven-plugin-v6.1.2.zip`. Known, unchanged: `test_settings_stop_paths_exist`
+in `tests/test_token_meter_write.py` was already failing on 6.1.2.
+
 ## v6.1.2 — 2026-11-16 — Andie reply tokens, hook-run on every script
 
 `andie 1` clears the open offer and says `load andie now`. It does not ask again.

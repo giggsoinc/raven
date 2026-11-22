@@ -3,7 +3,7 @@
     "raven": {
       "type": "stdio",
       "command": "python3",
-      "args": ["${CLAUDE_PROJECT_DIR}/mcp/server.py"],
+      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp/server.py"],
       "env": {}
     }
   }

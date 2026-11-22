@@ -1,11 +1,11 @@
-# Raven 6.1.2 — one plugin, every host
+# Raven 6.1.3 — one plugin, every host
 
-The current artifact is `plugin/raven-plugin-v6.1.2.zip`. The previous zip is `plugin/raven-plugin-v6.1.1_old.zip`.
+The current artifact is `plugin/raven-plugin-v6.1.3.zip`. The previous zip is `plugin/raven-plugin-v6.1.2.zip`.
 It is not Claude-Desktop-only. Claude’s marketplace loader (`.claude-plugin/`) is included because Claude Code uses it. Other hosts load the **same zip contents** via `install-host.sh` (copies `hosts/` + `scripts/` into the project).
 
 | Host | What the zip installs | How you load it |
 |---|---|---|
-| Claude Code | `.claude-plugin/`, `skills/`, `agents/`, `commands/`, `settings.json` | `claude plugin install ./plugin` **or** unzip zip and `claude plugin install <extracted>` |
+| Claude Code | `.claude-plugin/`, `skills/`, `agents/`, `commands/`, `settings.json` | `claude plugin marketplace add giggsoinc/raven` then `claude plugin install raven@raven`, **or** unzip the zip and `claude plugin install <extracted>` |
 | Claude Desktop | same + `.claude-plugin/plugin.json` | Settings → Extensions → Add plugin → zip or folder |
 | Grok | `hosts/AGENTS.md` → project `AGENTS.md` + `scripts/` | `bash install-host.sh /path/to/project` |
 | Codex | same `AGENTS.md` | same |

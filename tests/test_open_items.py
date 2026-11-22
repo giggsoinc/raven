@@ -65,7 +65,10 @@ class TestMcpConfig(unittest.TestCase):
     def test_mcp_json_has_no_workspace_folder_variable(self):
         text = (ROOT / ".mcp.json").read_text(encoding="utf-8")
         self.assertNotIn("${workspaceFolder}", text)
-        self.assertIn("${CLAUDE_PROJECT_DIR}", text)
+        # A marketplace install runs from the plugin dir. CLAUDE_PROJECT_DIR is the
+        # user's own project, which has no mcp/server.py.
+        self.assertIn("${CLAUDE_PLUGIN_ROOT}/mcp/server.py", text)
+        self.assertNotIn("${CLAUDE_PROJECT_DIR}", text)
 
 
 if __name__ == "__main__":
