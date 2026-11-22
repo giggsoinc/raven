@@ -1,0 +1,22 @@
+{
+  "name": "raven",
+  "version": "6.1.4",
+  "description": "Discipline layer for AI coding: Andie plan-first orchestration, 61 specialist skills and slash commands for planning, debugging, security review and scaffolding. Instruction-only; runs nothing on your machine.",
+  "author": {
+    "name": "Giggso Inc.",
+    "email": "rv@giggso.com",
+    "url": "https://github.com/giggsoinc/raven"
+  },
+  "homepage": "https://github.com/giggsoinc/raven",
+  "repository": "https://github.com/giggsoinc/raven",
+  "license": "MIT",
+  "keywords": [
+    "security",
+    "governance",
+    "planning",
+    "debugging",
+    "specialists",
+    "andie"
+  ],
+  "icon": "./.claude-plugin/icon.png"
+}
