@@ -1,7 +1,7 @@
 {
-  "_generated": "GENERATED from .claude/settings.json by scripts/export-hook-configs.py \u2014 do not hand-edit; run the exporter after changing the canonical file.",
+  "_generated": "GENERATED from .claude/settings.json by scripts/ops/export-hook-configs.py \u2014 do not hand-edit; run the exporter after changing the canonical file.",
   "version": "1.0",
-  "description": "Raven v6.1.3 \u2014 Automated governance gate via Andie",
+  "description": "Raven v6.1.4 \u2014 Automated governance gate via Andie",
   "hooks": {
     "UserPromptSubmit": [
       {

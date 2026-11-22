@@ -9,8 +9,8 @@ ghost entries, unresolved active overlaps, and core/skills distribution
 drift all fail the check.
 
 Usage:
-  python3 scripts/build-skill-manifest.py            # regenerate MANIFEST.json
-  python3 scripts/build-skill-manifest.py --check    # CI lint, exit 1 on violation
+  python3 scripts/ops/build-skill-manifest.py            # regenerate MANIFEST.json
+  python3 scripts/ops/build-skill-manifest.py --check    # CI lint, exit 1 on violation
 """
 import json
 import re
@@ -143,7 +143,7 @@ def main() -> int:
         return 0
 
     manifest = {
-        "_generated": "by scripts/build-skill-manifest.py — regenerate after adding/removing skills; "
+        "_generated": "by scripts/ops/build-skill-manifest.py — regenerate after adding/removing skills; "
                       "overlap resolutions live in the OVERRIDES table in that script",
         "skills": entries,
     }

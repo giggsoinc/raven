@@ -1,6 +1,6 @@
-# Raven Plugin — v6.1.3
+# Raven Plugin — v6.1.4
 
-**One current plugin.** File: `raven-plugin-v6.1.3.zip` (built by `bash plugin/make-plugin.sh`, ideally from a clean clone so uncommitted skills are not packed). The previous zip in this folder is `raven-plugin-v6.1.2.zip`. Older plugin zips are in `version.archive.zip`. Do not install from the archive or from an `_old` zip.
+**One current plugin.** File: `raven-plugin-v6.1.4.zip` (built by `bash plugin/make-plugin.sh`, ideally from a clean clone so uncommitted skills are not packed). The previous zip in this folder is `raven-plugin-v6.1.3_old.zip`. Older plugin zips are in `version.archive.zip`. Do not install from the archive or from an `_old` zip.
 
 **This folder is not a plugin root.** The plugin root is the repository root (`.claude-plugin/marketplace.json`, `source: "./"`). `plugin/scripts/*` are symlinks to `../../raven-core/` and `../../scripts/`, so they only resolve inside a full checkout.
 
@@ -15,14 +15,14 @@ claude plugin marketplace add giggsoinc/raven
 claude plugin install raven@raven
 ```
 
-Or unzip `raven-plugin-v6.1.3.zip` and `claude plugin install /path/to/extracted`. The zip has real files only (no symlinks) and does not include the MCP server.
+Or unzip `raven-plugin-v6.1.4.zip` and `claude plugin install /path/to/extracted`. The zip has real files only (no symlinks) and does not include the MCP server.
 
 **Claude Desktop:** Settings → Extensions → Add plugin → drop the zip.
 
 **Grok / Codex / Cursor / AntiGravity / Windsurf / Replit / Gemini**
 
 ```bash
-unzip raven-plugin-v6.1.3.zip -d raven-plugin
+unzip raven-plugin-v6.1.4.zip -d raven-plugin
 bash raven-plugin/install-host.sh /path/to/your-project
 ```
 

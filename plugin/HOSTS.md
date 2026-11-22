@@ -1,6 +1,6 @@
-# Raven 6.1.3 — one plugin, every host
+# Raven 6.1.4 — one plugin, every host
 
-The current artifact is `plugin/raven-plugin-v6.1.3.zip`. The previous zip is `plugin/raven-plugin-v6.1.2.zip`.
+The current artifact is `plugin/raven-plugin-v6.1.4.zip`. The previous zip is `plugin/raven-plugin-v6.1.3_old.zip`.
 It is not Claude-Desktop-only. Claude’s marketplace loader (`.claude-plugin/`) is included because Claude Code uses it. Other hosts load the **same zip contents** via `install-host.sh` (copies `hosts/` + `scripts/` into the project).
 
 | Host | What the zip installs | How you load it |

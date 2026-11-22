@@ -167,5 +167,5 @@
       }
     ]
   },
-  "_generated": "GENERATED from .claude/settings.json by scripts/export-hook-configs.py \u2014 do not hand-edit; run the exporter after changing the canonical file."
+  "_generated": "GENERATED from .claude/settings.json by scripts/ops/export-hook-configs.py \u2014 do not hand-edit; run the exporter after changing the canonical file."
 }

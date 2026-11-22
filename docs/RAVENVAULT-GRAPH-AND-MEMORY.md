@@ -82,7 +82,7 @@ python3 scripts/memory/vault-load.py
 # Should print open questions / last sessions for current repo
 
 # After a session ends (or dry-run):
-echo '{}' | python3 scripts/obsidian-log.py
+echo '{}' | python3 scripts/memory/obsidian-log.py
 ls ~/RavenVault/sessions/ | tail
 ls ~/RavenVault/projects/
 ```
@@ -189,8 +189,8 @@ Do not invent per-repo splits if you only have org totals — put those under to
 |------|---------|
 | `scripts/vault_common.py` | Hub ensure, index rebuild, wikilinks, paths |
 | `scripts/memory/vault-load.py` | Manual vault dump only (not boot) |
-| `scripts/obsidian-log.py` | Stop: trimmed session + hub + index |
-| `scripts/knowledge-extract.py` | Concepts/decisions (fail-soft) |
+| `scripts/memory/obsidian-log.py` | Stop: trimmed session + hub + index |
+| `scripts/memory/knowledge-extract.py` | Concepts/decisions (fail-soft) |
 | `scripts/knowledge_graph.py` | Vault → JSON graph |
 | `scripts/dashboard.py` | HTML: graph, costs, citations, local discovery |
 | `scripts/token-meter-write.py` | Per-project metrics rollup |

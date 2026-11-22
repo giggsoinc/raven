@@ -83,7 +83,8 @@ class TestTokenMeterWrite(unittest.TestCase):
                 cmds.append(h.get("command") or "")
         meter = next(c for c in cmds if "token-meter-write" in c)
         self.assertNotIn("2>/dev/null", meter)
-        self.assertIn(".claude/scripts/token-meter-write.py", meter)
+        # Every python hook runs through hook-run.py (a missing script audits and exits 0).
+        self.assertIn("scripts/ops/hook-run.py", meter)
         self.assertIn("scripts/session/token-meter-write.py", meter)
         self.assertTrue((ROOT / ".claude" / "scripts" / "token-meter-write.py").exists())
         self.assertTrue((ROOT / "scripts" / "session" / "token-meter-write.py").is_file())

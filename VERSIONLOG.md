@@ -5,6 +5,29 @@ adds an entry here (newest first), and must pass `scripts/check-version-consiste
 (CI: `raven-version-consistency-check`). Historical changelogs in `docs/` are
 never rewritten — this file is the roll-up index.
 
+## v6.1.4 — 2026-11-22 — CI that really scans, stale references, zip cleanup
+
+Patch on 6.1.3. 6.1.3 fixed what the marketplace rejected. 6.1.4 fixes what a deep
+scan of the clone found.
+
+- Three CI checks (`check-docs-vs-reality`, `check-engine-drift`,
+  `build-skill-manifest`) resolved the repo root one level too shallow after the
+  move to `scripts/ops/`. Two passed on an empty scan (0 skills) and one crashed.
+  They now use `parents[2]`. Every `Raven Discipline` job on `main` was red because
+  the workflow still called the old script paths; the CI path fix is cherry-picked.
+- With real scans on, repo drift surfaced and is fixed: the `CLAUDE.md` Hook Reality
+  table now matches the wiring (`PreToolUse` added, `raven-xray.py` replaced by
+  `code-xray.py`), `core/skills` mirrors of `dynamic-specialist`, `raven-core` and
+  `raven-test` are synced from `skills/`, and `run-costs` is registered.
+- Stale references repointed: `scripts/obsidian-log.py`, `scripts/knowledge-extract.py`,
+  `scripts/export-hook-configs.py` and `scripts/build-skill-manifest.py` now name their
+  real paths. Docs links to files moved into `docs/AUDIT/` and the banner path in
+  `docs/HOW-TO-USE.md` resolve again.
+- Zips: the current zip is `plugin/raven-plugin-v6.1.4.zip`. The one backup is
+  `plugin/raven-plugin-v6.1.3_old.zip`. `raven-plugin-v6.1.zip` and
+  `raven-plugin-v6.1.2.zip` are removed (tags `v6.1`, `v6.1.2` still point at the
+  commits that built them). Older zips stay in `plugin/version.archive.zip`.
+
 ## v6.1.3 — 2026-11-22 — Marketplace publishing fixes
 
 Patch on 6.1.2. Claude's marketplace rejected the plugin, and the repo could not

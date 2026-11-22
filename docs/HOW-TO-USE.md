@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
+  <img src="../assets/raven-banner.png" alt="Raven — Guardrails before you ship." width="800"/>
 </p>
 
 # How to Use Raven — v4.0

@@ -15,8 +15,8 @@ The git pre-commit hook (core/hooks/pre-commit → ~/.patronai) is intentionally
 external to Claude hook config and NOT managed here.
 
 Usage:
-  python3 scripts/export-hook-configs.py            # regenerate all three
-  python3 scripts/export-hook-configs.py --check    # CI: exit 1 if any drifted
+  python3 scripts/ops/export-hook-configs.py            # regenerate all three
+  python3 scripts/ops/export-hook-configs.py --check    # CI: exit 1 if any drifted
 """
 import json
 import re
@@ -44,7 +44,7 @@ PLUGIN_EXTRA_HOOKS = {
 }
 
 GEN_NOTE = (
-    "GENERATED from .claude/settings.json by scripts/export-hook-configs.py — "
+    "GENERATED from .claude/settings.json by scripts/ops/export-hook-configs.py — "
     "do not hand-edit; run the exporter after changing the canonical file."
 )
 
@@ -188,7 +188,7 @@ def main() -> int:
             print("raven-config-canon-check: FAIL")
             for f in failures:
                 print(f"  {f}")
-            print("  Fix: python3 scripts/export-hook-configs.py  (then commit)")
+            print("  Fix: python3 scripts/ops/export-hook-configs.py  (then commit)")
             return 1
         print("raven-config-canon-check: PASS — all distribution configs match canonical")
     return 0

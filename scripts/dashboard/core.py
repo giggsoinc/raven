@@ -62,7 +62,7 @@ VAULT_METRICS = VAULT / ".metrics"
 VAULT_DASHBOARD_MD = VAULT / "Dashboard.md"
 VAULT_DASHBOARD_HTML = VAULT / "dashboard.html"
 
-PLUGIN_VERSION = "6.1.3"
+PLUGIN_VERSION = "6.1.4"
 
 
 # ── Metadata Collection ────────────────────────────────────────────────────────
@@ -1990,7 +1990,7 @@ def build_node_briefings(graph: dict, metrics: dict, metadata: dict) -> dict:
             f"• Links: {degree.get(nid, 0)} → {', '.join(neigh[:4]) if neigh else 'none yet'}\n"
             f"• Local: {local_path or 'not on hub'}\n"
             f"• Note: ~/RavenVault/{path}\n"
-            f"• Refresh: next session (Stop hooks) or scripts/obsidian-log.py"
+            f"• Refresh: next session (Stop hooks) or scripts/memory/obsidian-log.py"
         )
 
         # ── Cost / tokens / CVE — bullets ──

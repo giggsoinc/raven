@@ -112,7 +112,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [4.2.0] — 2026-07-xx
 
 RavenVault knowledge graph & agent memory. Full details:
-[docs/CHANGELOG-4.2.0-vault-graph.md](docs/CHANGELOG-4.2.0-vault-graph.md).
+[docs/AUDIT/CHANGELOG-4.2.0-vault-graph.md](docs/AUDIT/CHANGELOG-4.2.0-vault-graph.md).
 
 ---
 

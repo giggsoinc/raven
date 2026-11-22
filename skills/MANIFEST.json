@@ -1,5 +1,5 @@
 {
-  "_generated": "by scripts/build-skill-manifest.py \u2014 regenerate after adding/removing skills; overlap resolutions live in the OVERRIDES table in that script",
+  "_generated": "by scripts/ops/build-skill-manifest.py \u2014 regenerate after adding/removing skills; overlap resolutions live in the OVERRIDES table in that script",
   "skills": {
     "agent-chaining": {
       "name": "agent-chaining",
