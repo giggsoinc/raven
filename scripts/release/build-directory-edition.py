@@ -76,7 +76,7 @@ def main():
     b = Image.open(ROOT / "assets" / "raven-banner.png").convert("RGB")
     bg = b.getpixel((2, 2)); s = max(b.size)
     sq = Image.new("RGB", (s, s), bg); sq.paste(b, ((s - b.width) // 2, (s - b.height) // 2))
-    sq.resize((1024, 1024)).save(OUT / ".claude-plugin" / "icon.png", optimize=True)
+    sq.resize((512, 512)).save(OUT / ".claude-plugin" / "icon.png", compress_level=6)
     pj = {
         "name": "raven",
         "version": VERSION,
